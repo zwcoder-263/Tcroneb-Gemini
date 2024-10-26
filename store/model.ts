@@ -30,11 +30,11 @@ export const useModelStore = create(
            */
           const state: any = {}
           const oldState: string[] = ['models', 'cachedTime']
-          oldState.forEach(async (name) => {
+          for await (const name of oldState) {
             const data = await storage.getItem(name)
             if (data) state[name] = data
             await storage.removeItem(name)
-          })
+          }
           store.state = { ...store.state, ...state }
           return store
         },
