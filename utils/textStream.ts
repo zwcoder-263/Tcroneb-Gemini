@@ -21,7 +21,7 @@ export default async function textStream(options: {
   const decoder = new TextDecoder('utf-8')
   let buffer = ''
   let remainText = ''
-  const chunks: string[] = []
+  let chunks: string[] = []
 
   const handleChunk = (chunk: string) => {
     const text = buffer + chunk
@@ -46,17 +46,13 @@ export default async function textStream(options: {
     // animate response to make it looks smooth
     const animateResponseText = () => {
       if (remainText.length > 0) {
-        const fetchCount = Math.max(1, Math.round(remainText.length / 90))
+        const fetchCount = Math.max(1, Math.round(remainText.length / 30))
         const fetchText = remainText.slice(0, fetchCount)
         remainText = remainText.slice(fetchCount)
         onMessage(fetchText)
         requestAnimationFrame(animateResponseText)
       } else {
-        if (chunks.length > 0) {
-          handleRemainingText()
-        } else {
-          onFinish()
-        }
+        if (chunks.length > 0) handleRemainingText()
       }
     }
     animateResponseText()
@@ -65,12 +61,15 @@ export default async function textStream(options: {
   while (true) {
     let { value, done } = await reader.read()
     if (done) {
-      if (buffer) onStatement(buffer)
-      if (chunks.length > 0) {
-        handleRemainingText()
-      } else {
-        onFinish()
+      if (remainText || chunks.length > 0) {
+        onMessage(remainText + chunks.join(''))
+        if (buffer) {
+          onStatement(buffer + handleChunk(chunks.join('')))
+        }
+        remainText = ''
+        chunks = []
       }
+      onFinish()
       break
     }
     // stream: true is important here, fix the bug of incomplete line

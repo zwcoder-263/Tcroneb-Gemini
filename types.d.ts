@@ -25,7 +25,7 @@ declare global {
     topK: number
     temperature: number
     maxOutputTokens: number
-    safety: string
+    safety: 'none' | 'low' | 'middle' | 'high'
     autoStopRecord: boolean
   }
 

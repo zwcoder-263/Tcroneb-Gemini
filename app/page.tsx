@@ -41,7 +41,7 @@ import { OldVisionModel, OldTextModel } from '@/constant/model'
 import mimeType from '@/constant/attachment'
 import { customAlphabet } from 'nanoid'
 import { isFunction, findIndex, isUndefined, entries, isEmpty } from 'lodash-es'
-import { OpenAPIV3_1 } from 'openapi-types'
+import { type OpenAPIV3_1 } from 'openapi-types'
 
 interface AnswerParams {
   messages: Message[]
@@ -71,12 +71,16 @@ export default function Home() {
   const audioRecordRef = useRef<AudioRecorder>()
   const speechQueue = useRef<PromiseQueue>()
   const messagesRef = useRef(useMessageStore.getState().messages)
-  const messageStore = useMessageStore()
-  const attachmentStore = useAttachmentStore()
-  const settingStore = useSettingStore()
+  const messages = useMessageStore((state) => state.messages)
+  const systemInstruction = useMessageStore((state) => state.systemInstruction)
+  const files = useAttachmentStore((state) => state.files)
+  const model = useSettingStore((state) => state.model)
+  const autoStopRecord = useSettingStore((state) => state.autoStopRecord)
+  const talkMode = useSettingStore((state) => state.talkMode)
   const [textareaHeight, setTextareaHeight] = useState<number>(TEXTAREA_DEFAULT_HEIGHT)
   const [siriWave, setSiriWave] = useState<SiriWave>()
   const [content, setContent] = useState<string>('')
+  const [message, setMessage] = useState<string>('')
   const [subtitle, setSubtitle] = useState<string>('')
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [recordTime, setRecordTime] = useState<number>(0)
@@ -96,20 +100,20 @@ export default function Home() {
     }
   }, [status, t])
   const isOldVisionModel = useMemo(() => {
-    return OldVisionModel.includes(settingStore.model)
-  }, [settingStore.model])
+    return OldVisionModel.includes(model)
+  }, [model])
   const supportAttachment = useMemo(() => {
-    return !OldTextModel.includes(settingStore.model)
-  }, [settingStore.model])
+    return !OldTextModel.includes(model)
+  }, [model])
   const supportSpeechRecognition = useMemo(() => {
-    return !OldTextModel.includes(settingStore.model) && !OldVisionModel.includes(settingStore.model)
-  }, [settingStore.model])
+    return !OldTextModel.includes(model) && !OldVisionModel.includes(model)
+  }, [model])
   const isUploading = useMemo(() => {
-    for (const file of attachmentStore.files) {
+    for (const file of files) {
       if (file.status === 'PROCESSING') return true
     }
     return false
-  }, [attachmentStore.files])
+  }, [files])
 
   const speech = useCallback(
     (content: string) => {
@@ -124,7 +128,6 @@ export default function Home() {
               options: { voice: ttsVoice },
             })
             if (voice) {
-              const { save: saveMessage } = useMessageStore.getState()
               const audio = await voice.arrayBuffer()
               setStatus('talking')
               const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent)
@@ -138,7 +141,6 @@ export default function Home() {
                 },
                 onFinished: () => {
                   setStatus('silence')
-                  saveMessage()
                   siriWave?.setSpeed(0.04)
                   siriWave?.setAmplitude(0.1)
                 },
@@ -152,11 +154,10 @@ export default function Home() {
   )
 
   const scrollToBottom = useCallback(() => {
-    scrollAreaBottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    requestAnimationFrame(() => scrollAreaBottomRef.current?.scrollIntoView({ behavior: 'smooth' }))
   }, [])
 
   const fetchAnswer = useCallback(async ({ messages, model, onResponse, onFunctionCall, onError }: AnswerParams) => {
-    const { systemInstruction } = useMessageStore.getState()
     const { apiKey, apiProxy, password, topP, topK, temperature, maxOutputTokens, safety } = useSettingStore.getState()
     const { tools } = usePluginStore.getState()
     const generationConfig: RequestProps['generationConfig'] = { topP, topK, temperature, maxOutputTokens }
@@ -230,9 +231,9 @@ export default function Home() {
   }, [])
 
   const handleResponse = useCallback(
-    async (data: ReadableStream, currentMessage: Message) => {
+    async (data: ReadableStream) => {
       const { lang, talkMode, maxHistoryLength } = useSettingStore.getState()
-      const { summary, update: updateMesssage, save: saveMessage } = useMessageStore.getState()
+      const { summary, add: addMessage } = useMessageStore.getState()
       speechQueue.current = new PromiseQueue()
       setSpeechSilence(false)
       let text = ''
@@ -241,11 +242,7 @@ export default function Home() {
         locale: lang,
         onMessage: (content) => {
           text += content
-          updateMesssage(currentMessage.id, {
-            id: currentMessage.id,
-            role: 'model',
-            parts: [{ text }],
-          })
+          setMessage(text)
           scrollToBottom()
         },
         onStatement: (statement) => {
@@ -259,8 +256,13 @@ export default function Home() {
           if (talkMode === 'voice') {
             setStatus('silence')
           }
+          addMessage({
+            id: nanoid(),
+            role: 'model',
+            parts: [{ text }],
+          })
+          setMessage('')
           scrollToBottom()
-          saveMessage()
           if (maxHistoryLength > 0) {
             const textMessages: Message[] = []
             for (const item of messagesRef.current) {
@@ -283,7 +285,7 @@ export default function Home() {
     async (functionCalls: FunctionCall[]) => {
       const { model } = useSettingStore.getState()
       const { add: addMessage } = useMessageStore.getState()
-      const { installedPlugins } = usePluginStore.getState()
+      const { installed } = usePluginStore.getState()
       for (const call of functionCalls) {
         const newModelMessage: Message = { id: nanoid(), role: 'model', parts: [{ text: '' }] }
         const functionCallMessage = {
@@ -297,7 +299,7 @@ export default function Home() {
         }
         addMessage(functionCallMessage)
         const pluginId = call.name.split('_')[0]
-        const pluginManifest = installedPlugins[pluginId]
+        const pluginManifest = installed[pluginId]
         let baseUrl = ''
         if (pluginManifest.openapi.servers) {
           baseUrl = pluginManifest.openapi.servers[0].url
@@ -370,7 +372,7 @@ export default function Home() {
             messages: messagesRef.current.slice(0, -1),
             model,
             onResponse: (stream) => {
-              handleResponse(stream, newModelMessage)
+              handleResponse(stream)
             },
             onError: (message, code) => {
               handleError(message, code)
@@ -391,7 +393,7 @@ export default function Home() {
       if (text === '') return Promise.reject(false)
       const { talkMode, model } = useSettingStore.getState()
       const { files, clear: clearAttachment } = useAttachmentStore.getState()
-      const { summary, add: addMessage, remove: removeMessage } = useMessageStore.getState()
+      const { summary, add: addMessage } = useMessageStore.getState()
       const messagePart: Message['parts'] = []
       let talkAudioMode: boolean = false
       if (files.length > 0) {
@@ -433,12 +435,12 @@ export default function Home() {
         id: nanoid(),
         role: 'user',
         parts: messagePart,
-        attachments: isOldVisionModel ? [] : files,
+      }
+      if (files && !isOldVisionModel) {
+        newUserMessage.attachments = files
       }
       addMessage(newUserMessage)
-      const newModelMessage: Message = { id: nanoid(), role: 'model', parts: [{ text: '' }] }
-      addMessage(newModelMessage)
-      let messages: Message[] = [...messagesRef.current.slice(0, -1)]
+      let messages: Message[] = [...messagesRef.current]
       if (talkAudioMode) {
         messages = getTalkAudioPrompt(messages)
       }
@@ -458,10 +460,9 @@ export default function Home() {
         messages,
         model,
         onResponse: (stream) => {
-          handleResponse(stream, newModelMessage)
+          handleResponse(stream)
         },
         onFunctionCall: (functionCalls) => {
-          removeMessage(newModelMessage.id)
           handleFunctionCall(functionCalls)
         },
         onError: (message, code) => {
@@ -475,7 +476,7 @@ export default function Home() {
   const handleResubmit = useCallback(
     async (id: string) => {
       const { model } = useSettingStore.getState()
-      const { add: addMessage, remove: removeMessage, revoke: rovokeMessage } = useMessageStore.getState()
+      const { revoke: rovokeMessage } = useMessageStore.getState()
       if (id !== 'error') {
         const messageIndex = findIndex(messagesRef.current, { id })
         if (messageIndex !== -1) {
@@ -487,16 +488,13 @@ export default function Home() {
           }
         }
       }
-      const newModelMessage: Message = { id: nanoid(), role: 'model', parts: [{ text: '' }] }
-      addMessage(newModelMessage)
       await fetchAnswer({
-        messages: messagesRef.current.slice(0, -1),
+        messages: [...messagesRef.current],
         model,
         onResponse: (stream) => {
-          handleResponse(stream, newModelMessage)
+          handleResponse(stream)
         },
         onFunctionCall: (functionCalls) => {
-          removeMessage(newModelMessage.id)
           handleFunctionCall(functionCalls)
         },
         onError: (message, code) => {
@@ -514,8 +512,8 @@ export default function Home() {
   }, [])
 
   const updateTalkMode = useCallback((type: 'chat' | 'voice') => {
-    const { setTalkMode } = useSettingStore.getState()
-    setTalkMode(type)
+    const { update } = useSettingStore.getState()
+    update({ talkMode: type })
   }, [])
 
   const checkAccessStatus = useCallback(() => {
@@ -535,9 +533,9 @@ export default function Home() {
     if (!audioStreamRef.current) {
       audioStreamRef.current = new AudioStream()
     }
-    if (!audioRecordRef.current || audioRecordRef.current.autoStop !== settingStore.autoStopRecord) {
+    if (!audioRecordRef.current || audioRecordRef.current.autoStop !== autoStopRecord) {
       audioRecordRef.current = new AudioRecorder({
-        autoStop: settingStore.autoStopRecord,
+        autoStop: autoStopRecord,
         onStart: () => {
           setIsRecording(true)
         },
@@ -560,7 +558,7 @@ export default function Home() {
         audioRecordRef.current.start()
       }
     }
-  }, [settingStore.autoStopRecord, checkAccessStatus, handleSubmit])
+  }, [autoStopRecord, checkAccessStatus, handleSubmit])
 
   const handleStopTalking = useCallback(() => {
     setSpeechSilence(true)
@@ -637,20 +635,16 @@ export default function Home() {
   useEffect(() => useMessageStore.subscribe((state) => (messagesRef.current = state.messages)), [])
 
   useEffect(() => {
-    requestAnimationFrame(scrollToBottom)
-  }, [messagesRef.current.length, scrollToBottom])
-
-  useEffect(() => {
-    const setting = useSettingStore.getState()
-    if (setting.ttsLang !== '') {
-      const edgeSpeech = new EdgeSpeech({ locale: setting.ttsLang })
+    const { ttsLang, ttsVoice, update } = useSettingStore.getState()
+    if (ttsLang !== '') {
+      const edgeSpeech = new EdgeSpeech({ locale: ttsLang })
       edgeSpeechRef.current = edgeSpeech
-      if (setting.ttsVoice === '') {
+      if (ttsVoice === '') {
         const voiceOptions = edgeSpeech.voiceOptions
-        setting.setTTSVoice(voiceOptions ? (voiceOptions[0].value as string) : 'en-US-EmmaMultilingualNeural')
+        update({ ttsVoice: voiceOptions ? (voiceOptions[0].value as string) : 'en-US-EmmaMultilingualNeural' })
       }
     }
-  }, [settingStore.ttsLang])
+  }, [])
 
   useEffect(() => {
     const { talkMode } = useSettingStore.getState()
@@ -699,23 +693,20 @@ export default function Home() {
           </Button>
         </div>
       </div>
-      {messageStore.messages.length === 0 && content === '' && messageStore.systemInstruction === '' ? (
+      {messages.length === 0 && content === '' && systemInstruction === '' ? (
         <AssistantRecommend initAssistant={initAssistant} />
       ) : (
         <div className="flex min-h-full flex-1 grow flex-col justify-start">
-          {messageStore.systemInstruction !== '' ? (
+          {systemInstruction !== '' ? (
             <div className="p-4 pt-0">
-              <SystemInstruction prompt={messageStore.systemInstruction} onClear={() => initAssistant('')} />
+              <SystemInstruction prompt={systemInstruction} onClear={() => initAssistant('')} />
             </div>
           ) : null}
-          {messageStore.messages.map((msg, idx) => (
+          {messages.map((msg, idx) => (
             <div
               className={cn(
                 'group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent',
-                msg.role === 'model' &&
-                  msg.parts &&
-                  msg.parts[0].functionCall &&
-                  idx !== messageStore.messages.length - 1
+                msg.role === 'model' && msg.parts && msg.parts[0].functionCall && idx !== messages.length - 1
                   ? 'hidden'
                   : '',
               )}
@@ -726,6 +717,13 @@ export default function Home() {
               </div>
             </div>
           ))}
+          {message !== '' ? (
+            <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
+              <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
+                <MessageItem id="message" role="model" parts={[{ text: message }]} />
+              </div>
+            </div>
+          ) : null}
           {errorMessage !== '' ? (
             <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
               <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
@@ -740,7 +738,7 @@ export default function Home() {
               </div>
             </div>
           ) : null}
-          {messageStore.messages.length > 0 ? (
+          {messages.length > 0 ? (
             <div className="my-2 flex h-4 justify-center text-xs text-slate-400 duration-300 dark:text-slate-600">
               {/* <span className="mx-2 cursor-pointer hover:text-slate-500" onClick={() => handleResubmit()}>
                 {t('regenerateAnswer')}
@@ -827,7 +825,7 @@ export default function Home() {
             ) : null}
           </div>
         </div>
-        {content === '' && attachmentStore.files.length === 0 && supportSpeechRecognition ? (
+        {content === '' && files.length === 0 && supportSpeechRecognition ? (
           <Button
             className="h-10 w-10 max-sm:h-8 max-sm:w-8"
             title={t('voiceMode')}
@@ -850,7 +848,7 @@ export default function Home() {
           </Button>
         )}
       </div>
-      <div style={{ display: settingStore.talkMode === 'voice' ? 'block' : 'none' }}>
+      <div style={{ display: talkMode === 'voice' ? 'block' : 'none' }}>
         <div className="fixed left-0 right-0 top-0 flex h-full w-screen flex-col items-center justify-center bg-slate-900">
           <div className="h-1/5 w-full" ref={siriWaveRef}></div>
           <div className="absolute bottom-0 flex h-2/5 w-2/3 flex-col justify-between pb-12 text-center">

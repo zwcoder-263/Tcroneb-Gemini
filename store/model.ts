@@ -1,29 +1,35 @@
 import { create } from 'zustand'
+import { persist, type StorageValue } from 'zustand/middleware'
 import storage from '@/utils/Storage'
+import { omitBy, isFunction } from 'lodash-es'
 
 type ModelStore = {
   models: Model[]
   cachedTime: number
-  init: () => Promise<Model[]>
   update: (models: Model[]) => void
   setCachedTime: (timestamp: number) => void
 }
 
-export const useModelStore = create<ModelStore>((set) => ({
-  models: [],
-  cachedTime: 0,
-  init: async () => {
-    const models = (await storage.getItem<Model[]>('models')) || []
-    const cachedTime = (await storage.getItem<number>('modelsCachedTime')) || 0
-    set(() => ({ models, cachedTime }))
-    return models
-  },
-  update: (models) => {
-    set(() => ({ models: [...models] }))
-    storage.setItem<Model[]>('models', models)
-  },
-  setCachedTime: (timestamp) => {
-    set(() => ({ cachedTime: timestamp }))
-    storage.setItem<number>('modelsCachedTime', timestamp)
-  },
-}))
+export const useModelStore = create(
+  persist<ModelStore>(
+    (set) => ({
+      models: [],
+      cachedTime: 0,
+      update: (models) => set(() => ({ models: [...models] })),
+      setCachedTime: (timestamp) => set(() => ({ cachedTime: timestamp })),
+    }),
+    {
+      name: 'model',
+      storage: {
+        getItem: async (key: string) => await storage.getItem(key),
+        setItem: async (key: string, store: StorageValue<ModelStore>) => {
+          return await storage.setItem(key, {
+            state: omitBy(store.state, (item) => isFunction(item)),
+            version: store.version,
+          })
+        },
+        removeItem: async (key: string) => await storage.removeItem(key),
+      },
+    },
+  ),
+)

@@ -437,12 +437,6 @@ Currently, the two models `Gemini 1.5 Pro` and `Gemini 1.5 Flash` support most i
 
 ~~目前了解到的 vercel 与 netlify 都使用了无服务器的边缘计算，虽然响应速度快，但对于上传文件有大小限制。Cloudflare Worker 对于大文件限制（免费用户 500MB，收费用户 5GB）相对宽松，可以用做 api 代理。[如何部署 Cloudflare Worker api 代理](/docs/How-to-deploy-the-Cloudflare-Worker-api-proxy.md)~~
 
-#### ~~关于无法使用语音对话功能的问题须知~~
-
-~~目前语音识别使用的是浏览器的 SpeechRecognition 接口，系统会在[部分不支持 SpeechRecognition 接口的浏览器](https://caniuse.com/?search=SpeechRecognition)中**隐藏语音对话功能**。~~
-
-~~由于大部分基于 Chrome 内核的浏览器在 SpeechRecognition 接口的实现上使用了 Google 的语音识别服务，因此需要能够正常访问国际网络的情况下使用。~~
-
 #### 为什么我无法上传 doc、excel、pdf 这类常见文档
 
 目前 `Gemini 1.5 Pro` 和 `Gemini 1.5 Flash` 这两个模型支持的大部分的图片、音频、视频和部分文本类的文件，详见[支持列表](https://ai.google.dev/gemini-api/docs/prompting_with_media)。对于其他文档类型，后续将尝试使用 [LangChain.js](https://js.langchain.com/v0.2/docs/introduction/) 来实现。

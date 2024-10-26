@@ -37,7 +37,7 @@ function PluginStore({ open, onClose }: PluginStoreProps) {
   const {
     plugins,
     tools,
-    installedPlugins,
+    installed,
     update: updatePlugins,
     installPlugin,
     uninstallPlugin,
@@ -197,9 +197,9 @@ function PluginStore({ open, onClose }: PluginStoreProps) {
                     <Button
                       className="h-8 bg-red-400 hover:bg-red-500"
                       disabled={loadingList.includes(item.id)}
-                      onClick={() => (item.id in installedPlugins ? handleUninstall(item.id) : handleInstall(item.id))}
+                      onClick={() => (item.id in installed ? handleUninstall(item.id) : handleInstall(item.id))}
                     >
-                      {item.id in installedPlugins ? (
+                      {item.id in installed ? (
                         <>
                           卸载{' '}
                           {loadingList.includes(item.id) ? (
