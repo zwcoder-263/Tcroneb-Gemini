@@ -408,7 +408,7 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                             className="flex-1"
                             defaultValue={[field.value]}
                             max={1}
-                            step={0.1}
+                            step={0.01}
                             onValueChange={(values) => field.onChange(values[0])}
                           />
                           <span className="w-1/5 text-center text-sm leading-10">{field.value}</span>

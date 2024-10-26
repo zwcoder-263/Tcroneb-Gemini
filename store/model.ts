@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist, type StorageValue } from 'zustand/middleware'
 import storage from '@/utils/Storage'
-import { omitBy, isFunction } from 'lodash-es'
+import { omitBy, isFunction, isNull } from 'lodash-es'
 
 type ModelStore = {
   models: Model[]
@@ -21,7 +21,23 @@ export const useModelStore = create(
     {
       name: 'model',
       storage: {
-        getItem: async (key: string) => await storage.getItem(key),
+        getItem: async (key: string) => {
+          const store = await storage.getItem<StorageValue<ModelStore>>(key)
+          if (isNull(store)) return store
+          /**
+           * Since the data storage structure has changed since version 0.13.0,
+           * the logic here is used to migrate the data content of the old version.
+           */
+          const state: any = {}
+          const oldState: string[] = ['models', 'cachedTime']
+          oldState.forEach(async (name) => {
+            const data = await storage.getItem(name)
+            if (data) state[name] = data
+            await storage.removeItem(name)
+          })
+          store.state = { ...store.state, ...state }
+          return store
+        },
         setItem: async (key: string, store: StorageValue<ModelStore>) => {
           return await storage.setItem(key, {
             state: omitBy(store.state, (item) => isFunction(item)),

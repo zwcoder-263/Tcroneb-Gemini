@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist, type StorageValue } from 'zustand/middleware'
 import storage from '@/utils/Storage'
-import { findIndex, omitBy, isFunction } from 'lodash-es'
+import { findIndex, omitBy, isFunction, isNull } from 'lodash-es'
 
 type Summary = {
   ids: string[]
@@ -83,7 +83,23 @@ export const useMessageStore = create(
     {
       name: 'chat',
       storage: {
-        getItem: async (key: string) => await storage.getItem(key),
+        getItem: async (key: string) => {
+          const store = await storage.getItem<StorageValue<MessageStore>>(key)
+          if (isNull(store)) return store
+          /**
+           * Since the data storage structure has changed since version 0.13.0,
+           * the logic here is used to migrate the data content of the old version.
+           */
+          const state: any = {}
+          const oldState: string[] = ['messages', 'summary', 'systemInstruction']
+          oldState.forEach(async (name) => {
+            const data = await storage.getItem(name)
+            if (data) state[name] = data
+            await storage.removeItem(name)
+          })
+          store.state = { ...store.state, ...state }
+          return store
+        },
         setItem: async (key: string, store: StorageValue<MessageStore>) => {
           return await storage.setItem(key, {
             state: omitBy(store.state, (item) => isFunction(item)),
