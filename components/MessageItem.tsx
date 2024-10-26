@@ -140,7 +140,7 @@ function MessageItem({ id, role, parts, attachments, onRegenerate }: Props) {
   )
 
   const handleEdit = useCallback((id: string, content: string) => {
-    const { messages, update, save } = useMessageStore.getState()
+    const { messages, update } = useMessageStore.getState()
     const message = find(messages, { id })
 
     if (message) {
@@ -149,7 +149,6 @@ function MessageItem({ id, role, parts, attachments, onRegenerate }: Props) {
         if (part.text) part.text = content
       })
       update(id, { ...message, parts: messageParts })
-      save()
     }
 
     setIsEditing(false)

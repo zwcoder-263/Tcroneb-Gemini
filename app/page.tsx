@@ -201,7 +201,7 @@ export default function Home() {
         onError(error.message)
       }
     }
-  }, [])
+  }, [systemInstruction])
 
   const summarize = useCallback(
     async (messages: Message[]) => {
