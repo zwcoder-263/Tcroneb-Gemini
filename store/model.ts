@@ -19,7 +19,7 @@ export const useModelStore = create(
       setCachedTime: (timestamp) => set(() => ({ cachedTime: timestamp })),
     }),
     {
-      name: 'model',
+      name: 'modelStore',
       storage: {
         getItem: async (key: string) => {
           const store = await storage.getItem<StorageValue<ModelStore>>(key)

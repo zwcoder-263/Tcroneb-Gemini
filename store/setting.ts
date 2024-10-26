@@ -57,7 +57,7 @@ export const useSettingStore = create(
       setIsProtected: (isProtected) => set({ isProtected }),
     }),
     {
-      name: 'setting',
+      name: 'settingStore',
       storage: {
         getItem: async (key: string) => {
           const store = await storage.getItem<StorageValue<SettingStore>>(key)
