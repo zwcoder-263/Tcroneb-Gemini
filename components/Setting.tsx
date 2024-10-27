@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useLayoutEffect, useMemo, useState } from 'react'
 import { EdgeSpeech } from '@xiangfa/polly'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -18,11 +18,12 @@ import { Switch } from '@/components/ui/switch'
 import ResponsiveDialog from '@/components/ResponsiveDialog'
 import i18n from '@/plugins/i18n'
 import { fetchModels } from '@/utils/models'
+import { detectLanguage } from '@/utils/common'
 import locales from '@/constant/locales'
 import { Model } from '@/constant/model'
 import { useSettingStore } from '@/store/setting'
 import { useModelStore } from '@/store/model'
-import { toPairs, values, has } from 'lodash-es'
+import { toPairs, values, has, omitBy, isFunction } from 'lodash-es'
 
 import pkg from '@/package.json'
 
@@ -59,12 +60,13 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
   const pwaInstall = usePWAInstall()
   const settingStore = useSettingStore()
   const modelStore = useModelStore()
+  const [ttsLang, setTtsLang] = useState<string>('')
   const isProtected = useMemo(() => {
     return settingStore.isProtected
   }, [settingStore.isProtected])
   const voiceOptions = useMemo(() => {
-    return new EdgeSpeech({ locale: settingStore.ttsLang }).voiceOptions || []
-  }, [settingStore.ttsLang])
+    return new EdgeSpeech({ locale: ttsLang }).voiceOptions || []
+  }, [ttsLang])
   const modelOptions = useMemo(() => {
     const { update } = useSettingStore.getState()
 
@@ -110,29 +112,30 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      password: settingStore.password,
-      apiKey: settingStore.apiKey,
-      apiProxy: settingStore.apiProxy,
-      uploadProxy: settingStore.uploadProxy,
-      model: settingStore.model,
-      lang: settingStore.lang,
-      sttLang: settingStore.sttLang,
-      ttsLang: settingStore.ttsLang,
-      ttsVoice: settingStore.ttsVoice,
-      maxHistoryLength: settingStore.maxHistoryLength,
-      assistantIndexUrl: settingStore.assistantIndexUrl,
-      topP: settingStore.topP,
-      topK: settingStore.topK,
-      temperature: settingStore.temperature,
-      maxOutputTokens: settingStore.maxOutputTokens,
-      safety: settingStore.safety,
-      autoStopRecord: settingStore.autoStopRecord,
+    defaultValues: async () => {
+      return new Promise((resolve) => {
+        useSettingStore.persist.onFinishHydration((state) => {
+          const store = omitBy(state, (item) => isFunction(item)) as z.infer<typeof formSchema>
+          if (state.lang === '') {
+            const lang = detectLanguage()
+            i18n.changeLanguage(lang)
+            const payload: Partial<Setting> = { lang, sttLang: lang, ttsLang: lang }
+            setTtsLang(lang)
+            const options = new EdgeSpeech({ locale: lang }).voiceOptions
+            if (options) {
+              payload.ttsVoice = options[0].value
+            }
+            settingStore.update(payload)
+          }
+          resolve(store)
+        })
+      })
     },
   })
 
   const handleTTSChange = (value: string) => {
     form.setValue('ttsLang', value)
+    setTtsLang(value)
     const options = new EdgeSpeech({ locale: value }).voiceOptions
     if (options) {
       form.setValue('ttsVoice', options[0].value)

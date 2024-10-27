@@ -117,3 +117,10 @@ export function getTalkAudioPrompt(messages: Message[]): Message[] {
     ...messages,
   ]
 }
+
+export function getFunctionCallPrompt() {
+  return `
+  Before calling the function, if you cannot understand the content of the message or cannot correctly extract the information, please stop calling the function and guide the user to complete or modify the information.
+  If you cannot respond correctly, please reply "I cannot understand the content of the conversation".
+  `
+}

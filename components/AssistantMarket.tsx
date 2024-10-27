@@ -1,4 +1,4 @@
-import { useState, useCallback, useLayoutEffect, memo } from 'react'
+import { useState, useCallback, useLayoutEffect, memo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Card, CardHeader, CardContent, CardFooter, CardTitle } from '@/components/ui/card'
@@ -41,8 +41,10 @@ function filterDataByTag(data: Assistant[], tag: string): Assistant[] {
 
 function AssistantMarket({ open, onClose, onSelect, onLoaded }: AssistantProps) {
   const { t } = useTranslation()
-  const { assistants, tags, update: updateAssistants, updateTags } = useAssistantStore()
-  const { lang, assistantIndexUrl } = useSettingStore()
+  const { update: updateAssistants, updateTags } = useAssistantStore()
+  const assistants = useAssistantStore((state) => state.assistants)
+  const lang = useSettingStore((state) => state.lang)
+  const assistantIndexUrl = useSettingStore((state) => state.assistantIndexUrl)
   const [assistantList, setAssistantList] = useState<Assistant[]>([])
   const [tagList, setTagList] = useState<string[]>([])
   const [currentTag, setCurrentTag] = useState<string>('all')
@@ -101,13 +103,10 @@ function AssistantMarket({ open, onClose, onSelect, onLoaded }: AssistantProps) 
   }, [lang, assistantIndexUrl, updateAssistants, updateTags, onLoaded])
 
   useLayoutEffect(() => {
-    if (assistantIndexUrl !== '' && assistants.length === 0) {
+    if (assistantIndexUrl !== '' && lang !== '') {
       fetchAssistantMarketIndex()
-    } else {
-      setAssistantList(assistants)
-      setTagList(tags)
     }
-  }, [assistantIndexUrl, assistants, tags, fetchAssistantMarketIndex])
+  }, [assistantIndexUrl, lang, fetchAssistantMarketIndex])
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>

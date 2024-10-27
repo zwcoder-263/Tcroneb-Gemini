@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai'
 import type { InlineDataPart, ModelParams, Tool, ToolConfig } from '@google/generative-ai'
-import { getVisionPrompt } from '@/utils/prompt'
+import { getVisionPrompt, getFunctionCallPrompt } from '@/utils/prompt'
 import { OldVisionModel } from '@/constant/model'
 import { isUndefined, pick } from 'lodash-es'
 
@@ -75,7 +75,11 @@ export default async function chat({
     }
   }
   if (tools && !OldVisionModel.includes(model)) {
+    const toolPrompt = getFunctionCallPrompt()
     modelParams.tools = tools
+    modelParams.systemInstruction = modelParams.systemInstruction
+      ? `${modelParams.systemInstruction}\n\n${toolPrompt}`
+      : toolPrompt
     modelParams.generationConfig = {
       ...generationConfig,
       temperature: 0,

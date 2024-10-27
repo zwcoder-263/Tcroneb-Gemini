@@ -29,10 +29,16 @@ export const useModelStore = create(
            * the logic here is used to migrate the data content of the old version.
            */
           const state: any = {}
-          const oldState: string[] = ['models', 'cachedTime']
+          const oldState: string[] = ['models', 'cachedTime', 'modelsCachedTime']
           for await (const name of oldState) {
             const data = await storage.getItem(name)
-            if (data) state[name] = data
+            if (data) {
+              if (name === 'modelsCachedTime') {
+                state['cachedTime'] = data
+              } else {
+                state[name] = data
+              }
+            }
             await storage.removeItem(name)
           }
           store.state = { ...store.state, ...state }

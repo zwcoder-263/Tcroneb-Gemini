@@ -1,8 +1,6 @@
 import { create } from 'zustand'
 import { persist, type StorageValue } from 'zustand/middleware'
 import storage from '@/utils/Storage'
-import { detectLanguage } from '@/utils/common'
-import { OldTextModel, OldVisionModel } from '@/constant/model'
 import { omitBy, isFunction, isNull } from 'lodash-es'
 
 interface SettingStore extends Setting {
@@ -11,16 +9,6 @@ interface SettingStore extends Setting {
 }
 
 const ASSISTANT_INDEX_URL = process.env.NEXT_PUBLIC_ASSISTANT_INDEX_URL as string
-
-function getDefaultModelConfig(model: string) {
-  if (OldTextModel.includes(model)) {
-    return { topP: 1, topK: 16, temperature: 0.9, maxOutputTokens: 2048 }
-  } else if (OldVisionModel.includes(model)) {
-    return { topP: 1, topK: 32, temperature: 0.4, maxOutputTokens: 4096 }
-  } else {
-    return { topP: 0.95, topK: 64, temperature: 1, maxOutputTokens: 8192 }
-  }
-}
 
 export const useSettingStore = create(
   persist<SettingStore>(
@@ -33,7 +21,7 @@ export const useSettingStore = create(
       sttLang: '',
       ttsLang: '',
       ttsVoice: '',
-      lang: detectLanguage(),
+      lang: '',
       isProtected: false,
       talkMode: 'chat',
       maxHistoryLength: 0,
@@ -44,16 +32,7 @@ export const useSettingStore = create(
       maxOutputTokens: 8192,
       safety: 'none',
       autoStopRecord: false,
-      update: (values) => {
-        if (values.model) {
-          const defaultModelConfig = getDefaultModelConfig(values.model)
-          values.topP = get().topP ?? defaultModelConfig.topP
-          values.topK = get().topK ?? defaultModelConfig.topK
-          values.temperature = get().temperature ?? defaultModelConfig.temperature
-          values.maxOutputTokens = get().maxOutputTokens ?? defaultModelConfig.maxOutputTokens
-        }
-        set(() => values)
-      },
+      update: (values) => set(() => values),
       setIsProtected: (isProtected) => set({ isProtected }),
     }),
     {

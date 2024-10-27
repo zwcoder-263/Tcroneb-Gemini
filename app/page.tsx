@@ -13,7 +13,6 @@ import {
   Pause,
   SendHorizontal,
   Github,
-  Blocks,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import ThemeToggle from '@/components/ThemeToggle'
@@ -60,7 +59,7 @@ const ErrorMessageItem = dynamic(() => import('@/components/ErrorMessageItem'))
 const AssistantRecommend = dynamic(() => import('@/components/AssistantRecommend'))
 const Setting = dynamic(() => import('@/components/Setting'))
 const FileUploader = dynamic(() => import('@/components/FileUploader'))
-const PluginStore = dynamic(() => import('@/components/PluginStore'))
+const PluginList = dynamic(() => import('@/components/PluginList'))
 
 export default function Home() {
   const { t } = useTranslation()
@@ -85,7 +84,6 @@ export default function Home() {
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [recordTime, setRecordTime] = useState<number>(0)
   const [settingOpen, setSetingOpen] = useState<boolean>(false)
-  const [pluginStoreOpen, setPluginStoreOpen] = useState<boolean>(false)
   const [speechSilence, setSpeechSilence] = useState<boolean>(false)
   const [isRecording, setIsRecording] = useState<boolean>(false)
   const [status, setStatus] = useState<'thinkng' | 'silence' | 'talking'>('silence')
@@ -157,51 +155,55 @@ export default function Home() {
     requestAnimationFrame(() => scrollAreaBottomRef.current?.scrollIntoView({ behavior: 'smooth' }))
   }, [])
 
-  const fetchAnswer = useCallback(async ({ messages, model, onResponse, onFunctionCall, onError }: AnswerParams) => {
-    const { apiKey, apiProxy, password, topP, topK, temperature, maxOutputTokens, safety } = useSettingStore.getState()
-    const { tools } = usePluginStore.getState()
-    const generationConfig: RequestProps['generationConfig'] = { topP, topK, temperature, maxOutputTokens }
-    setErrorMessage('')
-    const config: RequestProps = {
-      messages,
-      apiKey,
-      model,
-      generationConfig,
-      safety,
-    }
-    if (systemInstruction) config.systemInstruction = systemInstruction
-    if (tools.length > 0) config.tools = [{ functionDeclarations: tools }]
-    if (apiKey !== '') {
-      if (apiProxy) config.baseUrl = apiProxy
-    } else {
-      config.apiKey = encodeToken(password)
-      config.baseUrl = '/api/google'
-    }
-    try {
-      const stream = await chat(config)
-      const readableStream = new ReadableStream({
-        async start(controller) {
-          const encoder = new TextEncoder()
-          for await (const chunk of stream) {
-            const calls = chunk.functionCalls()
-            if (calls) {
-              if (isFunction(onFunctionCall)) onFunctionCall(calls)
-            } else {
-              const text = chunk.text()
-              const encoded = encoder.encode(text)
-              controller.enqueue(encoded)
-            }
-          }
-          controller.close()
-        },
-      })
-      onResponse(readableStream)
-    } catch (error) {
-      if (error instanceof Error && isFunction(onError)) {
-        onError(error.message)
+  const fetchAnswer = useCallback(
+    async ({ messages, model, onResponse, onFunctionCall, onError }: AnswerParams) => {
+      const { apiKey, apiProxy, password, topP, topK, temperature, maxOutputTokens, safety } =
+        useSettingStore.getState()
+      const { tools } = usePluginStore.getState()
+      const generationConfig: RequestProps['generationConfig'] = { topP, topK, temperature, maxOutputTokens }
+      setErrorMessage('')
+      const config: RequestProps = {
+        messages,
+        apiKey,
+        model,
+        generationConfig,
+        safety,
       }
-    }
-  }, [systemInstruction])
+      if (systemInstruction) config.systemInstruction = systemInstruction
+      if (tools.length > 0) config.tools = [{ functionDeclarations: tools }]
+      if (apiKey !== '') {
+        if (apiProxy) config.baseUrl = apiProxy
+      } else {
+        config.apiKey = encodeToken(password)
+        config.baseUrl = '/api/google'
+      }
+      try {
+        const stream = await chat(config)
+        const readableStream = new ReadableStream({
+          async start(controller) {
+            const encoder = new TextEncoder()
+            for await (const chunk of stream) {
+              const calls = chunk.functionCalls()
+              if (calls) {
+                if (isFunction(onFunctionCall)) onFunctionCall(calls)
+              } else {
+                const text = chunk.text()
+                const encoded = encoder.encode(text)
+                controller.enqueue(encoded)
+              }
+            }
+            controller.close()
+          },
+        })
+        onResponse(readableStream)
+      } catch (error) {
+        if (error instanceof Error && isFunction(onError)) {
+          onError(error.message)
+        }
+      }
+    },
+    [systemInstruction],
+  )
 
   const summarize = useCallback(
     async (messages: Message[]) => {
@@ -256,13 +258,15 @@ export default function Home() {
           if (talkMode === 'voice') {
             setStatus('silence')
           }
-          addMessage({
-            id: nanoid(),
-            role: 'model',
-            parts: [{ text }],
-          })
-          setMessage('')
-          scrollToBottom()
+          if (text !== '') {
+            addMessage({
+              id: nanoid(),
+              role: 'model',
+              parts: [{ text }],
+            })
+            setMessage('')
+            scrollToBottom()
+          }
           if (maxHistoryLength > 0) {
             const textMessages: Message[] = []
             for (const item of messagesRef.current) {
@@ -287,7 +291,7 @@ export default function Home() {
       const { add: addMessage } = useMessageStore.getState()
       const { installed } = usePluginStore.getState()
       for (const call of functionCalls) {
-        const newModelMessage: Message = { id: nanoid(), role: 'model', parts: [{ text: '' }] }
+        // const newModelMessage: Message = { id: nanoid(), role: 'model', parts: [{ text: '' }] }
         const functionCallMessage = {
           id: nanoid(),
           role: 'model',
@@ -298,21 +302,24 @@ export default function Home() {
           ],
         }
         addMessage(functionCallMessage)
-        const pluginId = call.name.split('_')[0]
+        const pluginId = call.name.split('__')[0]
         const pluginManifest = installed[pluginId]
         let baseUrl = ''
-        if (pluginManifest.openapi.servers) {
-          baseUrl = pluginManifest.openapi.servers[0].url
+        if (pluginManifest.servers) {
+          baseUrl = pluginManifest.servers[0].url
+        } else {
+          return handleError('OpenAPI service url is missing!', 400)
         }
-        const operation = findOperationById(pluginManifest.openapi, call.name.substring(1 + pluginId.length))
+        const operation = findOperationById(pluginManifest, call.name.substring(2 + pluginId.length))
         if (!operation) return handleError('FunctionCall execution failed!')
+        let result
         const { password } = useSettingStore.getState()
         const token = encodeToken(password)
         const payload: GatewayPayload = {
           baseUrl: `${baseUrl}${operation.path}`,
           method: operation.method as GatewayPayload['method'],
         }
-        // let body: GatewayPayload['body'] = {}
+        let body: GatewayPayload['body'] = {}
         let formData: GatewayPayload['formData'] = {}
         let headers: GatewayPayload['headers'] = {}
         let path: GatewayPayload['path'] = {}
@@ -320,69 +327,82 @@ export default function Home() {
         let cookie: GatewayPayload['cookie'] = {}
         for (const [name, value] of entries(call.args)) {
           const parameters = operation.parameters as OpenAPIV3_1.ParameterObject[]
-          parameters?.forEach((parameter) => {
-            if (parameter.name === name) {
-              if (parameter.in === 'query') {
-                query[name] = value
-              } else if (parameter.in === 'path') {
-                path[name] = value
-              } else if (parameter.in === 'formData') {
-                formData[name] = value
-              } else if (parameter.in === 'headers') {
-                headers[name] = value
-              } else if (parameter.in === 'cookie') {
-                cookie[name] = value
+          const requestBody = operation.requestBody
+          if (parameters) {
+            parameters.forEach((parameter) => {
+              if (parameter.name === name) {
+                if (parameter.in === 'query') {
+                  query[name] = value
+                } else if (parameter.in === 'path') {
+                  path[name] = value
+                } else if (parameter.in === 'formData') {
+                  formData[name] = value
+                } else if (parameter.in === 'headers') {
+                  headers[name] = value
+                } else if (parameter.in === 'cookie') {
+                  cookie[name] = value
+                }
               }
-            }
-          })
+            })
+          } else if (requestBody) {
+            body[name] = value
+          }
         }
-        // if (!isEmpty(body)) payload.body = body
+        if (!isEmpty(body)) payload.body = body
         if (!isEmpty(formData)) payload.formData = formData
         if (!isEmpty(headers)) payload.headers = headers
         if (!isEmpty(path)) payload.path = path
         if (!isEmpty(query)) payload.query = query
         if (!isEmpty(cookie)) payload.cookie = cookie
         try {
-          const apiResponse = await fetch(`/api/gateway?token=${token}`, {
-            method: 'POST',
-            body: JSON.stringify(payload),
-          })
-          const functionResponseMessage = {
-            id: nanoid(),
-            role: 'function',
-            parts: [
-              {
-                functionResponse: {
-                  name: call.name,
-                  response: {
-                    name: call.name,
-                    content: await apiResponse.json(),
-                  },
-                },
-              },
-            ],
+          if (baseUrl.startsWith('/api/plugin')) {
+            const apiResponse = await fetch(`${payload.baseUrl}?token=${token}`, {
+              method: 'POST',
+              body: JSON.stringify(payload),
+            })
+            result = await apiResponse.json()
+          } else {
+            const apiResponse = await fetch(`/api/gateway?token=${token}`, {
+              method: 'POST',
+              body: JSON.stringify(payload),
+            })
+            result = await apiResponse.json()
           }
-          addMessage(functionResponseMessage)
-          addMessage(newModelMessage)
-          /**
-           * Send the API response back to the model so it can generate
-           * a text response that can be displayed to the user.
-           */
-          await fetchAnswer({
-            messages: messagesRef.current.slice(0, -1),
-            model,
-            onResponse: (stream) => {
-              handleResponse(stream)
-            },
-            onError: (message, code) => {
-              handleError(message, code)
-            },
-          })
         } catch (err) {
           if (err instanceof Error) {
             handleError(err.message, 500)
           }
         }
+        const functionResponseMessage = {
+          id: nanoid(),
+          role: 'function',
+          parts: [
+            {
+              functionResponse: {
+                name: call.name,
+                response: {
+                  name: call.name,
+                  content: result,
+                },
+              },
+            },
+          ],
+        }
+        addMessage(functionResponseMessage)
+        /**
+         * Send the API response back to the model so it can generate
+         * a text response that can be displayed to the user.
+         */
+        await fetchAnswer({
+          messages: [...messagesRef.current],
+          model,
+          onResponse: (stream) => {
+            handleResponse(stream)
+          },
+          onError: (message, code) => {
+            handleError(message, code)
+          },
+        })
       }
     },
     [fetchAnswer, handleResponse, handleError],
@@ -753,17 +773,7 @@ export default function Home() {
       )}
       <div ref={scrollAreaBottomRef}></div>
       <div className="fixed bottom-0 flex w-full max-w-screen-md items-end gap-2 bg-background p-4 pb-8 max-sm:p-2 max-sm:pb-3 landscape:max-md:pb-4">
-        {!isOldVisionModel ? (
-          <Button
-            className="h-10 w-10 max-sm:h-8 max-sm:w-8"
-            title={t('plugin')}
-            variant="secondary"
-            size="icon"
-            onClick={() => setPluginStoreOpen(true)}
-          >
-            <Blocks className="h-6 w-6 max-sm:h-5 max-sm:w-5" />
-          </Button>
-        ) : null}
+        {!isOldVisionModel ? <PluginList /> : null}
         <div
           className="relative box-border flex w-full flex-1 rounded-md border border-input bg-[hsl(var(--background))] py-1 max-sm:py-0"
           onPaste={handlePaste}
@@ -827,24 +837,24 @@ export default function Home() {
         </div>
         {content === '' && files.length === 0 && supportSpeechRecognition ? (
           <Button
-            className="h-10 w-10 max-sm:h-8 max-sm:w-8"
+            className="max-sm:h-8 max-sm:w-8 [&_svg]:size-5 max-sm:[&_svg]:size-4"
             title={t('voiceMode')}
             variant="secondary"
             size="icon"
             onClick={() => updateTalkMode('voice')}
           >
-            <AudioLines className="h-6 w-6 max-sm:h-5 max-sm:w-5" />
+            <AudioLines />
           </Button>
         ) : (
           <Button
-            className="h-10 w-10 max-sm:h-8 max-sm:w-8"
+            className="max-sm:h-8 max-sm:w-8 [&_svg]:size-5 max-sm:[&_svg]:size-4"
             title={t('send')}
             variant="secondary"
             size="icon"
             disabled={isRecording || isUploading}
             onClick={() => handleSubmit(content)}
           >
-            <SendHorizontal className="h-6 w-6 max-sm:h-5 max-sm:w-5" />
+            <SendHorizontal />
           </Button>
         )}
       </div>
@@ -908,7 +918,6 @@ export default function Home() {
         </div>
       </div>
       <Setting open={settingOpen} hiddenTalkPanel={!supportSpeechRecognition} onClose={() => setSetingOpen(false)} />
-      <PluginStore open={pluginStoreOpen} onClose={() => setPluginStoreOpen(false)} />
     </main>
   )
 }

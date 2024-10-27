@@ -149,6 +149,13 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.text-line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .hljs-warpper ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

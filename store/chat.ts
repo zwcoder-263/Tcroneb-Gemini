@@ -40,7 +40,7 @@ export const useMessageStore = create(
           const index = findIndex(state.messages, { id })
           state.messages[index] = message
           return {
-            messages: state.messages,
+            messages: [...state.messages],
           }
         })
       },

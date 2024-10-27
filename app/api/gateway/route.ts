@@ -33,7 +33,6 @@ export async function POST(req: NextRequest) {
           newFormData.append(name, value)
         }
       }
-      headers['Content-Type']
       payload = newFormData
     } else {
       payload = body

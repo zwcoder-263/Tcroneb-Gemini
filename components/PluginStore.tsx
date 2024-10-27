@@ -1,7 +1,5 @@
 import { useState, useCallback, useLayoutEffect, memo } from 'react'
 import { Globe, Mail, CloudDownload, LoaderCircle, Trash } from 'lucide-react'
-import { type FunctionDeclarationSchema, FunctionDeclarationSchemaType } from '@google/generative-ai'
-import { convertParametersToJSONSchema } from 'openapi-jsonschema-parameters'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Card, CardHeader, CardContent, CardFooter, CardTitle } from '@/components/ui/card'
@@ -10,8 +8,8 @@ import { useToast } from '@/components/ui/use-toast'
 import SearchBar from '@/components/SearchBar'
 import { usePluginStore } from '@/store/plugin'
 import { useSettingStore } from '@/store/setting'
-import pluginStore from '@/constant/plugins'
-import { convertOpenAIPluginToPluginSchema, type OpenAIPluginManifest } from '@/utils/tool'
+// mport { convertOpenAIPluginToPluginSchema, type OpenAIPluginManifest } from '@/utils/tool'
+import { parsePlugin } from '@/utils/plugin'
 import { encodeToken } from '@/utils/signature'
 import { values } from 'lodash-es'
 
@@ -77,53 +75,9 @@ function PluginStore({ open, onClose }: PluginStoreProps) {
       const token = encodeToken(password)
       const response = await fetch(`/api/plugin?id=${id}&token=${token}`)
       const result: OpenAPIDocument = await response.json()
-      console.log(result)
       if (result.paths) {
-        const convertOpenAPIParameter = (parameters: OpenAPIParameters) => {
-          const parametersSchema = convertParametersToJSONSchema(parameters || [])
-          let properties = {}
-          let required: string[] = []
-          for (const schema of values(parametersSchema)) {
-            if (schema && schema.properties) {
-              properties = { ...properties, ...schema.properties }
-              if (Array.isArray(schema.required)) {
-                required = [...required, ...schema.required]
-              }
-            }
-          }
-          return {
-            type: FunctionDeclarationSchemaType.OBJECT,
-            properties,
-            required,
-          } as FunctionDeclarationSchema
-        }
-        const convertRequestBodyToSchema = (requestBody: OpenAPIRequestBody) => {
-          if (!requestBody || !requestBody.content) {
-            return null
-          }
-          for (const [contentType, mediaType] of Object.entries(requestBody.content)) {
-            if (mediaType.schema) {
-              return mediaType.schema as FunctionDeclarationSchema
-            }
-          }
-        }
-        for (const operations of values(result.paths)) {
-          for (const operation of values(operations) as OpenAPIOperation[]) {
-            let parameters
-            if (operation.parameters) {
-              parameters = convertOpenAPIParameter(operation.parameters)
-            } else if (operation.requestBody) {
-              parameters = convertRequestBodyToSchema(operation.requestBody as OpenAPIRequestBody)
-            }
-            if (parameters) {
-              addTool({
-                name: `${id}_${operation.operationId}`,
-                description: operation.summary || operation.description || operation.operationId,
-                parameters,
-              })
-            }
-          }
-        }
+        const tools = parsePlugin(id, result)
+        tools.forEach((tool) => addTool(tool))
         installPlugin(id, result)
       } else {
         toast({
@@ -152,15 +106,15 @@ function PluginStore({ open, onClose }: PluginStoreProps) {
     [loadingList, tools, uninstallPlugin, removeTool],
   )
 
-  useLayoutEffect(() => {
-    const toolList = pluginStore.map((item) => {
-      return {
-        ...convertOpenAIPluginToPluginSchema(item as OpenAIPluginManifest),
-      }
-    })
-    setPluginList(toolList)
-    updatePlugins(toolList)
-  }, [updatePlugins])
+  // useLayoutEffect(() => {
+  //   const toolList = pluginStore.map((item) => {
+  //     return {
+  //       ...convertOpenAIPluginToPluginSchema(item as OpenAIPluginManifest),
+  //     }
+  //   })
+  //   setPluginList(toolList)
+  //   updatePlugins(toolList)
+  // }, [updatePlugins])
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -177,10 +131,10 @@ function PluginStore({ open, onClose }: PluginStoreProps) {
             {pluginList.map((item) => {
               return (
                 <Card key={item.id} className="transition-colors dark:hover:border-white/80">
-                  <CardHeader className="pb-2">
+                  <CardHeader className="pb-1 pt-4">
                     <CardTitle className="flex truncate text-base font-medium">{item.title}</CardTitle>
                   </CardHeader>
-                  <CardContent className="text-line-clamp-3 h-16 text-sm">{item.description}</CardContent>
+                  <CardContent className="text-line-clamp-3 h-16 pb-2 text-sm">{item.description}</CardContent>
                   <CardFooter className="flex justify-between px-4 pb-2">
                     <div>
                       <a href={item.legalInfoUrl} target="_blank">
@@ -203,18 +157,18 @@ function PluginStore({ open, onClose }: PluginStoreProps) {
                         <>
                           卸载{' '}
                           {loadingList.includes(item.id) ? (
-                            <LoaderCircle className="ml-2 h-4 w-4 animate-spin" />
+                            <LoaderCircle className="h-4 w-4 animate-spin" />
                           ) : (
-                            <Trash className="ml-2 h-4 w-4" />
+                            <Trash className="h-4 w-4" />
                           )}
                         </>
                       ) : (
                         <>
                           安装{' '}
                           {loadingList.includes(item.id) ? (
-                            <LoaderCircle className="ml-2 h-4 w-4 animate-spin" />
+                            <LoaderCircle className="h-4 w-4 animate-spin" />
                           ) : (
-                            <CloudDownload className="ml-2 h-4 w-4" />
+                            <CloudDownload className="h-4 w-4" />
                           )}
                         </>
                       )}

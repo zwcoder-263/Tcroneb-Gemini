@@ -4,18 +4,14 @@ import storage from '@/utils/Storage'
 import { type FunctionDeclaration } from '@google/generative-ai'
 import { find, findIndex, filter, omitBy, isFunction, isNull } from 'lodash-es'
 
-interface Plugin extends PluginManifest {
-  openapi: OpenAPIDocument
-}
-
 type PluginStore = {
   plugins: PluginManifest[]
-  installed: Record<string, Plugin>
+  installed: Record<string, OpenAPIDocument>
   tools: FunctionDeclaration[]
   update: (plugins: PluginManifest[]) => void
   installPlugin: (id: string, schema: OpenAPIDocument) => void
   uninstallPlugin: (id: string) => void
-  updatePlugin: (id: string, manifest: Partial<PluginManifest>) => void
+  updatePlugin: (id: string, schema: OpenAPIDocument) => void
   addTool: (tool: FunctionDeclaration) => void
   removeTool: (name: string) => void
 }
@@ -34,16 +30,15 @@ export const usePluginStore = create(
       updatePlugin: (id, manifest) => {
         const plugins = [...get().plugins]
         const index = findIndex(plugins, { id })
-        plugins[index] = { ...plugins[index], ...manifest }
-        set(() => ({ plugins }))
+        if (index !== -1) {
+          plugins[index] = { ...plugins[index], ...manifest }
+          set(() => ({ plugins }))
+        }
       },
       installPlugin: (id, schema) => {
         const installed = { ...get().installed }
-        const plugin = find(get().plugins, { id })
-        if (plugin) {
-          installed[id] = { ...plugin, openapi: schema }
-          set(() => ({ installed }))
-        }
+        installed[id] = schema
+        set(() => ({ installed }))
       },
       uninstallPlugin: (id) => {
         const installed = { ...get().installed }

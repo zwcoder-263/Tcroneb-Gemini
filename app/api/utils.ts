@@ -19,5 +19,5 @@ export function checkToken(token: string): boolean {
 
 export const handleError = (message: string) => {
   console.error(message)
-  return NextResponse.json({ code: 400, message }, { status: 400 })
+  return NextResponse.json({ code: 500, message }, { status: 500 })
 }
