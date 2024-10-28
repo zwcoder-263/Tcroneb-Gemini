@@ -1,8 +1,4 @@
-import {
-  FunctionDeclaration,
-  FunctionDeclarationSchemaType,
-  type FunctionDeclarationSchema,
-} from '@google/generative-ai'
+import { FunctionDeclaration, SchemaType, type FunctionDeclarationSchema } from '@google/generative-ai'
 import { convertParametersToJSONSchema } from 'openapi-jsonschema-parameters'
 import { entries, values } from 'lodash-es'
 
@@ -29,7 +25,7 @@ function convertOpenAPIParameter(parameters: OpenAPIParameters): FunctionDeclara
     }
   }
   return {
-    type: FunctionDeclarationSchemaType.OBJECT,
+    type: SchemaType.OBJECT,
     properties,
     required,
   }

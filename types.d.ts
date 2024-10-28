@@ -144,4 +144,9 @@ declare global {
     topP: number
     topK: number
   }
+
+  interface FunctionResponse<T = unknown> {
+    name: string
+    content: T
+  }
 }

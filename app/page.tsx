@@ -39,7 +39,7 @@ import { cn } from '@/utils'
 import { OldVisionModel, OldTextModel } from '@/constant/model'
 import mimeType from '@/constant/attachment'
 import { customAlphabet } from 'nanoid'
-import { isFunction, findIndex, isUndefined, entries, isEmpty } from 'lodash-es'
+import { isFunction, findIndex, isUndefined, entries, flatten, isEmpty } from 'lodash-es'
 import { type OpenAPIV3_1 } from 'openapi-types'
 
 interface AnswerParams {
@@ -86,6 +86,8 @@ export default function Home() {
   const [settingOpen, setSetingOpen] = useState<boolean>(false)
   const [speechSilence, setSpeechSilence] = useState<boolean>(false)
   const [isRecording, setIsRecording] = useState<boolean>(false)
+  const [isThinking, setIsThinking] = useState<boolean>(false)
+  const [executingPlugins, setExecutingPlugins] = useState<string[]>([])
   const [status, setStatus] = useState<'thinkng' | 'silence' | 'talking'>('silence')
   const statusText = useMemo(() => {
     switch (status) {
@@ -182,10 +184,11 @@ export default function Home() {
         const readableStream = new ReadableStream({
           async start(controller) {
             const encoder = new TextEncoder()
+            const functionCalls: FunctionCall[][] = []
             for await (const chunk of stream) {
               const calls = chunk.functionCalls()
               if (calls) {
-                if (isFunction(onFunctionCall)) onFunctionCall(calls)
+                functionCalls.push(calls)
               } else {
                 const text = chunk.text()
                 const encoded = encoder.encode(text)
@@ -193,6 +196,9 @@ export default function Home() {
               }
             }
             controller.close()
+            if (isFunction(onFunctionCall)) {
+              onFunctionCall(flatten(functionCalls))
+            }
           },
         })
         onResponse(readableStream)
@@ -227,9 +233,9 @@ export default function Home() {
     if (lastMessage?.role === 'model') {
       const { revoke } = useMessageStore.getState()
       revoke(lastMessage.id)
-      setStatus('silence')
-      setErrorMessage(`${code ?? '400'}: ${message}`)
     }
+    setStatus('silence')
+    setErrorMessage(`${code ?? '400'}: ${message}`)
   }, [])
 
   const handleResponse = useCallback(
@@ -238,6 +244,7 @@ export default function Home() {
       const { summary, add: addMessage } = useMessageStore.getState()
       speechQueue.current = new PromiseQueue()
       setSpeechSilence(false)
+      setIsThinking(true)
       let text = ''
       await textStream({
         readable: data,
@@ -267,6 +274,8 @@ export default function Home() {
             setMessage('')
             scrollToBottom()
           }
+          setIsThinking(false)
+          setExecutingPlugins([])
           if (maxHistoryLength > 0) {
             const textMessages: Message[] = []
             for (const item of messagesRef.current) {
@@ -288,22 +297,13 @@ export default function Home() {
   const handleFunctionCall = useCallback(
     async (functionCalls: FunctionCall[]) => {
       const { model } = useSettingStore.getState()
-      const { add: addMessage } = useMessageStore.getState()
+      const { update: updateMessage, add: addMessage } = useMessageStore.getState()
       const { installed } = usePluginStore.getState()
-      for (const call of functionCalls) {
-        // const newModelMessage: Message = { id: nanoid(), role: 'model', parts: [{ text: '' }] }
-        const functionCallMessage = {
-          id: nanoid(),
-          role: 'model',
-          parts: [
-            {
-              functionCall: call,
-            },
-          ],
-        }
-        addMessage(functionCallMessage)
+      const pluginExecuteResults: Record<string, unknown> = {}
+      for await (const call of functionCalls) {
         const pluginId = call.name.split('__')[0]
         const pluginManifest = installed[pluginId]
+        setExecutingPlugins([...executingPlugins, call.name])
         let baseUrl = ''
         if (pluginManifest.servers) {
           baseUrl = pluginManifest.servers[0].url
@@ -312,7 +312,6 @@ export default function Home() {
         }
         const operation = findOperationById(pluginManifest, call.name.substring(2 + pluginId.length))
         if (!operation) return handleError('FunctionCall execution failed!')
-        let result
         const { password } = useSettingStore.getState()
         const token = encodeToken(password)
         const payload: GatewayPayload = {
@@ -355,38 +354,43 @@ export default function Home() {
         if (!isEmpty(query)) payload.query = query
         if (!isEmpty(cookie)) payload.cookie = cookie
         try {
-          if (baseUrl.startsWith('/api/plugin')) {
-            const apiResponse = await fetch(`${payload.baseUrl}?token=${token}`, {
+          const apiResponse = await fetch(
+            baseUrl.startsWith('/api/plugin') ? `${payload.baseUrl}?token=${token}` : `/api/gateway?token=${token}`,
+            {
               method: 'POST',
               body: JSON.stringify(payload),
-            })
-            result = await apiResponse.json()
-          } else {
-            const apiResponse = await fetch(`/api/gateway?token=${token}`, {
-              method: 'POST',
-              body: JSON.stringify(payload),
-            })
-            result = await apiResponse.json()
+            },
+          )
+          const result = await apiResponse.json()
+          if (apiResponse.status !== 200) {
+            throw new Error(result?.message || apiResponse.statusText)
           }
+          pluginExecuteResults[call.name] = result
+          const executingPluginsStatus = executingPlugins.filter((name) => name !== call.name)
+          setExecutingPlugins([...executingPluginsStatus])
         } catch (err) {
           if (err instanceof Error) {
             handleError(err.message, 500)
           }
         }
+      }
+      const functionResponses = []
+      for (const [name, result] of entries(pluginExecuteResults)) {
+        functionResponses.push({
+          functionResponse: {
+            name,
+            response: {
+              name,
+              content: result,
+            },
+          },
+        })
+      }
+      if (functionResponses.length > 0) {
         const functionResponseMessage = {
           id: nanoid(),
           role: 'function',
-          parts: [
-            {
-              functionResponse: {
-                name: call.name,
-                response: {
-                  name: call.name,
-                  content: result,
-                },
-              },
-            },
-          ],
+          parts: functionResponses,
         }
         addMessage(functionResponseMessage)
         /**
@@ -652,6 +656,22 @@ export default function Home() {
     instruction(prompt)
   }, [])
 
+  const genPluginStatusPart = useCallback((plugins: string[]) => {
+    const parts = []
+    for (const name of plugins) {
+      parts.push({
+        functionResponse: {
+          name,
+          response: {
+            name,
+            content: null,
+          },
+        },
+      })
+    }
+    return parts
+  }, [])
+
   useEffect(() => useMessageStore.subscribe((state) => (messagesRef.current = state.messages)), [])
 
   useEffect(() => {
@@ -716,7 +736,7 @@ export default function Home() {
       {messages.length === 0 && content === '' && systemInstruction === '' ? (
         <AssistantRecommend initAssistant={initAssistant} />
       ) : (
-        <div className="flex min-h-full flex-1 grow flex-col justify-start">
+        <div className="flex min-h-full flex-1 grow flex-col justify-start overflow-hidden max-md:w-full">
           {systemInstruction !== '' ? (
             <div className="p-4 pt-0">
               <SystemInstruction prompt={systemInstruction} onClear={() => initAssistant('')} />
@@ -726,9 +746,7 @@ export default function Home() {
             <div
               className={cn(
                 'group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent',
-                msg.role === 'model' && msg.parts && msg.parts[0].functionCall && idx !== messages.length - 1
-                  ? 'hidden'
-                  : '',
+                msg.role === 'model' && msg.parts && msg.parts[0].functionCall ? 'hidden' : '',
               )}
               key={msg.id}
             >
@@ -740,7 +758,14 @@ export default function Home() {
           {message !== '' ? (
             <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
               <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
-                <MessageItem id="message" role="model" parts={[{ text: message }]} />
+                <MessageItem id="message" role="model" loading={isThinking} parts={[{ text: message }]} />
+              </div>
+            </div>
+          ) : null}
+          {executingPlugins.length > 0 ? (
+            <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
+              <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
+                <MessageItem id="message" role="function" parts={genPluginStatusPart(executingPlugins)} />
               </div>
             </div>
           ) : null}

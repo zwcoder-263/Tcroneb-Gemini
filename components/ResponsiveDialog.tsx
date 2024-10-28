@@ -1,9 +1,7 @@
 import { memo, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -13,7 +11,6 @@ import {
 } from '@/components/ui/dialog'
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
@@ -27,14 +24,13 @@ type Props = {
   open: boolean
   onClose: () => void
   title: string
-  description: string
+  description?: string
   trigger?: ReactNode
   children: ReactNode
   footer?: ReactNode
 }
 
 function DrawerDialog({ open, onClose, title, description, trigger, children, footer }: Props) {
-  const { t } = useTranslation()
   const isDesktop = useMediaQuery('(min-width: 450px)')
 
   const handleClose = (open: boolean) => {
@@ -51,14 +47,7 @@ function DrawerDialog({ open, onClose, title, description, trigger, children, fo
             {description ? <DialogDescription>{description}</DialogDescription> : null}
           </DialogHeader>
           {children}
-          <DialogFooter className="mx-auto w-4/5 flex-col sm:justify-center">
-            {footer}
-            <DialogClose asChild>
-              <Button className="flex-1 max-sm:mt-2" variant="outline">
-                {t('cancel')}
-              </Button>
-            </DialogClose>
-          </DialogFooter>
+          <DialogFooter className="mx-auto w-4/5 flex-col sm:justify-center">{footer}</DialogFooter>
         </DialogContent>
       </Dialog>
     )
@@ -72,15 +61,8 @@ function DrawerDialog({ open, onClose, title, description, trigger, children, fo
           {title ? <DrawerTitle>{title}</DrawerTitle> : null}
           {description ? <DrawerDescription>{description}</DrawerDescription> : null}
         </DrawerHeader>
-        {children}
-        <DrawerFooter className="pt-2">
-          {footer}
-          <DrawerClose asChild>
-            <Button className="h-9" variant="outline">
-              {t('cancel')}
-            </Button>
-          </DrawerClose>
-        </DrawerFooter>
+        <div className="px-4">{children}</div>
+        <DrawerFooter className="pt-2">{footer}</DrawerFooter>
       </DrawerContent>
     </Drawer>
   )

@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { search } from 'duck-duck-scrape'
 import { ErrorType } from '@/constant/errors'
 import { handleError } from '../../utils'
-import { isNull } from 'lodash-es'
+import { isNull, pick } from 'lodash-es'
 
 export const preferredRegion = ['sfo1']
 
@@ -15,8 +15,12 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const result = await search(query)
-    return NextResponse.json(result)
+    const response = await search(query)
+    return NextResponse.json(
+      response.noResults
+        ? []
+        : response.results.map((item) => pick(item, ['title', 'description', 'url', 'hostname', 'icon'])),
+    )
   } catch (error) {
     if (error instanceof Error) {
       return handleError(error.message)

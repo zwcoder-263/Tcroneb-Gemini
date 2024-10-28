@@ -39,7 +39,7 @@ function EditableArea({ content, isEditing, onChange, onCancel }: Props) {
       <Textarea
         ref={contentRef}
         defaultValue={content}
-        className="max-h-[320px] resize-none"
+        className="chat-content max-h-[320px] resize-none"
         style={{ height: `${contentHeight}px` }}
       />
       <div className="mt-2 flex justify-end gap-2">

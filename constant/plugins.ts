@@ -1,4 +1,4 @@
-const plugins: Record<string, OpenAPIDocument> = {
+export const plugins: Record<string, OpenAPIDocument> = {
   OfficialSearch: {
     components: {
       schemas: {
@@ -99,6 +99,12 @@ const plugins: Record<string, OpenAPIDocument> = {
       },
     ],
   },
+}
+
+export const OFFICAL_PLUGINS = {
+  SEARCH: 'OfficialSearch',
+  WEATHER: 'OfficialWeather',
+  LOCATION: 'OfficialLocation',
 }
 
 export default plugins

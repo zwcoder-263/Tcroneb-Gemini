@@ -209,4 +209,7 @@ html.dark .hljs-warpper ::-webkit-scrollbar-thumb:hover {
   .katex-inline-warpper {
     max-width: calc(100vw - 76px);
   }
+  .chat-content {
+    max-width: calc(100vw - 76px);
+  }
 }

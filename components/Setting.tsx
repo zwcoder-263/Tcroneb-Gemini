@@ -188,9 +188,14 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
       title={t('setting')}
       description={t('settingDescription')}
       footer={
-        <Button className="flex-1" type="submit" onClick={form.handleSubmit(handleSubmit)}>
-          {t('save')}
-        </Button>
+        <>
+          <Button className="flex-1" type="submit" onClick={form.handleSubmit(handleSubmit)}>
+            {t('save')}
+          </Button>
+          <Button className="flex-1 max-sm:mt-2" variant="outline" onClick={onClose}>
+            {t('cancel')}
+          </Button>
+        </>
       }
     >
       <Form {...form}>

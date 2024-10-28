@@ -24,6 +24,7 @@ import {
   Blocks,
 } from 'lucide-react'
 import { EdgeSpeech } from '@xiangfa/polly'
+import type { SearchResult } from 'duck-duck-scrape'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import BubblesLoading from '@/components/BubblesLoading'
 import FileList from '@/components/FileList'
@@ -31,17 +32,21 @@ import EditableArea from '@/components/EditableArea'
 import AudioPlayer from '@/components/AudioPlayer'
 import IconButton from '@/components/IconButton'
 import Button from '@/components/Button'
+import WebSearch from '@/components/plugins/WebSearch'
 import { useMessageStore } from '@/store/chat'
 import { useSettingStore } from '@/store/setting'
+import { usePluginStore } from '@/store/plugin'
 import AudioStream from '@/utils/AudioStream'
 import { sentenceSegmentation } from '@/utils/common'
-import { upperFirst, isFunction, find } from 'lodash-es'
+import { OFFICAL_PLUGINS } from '@/constant/plugins'
+import { upperFirst, isFunction, find, isNull } from 'lodash-es'
 
 import 'katex/dist/katex.min.css'
 import 'highlight.js/styles/a11y-light.css'
 import 'yet-another-react-lightbox/styles.css'
 
 interface Props extends Message {
+  loading?: boolean
   onRegenerate?: (id: string) => void
 }
 
@@ -85,7 +90,8 @@ function mergeSentences(sentences: string[], sentenceLength = 20): string[] {
   return mergedSentences
 }
 
-function MessageItem({ id, role, parts, attachments, onRegenerate }: Props) {
+function MessageItem(props: Props) {
+  const { id, role, parts, attachments, loading, onRegenerate } = props
   const { t } = useTranslation()
   const [html, setHtml] = useState<string>('')
   const [hasTextContent, setHasTextContent] = useState<boolean>(false)
@@ -268,41 +274,76 @@ function MessageItem({ id, role, parts, attachments, onRegenerate }: Props) {
     if (role === 'user') {
       return (
         <AvatarFallback className="bg-green-300 text-white">
-          <User />
+          <User className="h-5 w-5" />
         </AvatarFallback>
       )
     } else if (role === 'function') {
       return (
         <AvatarFallback className="bg-blue-300 text-white">
-          <Blocks />
+          <Blocks className="h-5 w-5" />
         </AvatarFallback>
       )
     } else {
       return (
         <AvatarFallback className="bg-red-300 text-white">
-          <Bot />
+          <Bot className="h-5 w-5" />
         </AvatarFallback>
       )
     }
   }
 
+  const getPluginInfo = (name: string) => {
+    const { installed } = usePluginStore.getState()
+    const pluginId = name.split('__')[0]
+    if (installed[pluginId]) return installed[pluginId]?.info
+    return { title: pluginId, description: '' }
+  }
+
   const MessageContent = () => {
-    if (role === 'model' && parts && parts[0].text === '') {
+    if (loading) {
       return <BubblesLoading />
-    } else if (role === 'model' && parts && parts[0].functionCall) {
-      return (
-        <Button variant="outline">
-          {parts[0].functionCall.name}
-          <LoaderCircle className="ml-1.5 h-5 w-5 animate-spin" />
-        </Button>
-      )
     } else if (role === 'function' && parts && parts[0].functionResponse) {
-      return (
-        <Button variant="outline">
-          {parts[0].functionResponse.name}
-          <CircleCheck className="ml-1.5 h-5 w-5" />
-        </Button>
-      )
+      const pluginsDetail: {
+        id: string
+        title: string
+        description?: string
+        response?: FunctionResponse
+      }[] = []
+      for (const part of parts) {
+        if (part.functionResponse) {
+          const pluginInfo = getPluginInfo(part.functionResponse.name)
+          pluginsDetail.push({
+            id: part.functionResponse.name.split('__')[0],
+            title: pluginInfo.title,
+            description: pluginInfo.description,
+            response: part.functionResponse.response as FunctionResponse,
+          })
+        }
+      }
+      return pluginsDetail.map((detail) => {
+        return detail.response?.content ? (
+          <div key={detail.id}>
+            <div className="mb-3">
+              <Button variant="outline" title={detail.description}>
+                {detail.title}
+                <CircleCheck className="ml-1.5 h-5 w-5" />
+              </Button>
+            </div>
+            {detail.id === OFFICAL_PLUGINS.SEARCH ? (
+              <WebSearch data={detail.response.content as SearchResult[]} />
+            ) : null}
+          </div>
+        ) : (
+          <div key={detail.id}>
+            <div className="mb-3">
+              <Button variant="outline" title={detail.description}>
+                {detail.title}
+                <LoaderCircle className="ml-1.5 h-5 w-5 animate-spin" />
+              </Button>
+            </div>
+          </div>
+        )
+      })
     } else {
       return (
         <div className="group relative flex-auto">
@@ -336,7 +377,7 @@ function MessageItem({ id, role, parts, attachments, onRegenerate }: Props) {
           {!isEditing ? (
             <>
               <div
-                className="prose w-full overflow-hidden break-words pb-3 text-base leading-8"
+                className="prose chat-content break-words pb-3 text-base leading-8"
                 dangerouslySetInnerHTML={{ __html: html }}
               ></div>
               <div className="absolute -bottom-3 right-0 flex gap-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100">

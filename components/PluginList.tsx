@@ -8,17 +8,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useToast } from '@/components/ui/use-toast'
 import { usePluginStore } from '@/store/plugin'
 import { parsePlugin } from '@/utils/plugin'
-import officialPlugin from '@/constant/plugins'
+import officialPlugin, { OFFICAL_PLUGINS } from '@/constant/plugins'
 import { has } from 'lodash-es'
 
 const PluginStore = dynamic(() => import('@/components/PluginStore'))
-
-const OFFICAL_PLUGINS = {
-  SEARCH: 'OfficialSearch',
-  WEATHER: 'OfficialWeather',
-  LOCATION: 'OfficialLocation',
-  NASA: 'Astrodaily',
-}
 
 function PluginList() {
   const { toast } = useToast()
@@ -27,32 +20,33 @@ function PluginList() {
   const [enableOfficialSearch, setEnableOfficialSearch] = useState<boolean>(false)
   const [enableOfficialWeather, setEnableOfficialWeather] = useState<boolean>(false)
   const [enableOfficialLocation, setEnableOfficialLocation] = useState<boolean>(false)
-  const [enableOfficialNASA, setEnableOfficialNASA] = useState<boolean>(false)
 
-  const handleUsePlugin = useCallback((id: string, enabled: boolean) => {
-    const manifest = officialPlugin[id]
-    if (manifest) {
-      const tools = parsePlugin(id, manifest)
-      if (enabled) {
-        tools.every((tool) => addTool(tool))
-        installPlugin(id, manifest)
+  const handleUsePlugin = useCallback(
+    (id: string, enabled: boolean) => {
+      const manifest = officialPlugin[id]
+      if (manifest) {
+        const tools = parsePlugin(id, manifest)
+        if (enabled) {
+          tools.every((tool) => addTool(tool))
+          installPlugin(id, manifest)
+        } else {
+          tools.every((tool) => removeTool(tool.name))
+          uninstallPlugin(id)
+        }
       } else {
-        tools.every((tool) => removeTool(tool.name))
-        uninstallPlugin(id)
+        toast({
+          title: 'Plugin loading failed',
+          description: 'This plugin could not be loaded.',
+        })
       }
-    } else {
-      toast({
-        title: 'Plugin loading failed',
-        description: 'This plugin could not be loaded.',
-      })
-    }
-  }, [])
+    },
+    [addTool, removeTool, installPlugin, uninstallPlugin, toast],
+  )
 
   useEffect(() => {
     if (has(installed, OFFICAL_PLUGINS.SEARCH)) setEnableOfficialSearch(true)
     if (has(installed, OFFICAL_PLUGINS.WEATHER)) setEnableOfficialWeather(true)
     if (has(installed, OFFICAL_PLUGINS.LOCATION)) setEnableOfficialLocation(true)
-    if (has(installed, OFFICAL_PLUGINS.NASA)) setEnableOfficialNASA(true)
   }, [installed])
 
   return (
@@ -97,18 +91,6 @@ function PluginList() {
               className="my-1"
               defaultChecked={enableOfficialLocation}
               onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.LOCATION, checkedState === true)}
-            />
-          </div>
-          <div className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">
-            <Label className="inline-flex flex-1 cursor-pointer leading-6 text-slate-500" htmlFor="astrodaily">
-              <MapPinned className="my-1 mr-1 h-4 w-4" />
-              NASA
-            </Label>
-            <Checkbox
-              id="astrodaily"
-              className="my-1"
-              defaultChecked={enableOfficialNASA}
-              onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.NASA, checkedState === true)}
             />
           </div>
         </div>
