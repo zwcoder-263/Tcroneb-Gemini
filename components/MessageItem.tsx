@@ -33,6 +33,7 @@ import AudioPlayer from '@/components/AudioPlayer'
 import IconButton from '@/components/IconButton'
 import Button from '@/components/Button'
 import WebSearch from '@/components/plugins/WebSearch'
+import Weather, { type WeatherResult } from '@/components/plugins/Weather'
 import { useMessageStore } from '@/store/chat'
 import { useSettingStore } from '@/store/setting'
 import { usePluginStore } from '@/store/plugin'
@@ -322,7 +323,7 @@ function MessageItem(props: Props) {
       }
       return pluginsDetail.map((detail) => {
         return detail.response?.content ? (
-          <div key={detail.id}>
+          <div key={detail.id} className="w-full">
             <div className="mb-3">
               <Button variant="outline" title={detail.description}>
                 {detail.title}
@@ -332,6 +333,7 @@ function MessageItem(props: Props) {
             {detail.id === OFFICAL_PLUGINS.SEARCH ? (
               <WebSearch data={detail.response.content as SearchResult[]} />
             ) : null}
+            {detail.id === OFFICAL_PLUGINS.WEATHER ? <Weather data={detail.response.content as WeatherResult} /> : null}
           </div>
         ) : (
           <div key={detail.id}>

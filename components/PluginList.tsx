@@ -1,7 +1,7 @@
 'use client'
 import dynamic from 'next/dynamic'
 import { useState, memo, useCallback, useEffect } from 'react'
-import { Blocks, ArrowRight, Store, Globe, CloudSun, MapPinned } from 'lucide-react'
+import { Blocks, ArrowRight, Store, Globe, CloudSun, Clock4 } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -19,7 +19,7 @@ function PluginList() {
   const [pluginStoreOpen, setPluginStoreOpen] = useState<boolean>(false)
   const [enableOfficialSearch, setEnableOfficialSearch] = useState<boolean>(false)
   const [enableOfficialWeather, setEnableOfficialWeather] = useState<boolean>(false)
-  const [enableOfficialLocation, setEnableOfficialLocation] = useState<boolean>(false)
+  const [enableOfficialTime, setEnableOfficialTime] = useState<boolean>(false)
 
   const handleUsePlugin = useCallback(
     (id: string, enabled: boolean) => {
@@ -46,7 +46,7 @@ function PluginList() {
   useEffect(() => {
     if (has(installed, OFFICAL_PLUGINS.SEARCH)) setEnableOfficialSearch(true)
     if (has(installed, OFFICAL_PLUGINS.WEATHER)) setEnableOfficialWeather(true)
-    if (has(installed, OFFICAL_PLUGINS.LOCATION)) setEnableOfficialLocation(true)
+    if (has(installed, OFFICAL_PLUGINS.TIME)) setEnableOfficialTime(true)
   }, [installed])
 
   return (
@@ -82,15 +82,15 @@ function PluginList() {
             />
           </div>
           <div className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">
-            <Label className="inline-flex flex-1 cursor-pointer leading-6 text-slate-500" htmlFor="location">
-              <MapPinned className="my-1 mr-1 h-4 w-4" />
-              当前位置
+            <Label className="inline-flex flex-1 cursor-pointer leading-6 text-slate-500" htmlFor="time">
+              <Clock4 className="my-1 mr-1 h-4 w-4" />
+              当前时间
             </Label>
             <Checkbox
-              id="location"
+              id="time"
               className="my-1"
-              defaultChecked={enableOfficialLocation}
-              onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.LOCATION, checkedState === true)}
+              defaultChecked={enableOfficialTime}
+              onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.TIME, checkedState === true)}
             />
           </div>
         </div>

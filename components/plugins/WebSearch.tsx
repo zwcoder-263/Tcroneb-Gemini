@@ -34,14 +34,14 @@ function WebSearch(props: Props) {
                     <p className="text-line-clamp-2 text-sm">{item.description}</p>
                   </CardContent>
                   <CardFooter className="p-2" title={item.url}>
-                    <div className="inline-flex">
+                    <div className="inline-flex w-full">
                       <Avatar className="h-4 w-4">
                         <AvatarImage src={item.icon} />
                         <AvatarFallback>
                           <Link />
                         </AvatarFallback>
                       </Avatar>
-                      <small className="ml-1.5 truncate text-sm leading-4">{item.hostname}</small>
+                      <span className="ml-1.5 truncate text-sm leading-4">{item.hostname}</span>
                     </div>
                   </CardFooter>
                 </Card>
@@ -94,7 +94,7 @@ function WebSearch(props: Props) {
                     <Avatar className="h-4 w-4">
                       <AvatarImage src={item.icon} />
                       <AvatarFallback>
-                        <Link />
+                        <Link className="scale-75" />
                       </AvatarFallback>
                     </Avatar>
                     <small className="ml-1.5 truncate text-sm leading-4">{item.hostname}</small>

@@ -297,13 +297,13 @@ export default function Home() {
   const handleFunctionCall = useCallback(
     async (functionCalls: FunctionCall[]) => {
       const { model } = useSettingStore.getState()
-      const { update: updateMessage, add: addMessage } = useMessageStore.getState()
+      const { add: addMessage } = useMessageStore.getState()
       const { installed } = usePluginStore.getState()
       const pluginExecuteResults: Record<string, unknown> = {}
       for await (const call of functionCalls) {
         const pluginId = call.name.split('__')[0]
         const pluginManifest = installed[pluginId]
-        setExecutingPlugins([...executingPlugins, call.name])
+        setExecutingPlugins((state) => [...state, call.name])
         let baseUrl = ''
         if (pluginManifest.servers) {
           baseUrl = pluginManifest.servers[0].url
@@ -409,7 +409,7 @@ export default function Home() {
         })
       }
     },
-    [fetchAnswer, handleResponse, handleError],
+    [fetchAnswer, handleResponse, handleError, executingPlugins],
   )
 
   const handleSubmit = useCallback(

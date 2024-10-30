@@ -40,6 +40,7 @@
     "class-variance-authority": "^0.7.0",
     "clipboard": "^2.0.11",
     "clsx": "^2.1.1",
+    "dayjs": "^1.11.13",
     "duck-duck-scrape": "^2.2.5",
     "fix-webm-duration": "^1.0.5",
     "highlight.js": "^11.9.0",
