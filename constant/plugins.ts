@@ -46,7 +46,7 @@ export const plugins: Record<string, OpenAPIDocument> = {
       },
     },
     info: {
-      title: 'Web search',
+      title: 'Web Search',
       description: 'A plugin for search the web with DuckDuckGo.',
       version: 'v1',
     },
@@ -81,6 +81,76 @@ export const plugins: Record<string, OpenAPIDocument> = {
                 'application/json': {
                   schema: {
                     $ref: '#/components/schemas/searchResponse',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    servers: [
+      {
+        url: '/api/plugin',
+      },
+    ],
+  },
+  OfficialReader: {
+    info: {
+      title: 'Web Reader',
+      description: 'A plugin for convert a URL to LLM-friendly input.',
+      version: 'v1',
+    },
+    openapi: '3.0.1',
+    paths: {
+      '/reader': {
+        post: {
+          operationId: 'webReader',
+          description:
+            'Get the latest content of the web page. Convert a URL to LLM-friendly input. Interpret the content of the URL.',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    url: {
+                      type: 'string',
+                      description: 'The URL of the web page content to be queried.',
+                      example: 'https://gemini.u14.app/',
+                    },
+                  },
+                  required: ['url'],
+                },
+              },
+            },
+          },
+          responses: {
+            '200': {
+              description: 'OK',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      title: {
+                        type: 'string',
+                        description: 'The title of the website.',
+                      },
+                      description: {
+                        type: 'string',
+                        description: 'The description of the website.',
+                      },
+                      url: {
+                        type: 'string',
+                        description: 'The url of the website.',
+                      },
+                      content: {
+                        type: 'string',
+                        description: 'LLM-friendly web content, returned in markdown format.',
+                      },
+                    },
                   },
                 },
               },
@@ -392,7 +462,7 @@ export const plugins: Record<string, OpenAPIDocument> = {
       },
     },
     info: {
-      title: 'Weather forecast',
+      title: 'Weather Forecast',
       description: 'Get the weather forecast for a given location.',
       version: 'v1',
     },
@@ -469,28 +539,8 @@ export const plugins: Record<string, OpenAPIDocument> = {
     ],
   },
   OfficialTime: {
-    components: {
-      schemas: {
-        location: {
-          type: 'string',
-          description: 'The query location.',
-        },
-        timezone: {
-          type: 'string',
-          default: 'The Time Zone.',
-        },
-        currentTime: {
-          type: 'string',
-          default: 'The Current time.',
-        },
-        dayOfWeek: {
-          type: 'string',
-          description: 'Get the day of the week.',
-        },
-      },
-    },
     info: {
-      title: 'Current time',
+      title: 'Current Time',
       description: 'Get the current time for a given location.',
       version: 'v1',
     },
@@ -532,20 +582,21 @@ export const plugins: Record<string, OpenAPIDocument> = {
                   schema: {
                     type: 'object',
                     properties: {
-                      version: {
-                        type: 'integer',
-                        description: 'Version of the time result.',
-                      },
-                      info: {
+                      location: {
                         type: 'string',
-                        description: 'Information string about the time result.',
+                        description: 'The query location.',
                       },
-                      locations: {
-                        type: 'array',
-                        items: {
-                          $ref: '#/components/schemas/TimeLocation',
-                        },
-                        description: 'List of time locations (optional).',
+                      timezone: {
+                        type: 'string',
+                        default: 'The Time Zone.',
+                      },
+                      currentTime: {
+                        type: 'string',
+                        default: 'The Current time.',
+                      },
+                      dayOfWeek: {
+                        type: 'string',
+                        description: 'Get the day of the week.',
                       },
                     },
                   },
@@ -566,6 +617,7 @@ export const plugins: Record<string, OpenAPIDocument> = {
 
 export const OFFICAL_PLUGINS = {
   SEARCH: 'OfficialSearch',
+  READER: 'OfficialReader',
   WEATHER: 'OfficialWeather',
   TIME: 'OfficialTime',
 }
