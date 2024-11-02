@@ -1,3 +1,4 @@
+'use client'
 import { memo, useCallback, useLayoutEffect, useMemo, useState } from 'react'
 import { EdgeSpeech } from '@xiangfa/polly'
 import { zodResolver } from '@hookform/resolvers/zod'

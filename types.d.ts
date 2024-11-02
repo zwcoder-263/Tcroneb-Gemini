@@ -149,4 +149,23 @@ declare global {
     name: string
     content: T
   }
+
+  interface UnsplashImage {
+    id: string
+    width: number
+    height: number
+    title: string
+    color: string
+    createdAt: string
+    download: string
+    link: string
+    tags: string[]
+    src: string
+    thumbnail: string
+    user: {
+      name: string
+      avatar: string
+      link: string
+    }
+  }
 }

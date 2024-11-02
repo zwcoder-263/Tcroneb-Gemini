@@ -1,3 +1,4 @@
+'use client'
 import { memo } from 'react'
 import { Button as OriginalButton, type ButtonProps } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'

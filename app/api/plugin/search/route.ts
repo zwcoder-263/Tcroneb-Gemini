@@ -2,15 +2,15 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { search } from 'duck-duck-scrape'
 import { ErrorType } from '@/constant/errors'
 import { handleError } from '../../utils'
-import { isUndefined, pick } from 'lodash-es'
+import { pick } from 'lodash-es'
 
 export const preferredRegion = ['sfo1']
 
 export async function POST(req: NextRequest) {
   const { body } = await req.json()
-  const { query } = body
+  const { query = '' } = body
 
-  if (isUndefined(query)) {
+  if (query === '') {
     return NextResponse.json({ code: 40001, message: ErrorType.MissingParam }, { status: 400 })
   }
 

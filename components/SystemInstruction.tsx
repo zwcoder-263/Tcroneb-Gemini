@@ -1,3 +1,4 @@
+'use client'
 import { useState, useEffect, useCallback, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import MarkdownIt from 'markdown-it'

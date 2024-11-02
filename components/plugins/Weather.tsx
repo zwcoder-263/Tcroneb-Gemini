@@ -1,3 +1,4 @@
+'use client'
 import { useState, memo } from 'react'
 import { ChevronRight } from 'lucide-react'
 import ResponsiveDialog from '@/components/ResponsiveDialog'

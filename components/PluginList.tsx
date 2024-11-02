@@ -1,7 +1,7 @@
 'use client'
 import dynamic from 'next/dynamic'
 import { useState, memo, useCallback, useEffect } from 'react'
-import { Blocks, ArrowRight, Store, Globe, BookOpenCheck, CloudSun, Clock4 } from 'lucide-react'
+import { Blocks, ArrowRight, Store, Globe, BookOpenCheck, CloudSun, Clock4, Camera } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -21,6 +21,7 @@ function PluginList() {
   const [enableOfficialWebReader, setEnableOfficialWebReader] = useState<boolean>(false)
   const [enableOfficialWeather, setEnableOfficialWeather] = useState<boolean>(false)
   const [enableOfficialTime, setEnableOfficialTime] = useState<boolean>(false)
+  const [enableOfficialUnsplash, setEnableOfficialUnsplash] = useState<boolean>(false)
 
   const handleUsePlugin = useCallback(
     (id: string, enabled: boolean) => {
@@ -49,6 +50,7 @@ function PluginList() {
     if (has(installed, OFFICAL_PLUGINS.READER)) setEnableOfficialWebReader(true)
     if (has(installed, OFFICAL_PLUGINS.WEATHER)) setEnableOfficialWeather(true)
     if (has(installed, OFFICAL_PLUGINS.TIME)) setEnableOfficialTime(true)
+    if (has(installed, OFFICAL_PLUGINS.UNSPLASH)) setEnableOfficialUnsplash(true)
   }, [installed])
 
   return (
@@ -105,6 +107,18 @@ function PluginList() {
               className="my-1"
               defaultChecked={enableOfficialTime}
               onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.TIME, checkedState === true)}
+            />
+          </div>
+          <div className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">
+            <Label className="inline-flex flex-1 cursor-pointer leading-6 text-slate-500" htmlFor="unsplash">
+              <Camera className="my-1 mr-1 h-4 w-4" />
+              Unsplash
+            </Label>
+            <Checkbox
+              id="unsplash"
+              className="my-1"
+              defaultChecked={enableOfficialUnsplash}
+              onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.UNSPLASH, checkedState === true)}
             />
           </div>
         </div>

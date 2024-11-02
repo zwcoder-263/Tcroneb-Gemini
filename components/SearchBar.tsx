@@ -1,3 +1,4 @@
+'use client'
 import { useState, memo } from 'react'
 import { Search, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'

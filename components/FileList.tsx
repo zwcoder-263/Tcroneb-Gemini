@@ -1,3 +1,4 @@
+'use client'
 import { memo } from 'react'
 import { File, FileImage, FileAudio2, FileVideo2, Loader2, X } from 'lucide-react'
 import { formatSize } from '@/utils/common'

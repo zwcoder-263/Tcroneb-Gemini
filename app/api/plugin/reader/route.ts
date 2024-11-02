@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { ErrorType } from '@/constant/errors'
 import { handleError } from '../../utils'
-import { isUndefined, omit } from 'lodash-es'
+import { omit } from 'lodash-es'
 
 export const preferredRegion = ['sfo1']
 
@@ -21,9 +21,9 @@ interface ReaderResult {
 
 export async function POST(req: NextRequest) {
   const { body } = await req.json()
-  const { url } = body
+  const { url = '' } = body
 
-  if (isUndefined(url)) {
+  if (url === '') {
     return NextResponse.json({ code: 40001, message: ErrorType.MissingParam }, { status: 400 })
   }
 

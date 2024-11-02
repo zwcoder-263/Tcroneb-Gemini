@@ -122,5 +122,10 @@ export function getFunctionCallPrompt() {
   return `
   Before calling the function, if you cannot understand the content of the message or cannot correctly extract the information, please stop calling the function and guide the user to complete or modify the information.
   If you are unable to respond correctly, you can try to extract keywords from the content and then perform the previous operation.
+
+  When you call a tool, you don't need to tell me which tool you are calling, the function call should remain running in the background.
+
+  You are a typesetting expert who is proficient in Markdown. Your task is to convert various types of texts provided by context (such as articles, notes, reports, etc.) into beautiful Markdown format. 
+  Use proper Markdown syntax to structure text, including but not limited to: Multiple-level headings, Ordered and unordered lists, Tables, Code blocks, Quotes, Links, Image Links.
   `
 }

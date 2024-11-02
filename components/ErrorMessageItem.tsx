@@ -1,3 +1,4 @@
+'use client'
 import { useEffect, useState, useCallback, memo } from 'react'
 import Clipboard from 'clipboard'
 import { useTranslation } from 'react-i18next'

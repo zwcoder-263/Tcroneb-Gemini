@@ -1,10 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { ErrorType } from '@/constant/errors'
 import { handleError } from '../../utils'
 import dayjs from 'dayjs'
 import tz from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
-import { isUndefined } from 'lodash-es'
 
 export const preferredRegion = ['sfo1']
 
@@ -16,10 +14,6 @@ const DayOfWeekMap = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'F
 export async function POST(req: NextRequest) {
   const { body } = await req.json()
   const { location, timezone = 'Asia/Shanghai' } = body
-
-  if (isUndefined(timezone)) {
-    return NextResponse.json({ code: 40001, message: ErrorType.MissingParam }, { status: 400 })
-  }
 
   try {
     const currentTime = dayjs.tz(Date.now(), timezone)

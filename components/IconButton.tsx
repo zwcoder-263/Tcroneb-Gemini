@@ -1,3 +1,4 @@
+'use client'
 import { memo, type ReactNode, type MouseEventHandler } from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/utils'

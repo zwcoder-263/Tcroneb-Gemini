@@ -1,5 +1,5 @@
+'use client'
 import { memo, type ReactNode } from 'react'
-import { useTranslation } from 'react-i18next'
 import {
   Dialog,
   DialogContent,

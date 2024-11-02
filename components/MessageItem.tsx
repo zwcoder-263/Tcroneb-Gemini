@@ -34,6 +34,7 @@ import IconButton from '@/components/IconButton'
 import Button from '@/components/Button'
 import WebSearch from '@/components/plugins/WebSearch'
 import Weather, { type WeatherResult } from '@/components/plugins/Weather'
+import Unsplash from '@/components/plugins/Unsplash'
 import { useMessageStore } from '@/store/chat'
 import { useSettingStore } from '@/store/setting'
 import { usePluginStore } from '@/store/plugin'
@@ -301,7 +302,7 @@ function MessageItem(props: Props) {
   }
 
   const MessageContent = () => {
-    if (loading) {
+    if (role === 'model' && parts && parts[0].text === '') {
       return <BubblesLoading />
     } else if (role === 'function' && parts && parts[0].functionResponse) {
       const pluginsDetail: {
@@ -334,6 +335,9 @@ function MessageItem(props: Props) {
               <WebSearch data={detail.response.content as SearchResult[]} />
             ) : null}
             {detail.id === OFFICAL_PLUGINS.WEATHER ? <Weather data={detail.response.content as WeatherResult} /> : null}
+            {detail.id === OFFICAL_PLUGINS.UNSPLASH ? (
+              <Unsplash data={detail.response.content as UnsplashImage[]} />
+            ) : null}
           </div>
         ) : (
           <div key={detail.id}>

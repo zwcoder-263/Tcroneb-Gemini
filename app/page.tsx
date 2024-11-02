@@ -755,10 +755,10 @@ export default function Home() {
               </div>
             </div>
           ))}
-          {message !== '' ? (
+          {isThinking ? (
             <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
               <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
-                <MessageItem id="message" role="model" loading={isThinking} parts={[{ text: message }]} />
+                <MessageItem id="message" role="model" parts={[{ text: message }]} />
               </div>
             </div>
           ) : null}

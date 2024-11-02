@@ -4,32 +4,35 @@ export const plugins: Record<string, OpenAPIDocument> = {
       schemas: {
         searchResponse: {
           type: 'object',
-          description: 'The search results from search.',
+          description: 'The search results.',
           properties: {
             results: {
-              type: 'object',
+              type: 'array',
               description: 'The web results of the search.',
-              properties: {
-                title: {
-                  type: 'string',
-                  description: 'The title of the result.',
-                },
-                description: {
-                  type: 'string',
-                  description:
-                    'The sanitized description of the result. Bold tags will still be present in this string.',
-                },
-                url: {
-                  type: 'string',
-                  description: 'The URL of the result.',
-                },
-                hostname: {
-                  type: 'string',
-                  description: 'The hostname of the website. (i.e. "google.com")',
-                },
-                icon: {
-                  type: 'string',
-                  description: 'The icon of the website.',
+              items: {
+                type: 'object',
+                properties: {
+                  title: {
+                    type: 'string',
+                    description: 'The title of the result.',
+                  },
+                  description: {
+                    type: 'string',
+                    description:
+                      'The sanitized description of the result. Bold tags will still be present in this string.',
+                  },
+                  url: {
+                    type: 'string',
+                    description: 'The URL of the result.',
+                  },
+                  hostname: {
+                    type: 'string',
+                    description: 'The hostname of the website. (i.e. "google.com")',
+                  },
+                  icon: {
+                    type: 'string',
+                    description: 'The icon of the website.',
+                  },
                 },
               },
             },
@@ -107,7 +110,7 @@ export const plugins: Record<string, OpenAPIDocument> = {
         post: {
           operationId: 'webReader',
           description:
-            'Get the latest content of the web page. Convert a URL to LLM-friendly input. Interpret the content of the URL.',
+            'Access website content via the Internet. Convert a URL to LLM-friendly input. Interpret the content of the URL.',
           requestBody: {
             required: true,
             content: {
@@ -613,6 +616,112 @@ export const plugins: Record<string, OpenAPIDocument> = {
       },
     ],
   },
+  OfficialUnsplash: {
+    components: {
+      schemas: {
+        queryResponse: {
+          type: 'object',
+          description: 'The query results from unsplash.',
+          properties: {
+            results: {
+              type: 'object',
+              properties: {
+                id: {
+                  type: 'string',
+                },
+                width: {
+                  type: 'number',
+                },
+                height: {
+                  type: 'number',
+                },
+                title: {
+                  type: 'string',
+                },
+                src: {
+                  type: 'string',
+                },
+                color: {
+                  type: 'string',
+                },
+                createdAt: {
+                  type: 'string',
+                },
+                download: {
+                  type: 'string',
+                },
+                link: {
+                  type: 'string',
+                },
+                tags: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                  },
+                },
+                user: {
+                  type: 'string',
+                },
+                avatar: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    info: {
+      title: 'Unsplash Image',
+      description: 'Get copyright-free images from Unsplash.',
+      version: 'v1',
+    },
+    openapi: '3.0.1',
+    paths: {
+      '/unsplash': {
+        post: {
+          operationId: 'unsplashImage',
+          description: 'Get copyright-free images from Unsplash.',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    query: {
+                      type: 'string',
+                      description:
+                        'The query to search. Please use keywords to search. The query text only supports English.',
+                      example: 'cute cat',
+                    },
+                  },
+                  required: ['query'],
+                },
+              },
+            },
+          },
+          responses: {
+            '200': {
+              description: 'OK',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/queryResponse',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    servers: [
+      {
+        url: '/api/plugin',
+      },
+    ],
+  },
 }
 
 export const OFFICAL_PLUGINS = {
@@ -620,6 +729,7 @@ export const OFFICAL_PLUGINS = {
   READER: 'OfficialReader',
   WEATHER: 'OfficialWeather',
   TIME: 'OfficialTime',
+  UNSPLASH: 'OfficialUnsplash',
 }
 
 export default plugins

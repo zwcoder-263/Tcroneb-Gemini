@@ -201,6 +201,12 @@ html.dark .hljs-warpper ::-webkit-scrollbar-thumb:hover {
   height: 20px;
 }
 
+.chat-content img {
+  width: 100%;
+  max-width: 500px;
+  object-fit: cover;
+}
+
 @media (max-width: 768px) {
   .hljs-warpper {
     max-width: calc(100vw - 76px);

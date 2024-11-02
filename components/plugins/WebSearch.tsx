@@ -52,8 +52,8 @@ function WebSearch(props: Props) {
       </div>
       <div className="flex justify-between py-2">
         <div className="inline-flex">
-          {/* <div className="grid h-5 w-32 grid-cols-6 p-0.5">
-            {data.slice(4, 10).map((item, idx) => {
+          <div className="grid h-5 w-32 grid-cols-6 p-0.5">
+            {data.slice(4, 8).map((item, idx) => {
               return (
                 <Avatar key={idx} className="h-4 w-4" title={item.title}>
                   <AvatarImage src={item.icon} />
@@ -63,7 +63,7 @@ function WebSearch(props: Props) {
                 </Avatar>
               )
             })}
-          </div> */}
+          </div>
           <p className="text-sm">
             共 <span className="text-blue-500">{data.length}</span> 条数据源
           </p>
@@ -83,13 +83,7 @@ function WebSearch(props: Props) {
           <ol>
             {data.slice(4).map((item, idx) => {
               return (
-                <li className="mb-2" key={idx}>
-                  <h3 className="my-1 text-base text-blue-500 underline-offset-2 hover:underline">
-                    <a href={item.url} target="_blank">
-                      {item.title}
-                    </a>
-                  </h3>
-                  <p className="my-2 text-sm">{item.description}</p>
+                <li className="mb-2 border-b-[1px] border-solid border-gray-200 last:border-b-0" key={idx}>
                   <div className="inline-flex text-blue-400">
                     <Avatar className="h-4 w-4">
                       <AvatarImage src={item.icon} />
@@ -99,6 +93,12 @@ function WebSearch(props: Props) {
                     </Avatar>
                     <small className="ml-1.5 truncate text-sm leading-4">{item.hostname}</small>
                   </div>
+                  <h3 className="my-1 text-base text-blue-500 underline-offset-2 hover:underline">
+                    <a href={item.url} target="_blank">
+                      {item.title}
+                    </a>
+                  </h3>
+                  <p className="my-2 text-sm" dangerouslySetInnerHTML={{ __html: item.description }}></p>
                 </li>
               )
             })}

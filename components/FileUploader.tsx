@@ -1,3 +1,4 @@
+'use client'
 import { useRef, useMemo, memo, useCallback } from 'react'
 import { Paperclip, ImagePlus } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
