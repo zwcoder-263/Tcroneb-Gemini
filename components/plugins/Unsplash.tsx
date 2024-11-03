@@ -33,13 +33,16 @@ function Unsplash(props: Props) {
         {data.slice(4, 8).map((item, idx) => {
           return (
             <div key={item.id} className="group/unsplash relative h-40 w-40 max-sm:h-36 max-sm:w-36">
-              <img
-                className="h-full w-full rounded-sm object-cover"
-                src={item.thumbnail}
-                title={item.title}
-                alt={item.title}
-                onClick={() => openLightbox(idx)}
-              />
+              <picture>
+                <source srcSet={item.thumbnail} type="image/jpeg" />
+                <img
+                  className="h-full w-full rounded-sm object-cover"
+                  src={item.src}
+                  title={item.title}
+                  alt={item.title}
+                  onClick={() => openLightbox(idx)}
+                />
+              </picture>
               <a
                 className="absolute bottom-2 right-2 cursor-pointer rounded-full bg-white/20 p-1 text-white opacity-0 hover:bg-white/40 group-hover/unsplash:opacity-100"
                 href={item.download}

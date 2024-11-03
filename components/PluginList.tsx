@@ -1,39 +1,53 @@
 'use client'
 import dynamic from 'next/dynamic'
-import { useState, memo, useCallback, useEffect } from 'react'
-import { Blocks, ArrowRight, Store, Globe, BookOpenCheck, CloudSun, Clock4, Camera } from 'lucide-react'
+import { useState, useMemo, useCallback, useEffect, memo } from 'react'
+import { Blocks, ArrowRight, Store, Globe, BookOpenCheck, CloudSun, Clock4, Camera, Box } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useToast } from '@/components/ui/use-toast'
 import { usePluginStore } from '@/store/plugin'
 import { parsePlugin } from '@/utils/plugin'
 import officialPlugin, { OFFICAL_PLUGINS } from '@/constant/plugins'
-import { has } from 'lodash-es'
+import { keys, values, find } from 'lodash-es'
 
 const PluginStore = dynamic(() => import('@/components/PluginStore'))
 
 function PluginList() {
   const { toast } = useToast()
-  const { installed, installPlugin, uninstallPlugin, addTool, removeTool } = usePluginStore()
+  const { plugins, tools, installed, installPlugin, uninstallPlugin, addTool, removeTool } = usePluginStore()
   const [pluginStoreOpen, setPluginStoreOpen] = useState<boolean>(false)
-  const [enableOfficialSearch, setEnableOfficialSearch] = useState<boolean>(false)
-  const [enableOfficialWebReader, setEnableOfficialWebReader] = useState<boolean>(false)
-  const [enableOfficialWeather, setEnableOfficialWeather] = useState<boolean>(false)
-  const [enableOfficialTime, setEnableOfficialTime] = useState<boolean>(false)
-  const [enableOfficialUnsplash, setEnableOfficialUnsplash] = useState<boolean>(false)
+  const thirdPartyPlugins = useMemo(() => {
+    const installedPlugins: PluginManifest[] = []
+    for (const id of keys(installed)) {
+      if (values(OFFICAL_PLUGINS).indexOf(id) === -1) {
+        const manifest = find(plugins, { name_for_model: id })
+        if (manifest) installedPlugins.push(manifest)
+      }
+    }
+    return installedPlugins
+  }, [installed, plugins])
+  const enabledTools = useMemo(() => {
+    const ids: string[] = []
+    tools.forEach((tool) => {
+      const id = tool.name.split('__')[0]
+      if (!ids.includes(id)) ids.push(id)
+    })
+    return ids
+  }, [tools])
 
   const handleUsePlugin = useCallback(
     (id: string, enabled: boolean) => {
-      const manifest = officialPlugin[id]
+      const manifest = officialPlugin[id] || installed[id]
       if (manifest) {
-        const tools = parsePlugin(id, manifest)
+        const pluginTools = parsePlugin(id, manifest)
         if (enabled) {
-          tools.every((tool) => addTool(tool))
-          installPlugin(id, manifest)
+          pluginTools.every((tool) => addTool(tool))
+          if (officialPlugin[id]) installPlugin(id, manifest)
         } else {
-          tools.every((tool) => removeTool(tool.name))
-          uninstallPlugin(id)
+          pluginTools.every((tool) => removeTool(tool.name))
+          if (officialPlugin[id]) uninstallPlugin(id)
         }
       } else {
         toast({
@@ -42,88 +56,122 @@ function PluginList() {
         })
       }
     },
-    [addTool, removeTool, installPlugin, uninstallPlugin, toast],
+    [installed, addTool, removeTool, installPlugin, uninstallPlugin, toast],
   )
-
-  useEffect(() => {
-    if (has(installed, OFFICAL_PLUGINS.SEARCH)) setEnableOfficialSearch(true)
-    if (has(installed, OFFICAL_PLUGINS.READER)) setEnableOfficialWebReader(true)
-    if (has(installed, OFFICAL_PLUGINS.WEATHER)) setEnableOfficialWeather(true)
-    if (has(installed, OFFICAL_PLUGINS.TIME)) setEnableOfficialTime(true)
-    if (has(installed, OFFICAL_PLUGINS.UNSPLASH)) setEnableOfficialUnsplash(true)
-  }, [installed])
 
   return (
     <Popover>
       <PopoverTrigger className="inline-flex h-10 w-10 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-secondary text-sm font-medium text-secondary-foreground ring-offset-background transition-colors hover:bg-secondary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 max-sm:h-8 max-sm:w-8 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0 max-sm:[&_svg]:size-4">
         <Blocks />
       </PopoverTrigger>
-      <PopoverContent className="max-h-80 w-48 overflow-y-auto">
+      <PopoverContent className="max-h-[330px] w-48 overflow-y-auto">
         <div>
           <h3 className="p-2 text-sm text-slate-400">内置插件</h3>
           <div className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">
-            <Label className="inline-flex flex-1 cursor-pointer leading-6 text-slate-500" htmlFor="search">
+            <Label
+              className="inline-flex flex-1 cursor-pointer overflow-hidden leading-6 text-slate-500"
+              htmlFor={OFFICAL_PLUGINS.SEARCH}
+            >
               <Globe className="my-1 mr-1 h-4 w-4" />
-              网络搜索
+              <p className="truncate">网络搜索</p>
             </Label>
             <Checkbox
-              id="search"
+              id={OFFICAL_PLUGINS.SEARCH}
               className="my-1"
-              defaultChecked={enableOfficialSearch}
+              defaultChecked={enabledTools.includes(OFFICAL_PLUGINS.SEARCH)}
               onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.SEARCH, checkedState === true)}
             />
           </div>
           <div className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">
-            <Label className="inline-flex flex-1 cursor-pointer leading-6 text-slate-500" htmlFor="reader">
+            <Label
+              className="inline-flex flex-1 cursor-pointer overflow-hidden leading-6 text-slate-500"
+              htmlFor={OFFICAL_PLUGINS.READER}
+            >
               <BookOpenCheck className="my-1 mr-1 h-4 w-4" />
-              网页解读
+              <p className="truncate">网页解读</p>
             </Label>
             <Checkbox
-              id="reader"
+              id={OFFICAL_PLUGINS.READER}
               className="my-1"
-              defaultChecked={enableOfficialWebReader}
+              defaultChecked={enabledTools.includes(OFFICAL_PLUGINS.READER)}
               onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.READER, checkedState === true)}
             />
           </div>
           <div className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">
-            <Label className="inline-flex flex-1 cursor-pointer leading-6 text-slate-500" htmlFor="weather">
+            <Label
+              className="inline-flex flex-1 cursor-pointer overflow-hidden leading-6 text-slate-500"
+              htmlFor={OFFICAL_PLUGINS.WEATHER}
+            >
               <CloudSun className="my-1 mr-1 h-4 w-4" />
-              实时天气
+              <p className="truncate">实时天气</p>
             </Label>
             <Checkbox
-              id="weather"
+              id={OFFICAL_PLUGINS.WEATHER}
               className="my-1"
-              defaultChecked={enableOfficialWeather}
+              defaultChecked={enabledTools.includes(OFFICAL_PLUGINS.WEATHER)}
               onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.WEATHER, checkedState === true)}
             />
           </div>
           <div className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">
-            <Label className="inline-flex flex-1 cursor-pointer leading-6 text-slate-500" htmlFor="time">
+            <Label
+              className="inline-flex flex-1 cursor-pointer overflow-hidden leading-6 text-slate-500"
+              htmlFor={OFFICAL_PLUGINS.TIME}
+            >
               <Clock4 className="my-1 mr-1 h-4 w-4" />
-              当前时间
+              <p className="truncate">当前时间</p>
             </Label>
             <Checkbox
-              id="time"
+              id={OFFICAL_PLUGINS.TIME}
               className="my-1"
-              defaultChecked={enableOfficialTime}
+              defaultChecked={enabledTools.includes(OFFICAL_PLUGINS.TIME)}
               onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.TIME, checkedState === true)}
             />
           </div>
           <div className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">
-            <Label className="inline-flex flex-1 cursor-pointer leading-6 text-slate-500" htmlFor="unsplash">
+            <Label
+              className="inline-flex flex-1 cursor-pointer overflow-hidden leading-6 text-slate-500"
+              htmlFor={OFFICAL_PLUGINS.UNSPLASH}
+            >
               <Camera className="my-1 mr-1 h-4 w-4" />
-              Unsplash
+              <p className="truncate">Unsplash</p>
             </Label>
             <Checkbox
-              id="unsplash"
+              id={OFFICAL_PLUGINS.UNSPLASH}
               className="my-1"
-              defaultChecked={enableOfficialUnsplash}
+              defaultChecked={enabledTools.includes(OFFICAL_PLUGINS.UNSPLASH)}
               onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.UNSPLASH, checkedState === true)}
             />
           </div>
         </div>
         <div>
           <h3 className="p-2 text-sm text-slate-400">三方插件</h3>
+          {thirdPartyPlugins.map((plugin) => {
+            return (
+              <div
+                key={plugin.name_for_model}
+                className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900"
+              >
+                <Label
+                  className="inline-flex flex-1 cursor-pointer overflow-hidden leading-6 text-slate-500"
+                  htmlFor={plugin.name_for_model}
+                >
+                  <Avatar className="my-1 mr-1 h-4 w-4">
+                    <AvatarImage src={plugin.logo_url} alt={plugin.name_for_human} />
+                    <AvatarFallback>
+                      <Box />
+                    </AvatarFallback>
+                  </Avatar>
+                  <p className="truncate">{plugin.name_for_human}</p>
+                </Label>
+                <Checkbox
+                  id={plugin.name_for_model}
+                  className="my-1"
+                  defaultChecked={enabledTools.includes(plugin.name_for_model)}
+                  onCheckedChange={(checkedState) => handleUsePlugin(plugin.name_for_model, checkedState === true)}
+                />
+              </div>
+            )
+          })}
           <div
             className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900"
             onClick={() => setPluginStoreOpen(true)}

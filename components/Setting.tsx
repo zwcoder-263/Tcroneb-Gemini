@@ -175,8 +175,10 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
       if (cachedTime + 2880000 < timestamp) {
         const { apiKey, apiProxy, password } = useSettingStore.getState()
         fetchModels({ apiKey, apiProxy, password }).then((models) => {
-          update(models)
-          setCachedTime(timestamp)
+          if (models.length > 0) {
+            update(models)
+            setCachedTime(timestamp)
+          }
         })
       }
     }

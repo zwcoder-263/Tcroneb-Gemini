@@ -1,4 +1,4 @@
-export const plugins: Record<string, OpenAPIDocument> = {
+export const officialPlugins: Record<string, OpenAPIDocument> = {
   OfficialSearch: {
     components: {
       schemas: {
@@ -94,7 +94,7 @@ export const plugins: Record<string, OpenAPIDocument> = {
     },
     servers: [
       {
-        url: '/api/plugin',
+        url: '/api/plugins',
       },
     ],
   },
@@ -164,7 +164,7 @@ export const plugins: Record<string, OpenAPIDocument> = {
     },
     servers: [
       {
-        url: '/api/plugin',
+        url: '/api/plugins',
       },
     ],
   },
@@ -537,7 +537,7 @@ export const plugins: Record<string, OpenAPIDocument> = {
     },
     servers: [
       {
-        url: '/api/plugin',
+        url: '/api/plugins',
       },
     ],
   },
@@ -612,7 +612,7 @@ export const plugins: Record<string, OpenAPIDocument> = {
     },
     servers: [
       {
-        url: '/api/plugin',
+        url: '/api/plugins',
       },
     ],
   },
@@ -718,7 +718,7 @@ export const plugins: Record<string, OpenAPIDocument> = {
     },
     servers: [
       {
-        url: '/api/plugin',
+        url: '/api/plugins',
       },
     ],
   },
@@ -732,4 +732,4 @@ export const OFFICAL_PLUGINS = {
   UNSPLASH: 'OfficialUnsplash',
 }
 
-export default plugins
+export default officialPlugins

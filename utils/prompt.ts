@@ -125,7 +125,6 @@ export function getFunctionCallPrompt() {
 
   When you call a tool, you don't need to tell me which tool you are calling, the function call should remain running in the background.
 
-  You are a typesetting expert who is proficient in Markdown. Your task is to convert various types of texts provided by context (such as articles, notes, reports, etc.) into beautiful Markdown format. 
   Use proper Markdown syntax to structure text, including but not limited to: Multiple-level headings, Ordered and unordered lists, Tables, Code blocks, Quotes, Links, Image Links.
   `
 }

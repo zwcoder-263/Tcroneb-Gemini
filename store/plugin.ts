@@ -8,7 +8,8 @@ type PluginStore = {
   plugins: PluginManifest[]
   installed: Record<string, OpenAPIDocument>
   tools: FunctionDeclaration[]
-  update: (plugins: PluginManifest[]) => void
+  addPlugin: (plugin: PluginManifest) => void
+  removePlugin: (id: string) => void
   installPlugin: (id: string, schema: OpenAPIDocument) => void
   uninstallPlugin: (id: string) => void
   updatePlugin: (id: string, schema: OpenAPIDocument) => void
@@ -22,14 +23,20 @@ export const usePluginStore = create(
       plugins: [],
       installed: {},
       tools: [],
-      update: (plugins) => {
+      addPlugin: (plugin) => {
         set(() => ({
-          plugins: [...plugins],
+          plugins: [plugin, ...get().plugins],
         }))
+      },
+      removePlugin: (id) => {
+        get().uninstallPlugin(id)
+        const plugins = [...get().plugins]
+        const newPlugins = filter(plugins, (plugin) => plugin.name_for_model !== id)
+        set(() => ({ plugins: newPlugins }))
       },
       updatePlugin: (id, manifest) => {
         const plugins = [...get().plugins]
-        const index = findIndex(plugins, { id })
+        const index = findIndex(plugins, { name_for_model: id })
         if (index !== -1) {
           plugins[index] = { ...plugins[index], ...manifest }
           set(() => ({ plugins }))

@@ -53,43 +53,29 @@ declare global {
 
   type OpenAPIOperation<T extends {} = {}> = OpenAPIV3.OperationObject<T> | OpenAPIV3_1.OperationObject<T>
 
-  type OpenAPIParameter =
-    | OpenAPIV3_1.ReferenceObject
-    | OpenAPIV3_1.ParameterObject
-    | OpenAPIV3.ReferenceObject
-    | OpenAPIV3.ParameterObject
+  type OpenAPIParameter = OpenAPIV3_1.ParameterObject | OpenAPIV3.ParameterObject
 
-  type OpenAPIParameters =
-    | (OpenAPIV3_1.ReferenceObject | OpenAPIV3_1.ParameterObject)[]
-    | (OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject)[]
+  type OpenAPIParameters = OpenAPIV3_1.ParameterObject[] | OpenAPIV3.ParameterObject[]
 
   type OpenAPIRequestBody = OpenAPIV3.RequestBodyObject | OpenAPIV3_1.RequestBodyObject
 
   interface PluginManifest {
-    schemaVersion: 'v1'
-    id: string
-    title: string
-    description: string
-    systemRole: string
-    auth: {
-      type: 'none' | 'oauth' | 'service_http'
-      clientUrl?: string
-      scope?: string
-      authorizationType?: string
-      authorizationUrl?: string
-      authorizationContentType?: string
-      headers?: Record<string, string>
-      verificationTokens?: {
-        openai: string
-      }
-    }
+    name_for_human: string
+    name_for_model: string
+    description_for_human: string
+    description_for_model: string
     api: {
-      type: 'openapi'
+      is_user_authenticated: boolean
+      type: string
       url: string
     }
-    logoUrl: string
-    email: string
-    legalInfoUrl: string
+    auth: {
+      type: string
+    }
+    logo_url: string
+    contact_email: string
+    legal_info_url: string
+    schema_version: string
   }
 
   interface FileMetadata {

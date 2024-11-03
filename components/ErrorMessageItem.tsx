@@ -39,9 +39,7 @@ function ErrorMessageItem({ content, onRegenerate }: Props) {
         </AvatarFallback>
       </Avatar>
       <div className="group relative w-full">
-        <div className="prose overflow-hidden break-words text-base leading-8">
-          <div className="font-semibold text-red-500">{content}</div>
-        </div>
+        <div className="prose overflow-hidden break-words text-base leading-8 text-red-500">{content}</div>
         <div className="absolute -bottom-2 right-0 flex gap-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
           <IconButton title={t('regenerate')} onClick={() => onRegenerate()}>
             <RotateCw className="h-4 w-4" />
