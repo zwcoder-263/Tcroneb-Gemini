@@ -68,5 +68,20 @@
   "settingEnable": "Enabled",
   "settingDisable": "Disabled",
   "plugin": "Plugin",
-  "version": "Current version"
+  "version": "Current version",
+  "officialPlugins": "Official Plugins",
+  "externalPlugins": "External Plugins",
+  "pluginMarket": "Plugin Market",
+  "pluginMarketDesc": "The plugin is a set of special tools implemented through Gemini function calls.",
+  "webSearch": "Web Search",
+  "webReader": "Web Reader",
+  "realTimeWeather": "Weather",
+  "currentTime": "Current Time",
+  "pluginLoadingFailed": "Plugin loading failed",
+  "pluginLoadingFailedDesc": "This plugin could not be loaded properly and is temporarily unavailable.",
+  "pluginUrlPlaceholder": "Please enter the URL of the plugin configuration file",
+  "loadPlugin": "Load plugin",
+  "addPlugin": "Add plugin",
+  "uninstall": "Uninstall",
+  "install": "Install"
 }

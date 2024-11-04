@@ -1,6 +1,7 @@
 'use client'
 import dynamic from 'next/dynamic'
-import { useState, useMemo, useCallback, useEffect, memo } from 'react'
+import { useState, useMemo, useCallback, memo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Blocks, ArrowRight, Store, Globe, BookOpenCheck, CloudSun, Clock4, Camera, Box } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -12,12 +13,13 @@ import { parsePlugin } from '@/utils/plugin'
 import officialPlugin, { OFFICAL_PLUGINS } from '@/constant/plugins'
 import { keys, values, find } from 'lodash-es'
 
-const PluginStore = dynamic(() => import('@/components/PluginStore'))
+const PluginMarket = dynamic(() => import('@/components/PluginMarket'))
 
 function PluginList() {
+  const { t } = useTranslation()
   const { toast } = useToast()
   const { plugins, tools, installed, installPlugin, uninstallPlugin, addTool, removeTool } = usePluginStore()
-  const [pluginStoreOpen, setPluginStoreOpen] = useState<boolean>(false)
+  const [pluginMarketOpen, setPluginMarketOpen] = useState<boolean>(false)
   const thirdPartyPlugins = useMemo(() => {
     const installedPlugins: PluginManifest[] = []
     for (const id of keys(installed)) {
@@ -66,14 +68,14 @@ function PluginList() {
       </PopoverTrigger>
       <PopoverContent className="max-h-[330px] w-48 overflow-y-auto">
         <div>
-          <h3 className="p-2 text-sm text-slate-400">内置插件</h3>
+          <h3 className="p-2 text-sm text-slate-400">{t('officialPlugins')}</h3>
           <div className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">
             <Label
               className="inline-flex flex-1 cursor-pointer overflow-hidden leading-6 text-slate-500"
               htmlFor={OFFICAL_PLUGINS.SEARCH}
             >
               <Globe className="my-1 mr-1 h-4 w-4" />
-              <p className="truncate">网络搜索</p>
+              <p className="truncate">{t('webSearch')}</p>
             </Label>
             <Checkbox
               id={OFFICAL_PLUGINS.SEARCH}
@@ -88,7 +90,7 @@ function PluginList() {
               htmlFor={OFFICAL_PLUGINS.READER}
             >
               <BookOpenCheck className="my-1 mr-1 h-4 w-4" />
-              <p className="truncate">网页解读</p>
+              <p className="truncate">{t('webReader')}</p>
             </Label>
             <Checkbox
               id={OFFICAL_PLUGINS.READER}
@@ -103,7 +105,7 @@ function PluginList() {
               htmlFor={OFFICAL_PLUGINS.WEATHER}
             >
               <CloudSun className="my-1 mr-1 h-4 w-4" />
-              <p className="truncate">实时天气</p>
+              <p className="truncate">{t('realTimeWeather')}</p>
             </Label>
             <Checkbox
               id={OFFICAL_PLUGINS.WEATHER}
@@ -118,7 +120,7 @@ function PluginList() {
               htmlFor={OFFICAL_PLUGINS.TIME}
             >
               <Clock4 className="my-1 mr-1 h-4 w-4" />
-              <p className="truncate">当前时间</p>
+              <p className="truncate">{t('currentTime')}</p>
             </Label>
             <Checkbox
               id={OFFICAL_PLUGINS.TIME}
@@ -144,7 +146,7 @@ function PluginList() {
           </div>
         </div>
         <div>
-          <h3 className="p-2 text-sm text-slate-400">三方插件</h3>
+          <h3 className="p-2 text-sm text-slate-400">{t('externalPlugins')}</h3>
           {thirdPartyPlugins.map((plugin) => {
             return (
               <div
@@ -174,16 +176,16 @@ function PluginList() {
           })}
           <div
             className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900"
-            onClick={() => setPluginStoreOpen(true)}
+            onClick={() => setPluginMarketOpen(true)}
           >
             <Label className="inline-flex flex-1 cursor-pointer leading-6 text-slate-500" htmlFor="stock">
               <Store className="my-1 mr-1 h-4 w-4" />
-              插件市场
+              {t('pluginMarket')}
             </Label>
             <ArrowRight className="my-1 h-4 w-4 cursor-pointer" />
           </div>
         </div>
-        <PluginStore open={pluginStoreOpen} onClose={() => setPluginStoreOpen(false)} />
+        <PluginMarket open={pluginMarketOpen} onClose={() => setPluginMarketOpen(false)} />
       </PopoverContent>
     </Popover>
   )

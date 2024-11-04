@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect, useLayoutEffect, memo } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { useTranslation } from 'react-i18next'
 import { Globe, Mail, CloudDownload, LoaderCircle, Trash, Box } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -15,7 +16,6 @@ import { useToast } from '@/components/ui/use-toast'
 import SearchBar from '@/components/SearchBar'
 import { usePluginStore } from '@/store/plugin'
 import { useSettingStore } from '@/store/setting'
-import { parsePlugin } from '@/utils/plugin'
 import { encodeToken } from '@/utils/signature'
 import { isUndefined, find } from 'lodash-es'
 
@@ -77,12 +77,13 @@ function search(keyword: string, data: PluginManifest[]): PluginManifest[] {
   return results
 }
 
-function PluginStore({ open, onClose }: PluginStoreProps) {
+function PluginMarket({ open, onClose }: PluginStoreProps) {
   const { password } = useSettingStore()
   const { plugins, tools, installed, addPlugin, removePlugin, installPlugin, uninstallPlugin, removeTool } =
     usePluginStore()
+  const { t } = useTranslation()
   const { toast } = useToast()
-  const [pluginList, setPluginList] = useState<PluginManifest[]>(plugins)
+  const [pluginList, setPluginList] = useState<PluginManifest[]>([])
   const [storePlugins, setStorePlugins] = useState<string[]>([])
   const [loadingList, setLoadingList] = useState<string[]>([])
   const [showImport, setShowImport] = useState<boolean>(false)
@@ -127,13 +128,13 @@ function PluginStore({ open, onClose }: PluginStoreProps) {
         installPlugin(id, result)
       } else {
         toast({
-          title: 'Plugin loading failed',
-          description: 'This plugin could not be loaded properly and is temporarily unavailable.',
+          title: t('pluginLoadingFailed'),
+          description: t('pluginLoadingFailedDesc'),
         })
       }
       setLoadingList(loadingList.filter((pluginId) => pluginId !== id))
     },
-    [password, loadingList, pluginList, installPlugin, toast],
+    [password, loadingList, pluginList, installPlugin, toast, t],
   )
 
   const handleUninstall = useCallback(
@@ -181,27 +182,27 @@ function PluginStore({ open, onClose }: PluginStoreProps) {
   useEffect(() => usePluginStore.subscribe((state) => setPluginList(state.plugins)), [])
 
   useLayoutEffect(() => {
-    if (open) {
+    if (open && pluginList.length === 0) {
       fetch('/plugins/store.json').then(async (response) => {
         const data: PluginManifest[] = await response.json()
         const storePluginList: string[] = []
         data.forEach((manifest) => {
           storePluginList.push(manifest.name_for_model)
-          if (!find(pluginList, { name_for_model: manifest.name_for_model })) {
+          if (!find(plugins, { name_for_model: manifest.name_for_model })) {
             addPlugin(manifest)
           }
         })
         setStorePlugins(storePluginList)
       })
     }
-  }, [open, addPlugin, pluginList])
+  }, [open, addPlugin, plugins, pluginList])
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-screen-md p-0 max-sm:h-full landscape:max-md:h-full">
         <DialogHeader className="p-6 pb-0 max-sm:p-4 max-sm:pb-0">
-          <DialogTitle>插件商店</DialogTitle>
-          <DialogDescription className="pb-2">插件是通过 Gemini 的函数调用实现的一组特殊工具。</DialogDescription>
+          <DialogTitle>{t('pluginMarket')}</DialogTitle>
+          <DialogDescription className="pb-2">{t('pluginMarketDesc')}</DialogDescription>
           {showImport ? (
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleSubmit)} className="flex gap-2">
@@ -211,19 +212,19 @@ function PluginStore({ open, onClose }: PluginStoreProps) {
                   render={({ field }) => (
                     <FormItem className="w-full space-y-0">
                       <FormControl>
-                        <Input placeholder="请输入插件配置文件的网址" {...field} autoFocus />
+                        <Input placeholder={t('pluginUrlPlaceholder')} {...field} autoFocus />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit">加载插件</Button>
+                <Button type="submit">{t('addPlugin')}</Button>
               </form>
             </Form>
           ) : (
             <div className="flex gap-2">
               <SearchBar onSearch={handleSearch} onClear={() => handleClear()} />
-              <Button onClick={() => setShowImport(true)}>导入插件</Button>
+              <Button onClick={() => setShowImport(true)}>{t('loadPlugin')}</Button>
             </div>
           )}
         </DialogHeader>
@@ -266,7 +267,7 @@ function PluginStore({ open, onClose }: PluginStoreProps) {
                           variant="outline"
                           onClick={() => handleRemove(item.name_for_model)}
                         >
-                          删除
+                          {t('delete')}
                         </Button>
                       ) : null}
                       <Button
@@ -280,7 +281,7 @@ function PluginStore({ open, onClose }: PluginStoreProps) {
                       >
                         {item.name_for_model in installed ? (
                           <>
-                            卸载{' '}
+                            {`${t('uninstall')} `}
                             {loadingList.includes(item.name_for_model) ? (
                               <LoaderCircle className="h-4 w-4 animate-spin" />
                             ) : (
@@ -289,7 +290,7 @@ function PluginStore({ open, onClose }: PluginStoreProps) {
                           </>
                         ) : (
                           <>
-                            安装{' '}
+                            {`${t('install')} `}
                             {loadingList.includes(item.name_for_model) ? (
                               <LoaderCircle className="h-4 w-4 animate-spin" />
                             ) : (
@@ -310,4 +311,4 @@ function PluginStore({ open, onClose }: PluginStoreProps) {
   )
 }
 
-export default memo(PluginStore)
+export default memo(PluginMarket)
