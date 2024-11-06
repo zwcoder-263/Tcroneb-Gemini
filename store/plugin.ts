@@ -67,6 +67,7 @@ export const usePluginStore = create(
     }),
     {
       name: 'pluginStore',
+      version: 1,
       storage: {
         getItem: async (key: string) => {
           const store = await storage.getItem<StorageValue<PluginStore>>(key)

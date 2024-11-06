@@ -82,6 +82,7 @@ export const useMessageStore = create(
     }),
     {
       name: 'chatStore',
+      version: 1,
       storage: {
         getItem: async (key: string) => {
           const store = await storage.getItem<StorageValue<MessageStore>>(key)

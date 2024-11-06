@@ -1,6 +1,6 @@
 'use client'
 import dynamic from 'next/dynamic'
-import { useRef, useState, useMemo, KeyboardEvent, useEffect, useCallback } from 'react'
+import { useRef, useState, useMemo, KeyboardEvent, useEffect, useCallback, useLayoutEffect } from 'react'
 import type { FunctionCall } from '@google/generative-ai'
 import { EdgeSpeech, getRecordMineType } from '@xiangfa/polly'
 import SiriWave from 'siriwave'
@@ -24,6 +24,7 @@ import { useMessageStore } from '@/store/chat'
 import { useAttachmentStore } from '@/store/attachment'
 import { useSettingStore } from '@/store/setting'
 import { usePluginStore } from '@/store/plugin'
+import i18n from '@/plugins/i18n'
 import chat, { type RequestProps } from '@/utils/chat'
 import { summarizePrompt, getVoiceModelPrompt, getSummaryPrompt, getTalkAudioPrompt } from '@/utils/prompt'
 import { AudioRecorder } from '@/utils/Recorder'
@@ -34,7 +35,7 @@ import { encodeToken } from '@/utils/signature'
 import type { FileManagerOptions } from '@/utils/FileManager'
 import { fileUpload, imageUpload } from '@/utils/upload'
 import { findOperationById } from '@/utils/plugin'
-import { formatTime, readFileAsDataURL } from '@/utils/common'
+import { detectLanguage, formatTime, readFileAsDataURL } from '@/utils/common'
 import { cn } from '@/utils'
 import { OldVisionModel, OldTextModel } from '@/constant/model'
 import mimeType from '@/constant/attachment'
@@ -706,6 +707,18 @@ export default function Home() {
         instance.dispose()
       }
     }
+  }, [])
+
+  useLayoutEffect(() => {
+    const { update } = useSettingStore.getState()
+    const lang = detectLanguage()
+    i18n.changeLanguage(lang)
+    const payload: Partial<Setting> = { lang, sttLang: lang, ttsLang: lang }
+    const options = new EdgeSpeech({ locale: lang }).voiceOptions
+    if (options) {
+      payload.ttsVoice = options[0].value
+    }
+    update(payload)
   }, [])
 
   return (

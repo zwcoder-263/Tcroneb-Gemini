@@ -37,6 +37,7 @@ export const useSettingStore = create(
     }),
     {
       name: 'settingStore',
+      version: 1,
       storage: {
         getItem: async (key: string) => {
           const store = await storage.getItem<StorageValue<SettingStore>>(key)

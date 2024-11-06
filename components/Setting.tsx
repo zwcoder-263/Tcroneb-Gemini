@@ -19,7 +19,6 @@ import { Switch } from '@/components/ui/switch'
 import ResponsiveDialog from '@/components/ResponsiveDialog'
 import i18n from '@/plugins/i18n'
 import { fetchModels } from '@/utils/models'
-import { detectLanguage } from '@/utils/common'
 import locales from '@/constant/locales'
 import { Model } from '@/constant/model'
 import { useSettingStore } from '@/store/setting'
@@ -117,17 +116,6 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
       return new Promise((resolve) => {
         useSettingStore.persist.onFinishHydration((state) => {
           const store = omitBy(state, (item) => isFunction(item)) as z.infer<typeof formSchema>
-          if (state.lang === '') {
-            const lang = detectLanguage()
-            i18n.changeLanguage(lang)
-            const payload: Partial<Setting> = { lang, sttLang: lang, ttsLang: lang }
-            setTtsLang(lang)
-            const options = new EdgeSpeech({ locale: lang }).voiceOptions
-            if (options) {
-              payload.ttsVoice = options[0].value
-            }
-            settingStore.update(payload)
-          }
           resolve(store)
         })
       })
