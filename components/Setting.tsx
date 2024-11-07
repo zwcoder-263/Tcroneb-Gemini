@@ -191,7 +191,7 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)}>
-          <Tabs className="max-sm:px-4" defaultValue="general">
+          <Tabs defaultValue="general">
             <TabsList className="mx-auto grid h-fit w-full grid-cols-4">
               <TabsTrigger className="text-wrap" value="general">
                 {t('generalSetting')}

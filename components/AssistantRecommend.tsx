@@ -1,7 +1,7 @@
 'use client'
 import { useState, useCallback, memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { RefreshCcw } from 'lucide-react'
+import { RefreshCcw, BotMessageSquare } from 'lucide-react'
 import AssistantMarket from '@/components/AssistantMarket'
 import Button from '@/components/Button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -55,16 +55,28 @@ function AssistantRecommend({ initAssistant }: Props) {
       <section className="-mt-20 w-full max-sm:mt-0">
         <div className="my-3 flex justify-between">
           <h3 className="text-base font-medium">{t('assistantRecommend')}</h3>
-          <Button
-            className="h-6 w-6 p-1"
-            title={t('refresh')}
-            variant="ghost"
-            size="icon"
-            disabled={recommendation.length === 0}
-            onClick={() => initAssistantMarket()}
-          >
-            <RefreshCcw className="h-5 w-5" />
-          </Button>
+          <div>
+            <Button
+              className="h-6 w-6 p-1"
+              title={t('assistantMarket')}
+              variant="ghost"
+              size="icon"
+              disabled={recommendation.length === 0}
+              onClick={() => setAssistantMarketOpen(true)}
+            >
+              <BotMessageSquare className="h-5 w-5" />
+            </Button>
+            <Button
+              className="h-6 w-6 p-1"
+              title={t('refresh')}
+              variant="ghost"
+              size="icon"
+              disabled={recommendation.length === 0}
+              onClick={() => initAssistantMarket()}
+            >
+              <RefreshCcw className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
         {recommendation.length === 0 ? (
           <div className="grid grid-cols-2 grid-rows-2 gap-2 max-sm:grid-cols-1">
@@ -102,7 +114,7 @@ function AssistantRecommend({ initAssistant }: Props) {
           </div>
         )}
         <div
-          className="cursor-pointer pt-3 text-center underline-offset-4 hover:underline"
+          className="cursor-pointer pt-3 text-center underline-offset-4 hover:underline max-sm:hidden"
           onClick={() => setAssistantMarketOpen(true)}
         >
           {t('moreAssistants')}

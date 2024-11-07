@@ -1,32 +1,28 @@
 'use client'
 import { useState, useCallback, useEffect, useLayoutEffect, memo } from 'react'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
 import { Globe, Mail, CloudDownload, LoaderCircle, Trash, Box } from 'lucide-react'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Card, CardHeader, CardContent, CardFooter, CardTitle } from '@/components/ui/card'
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Checkbox } from '@/components/ui/checkbox'
 import { useToast } from '@/components/ui/use-toast'
+import ResponsiveDialog from '@/components/ResponsiveDialog'
 import SearchBar from '@/components/SearchBar'
 import { usePluginStore } from '@/store/plugin'
 import { useSettingStore } from '@/store/setting'
 import { encodeToken } from '@/utils/signature'
-import { isUndefined, find } from 'lodash-es'
+import { isUndefined, find, snakeCase } from 'lodash-es'
 
 type PluginStoreProps = {
   open: boolean
   onClose: () => void
 }
-
-const formSchema = z.object({
-  url: z.string().url({ message: 'Invalid url' }),
-})
 
 const pluginManifestSchema = z.object({
   name_for_human: z.string(),
@@ -44,8 +40,35 @@ const pluginManifestSchema = z.object({
   schema_version: z.string(),
 })
 
-async function loadPluginManifest(url: string) {
-  const response = await fetch(url)
+const deafultCustomPlugin = {
+  name_for_human: 'Plugin Title',
+  name_for_model: 'plugin_title',
+  description_for_human: 'This is Plugin Description.',
+  description_for_model: 'This is Plugin Description.',
+  api: {
+    is_user_authenticated: false,
+    type: 'openapi',
+    url: '',
+  },
+  auth: {
+    type: 'none',
+  },
+  logo_url: '',
+  contact_email: '',
+  legal_info_url: '',
+  schema_version: '',
+}
+
+async function loadPluginManifest(url: string, useProxy = false, token = '') {
+  let response
+  if (useProxy) {
+    response = await fetch(`/api/gateway?token=${token}`, {
+      method: 'POST',
+      body: JSON.stringify({ baseUrl: url }),
+    })
+  } else {
+    response = await fetch(url)
+  }
   const contentType = response.headers.get('Content-Type')
   try {
     if (contentType === 'application/json') {
@@ -86,17 +109,16 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
   const [pluginList, setPluginList] = useState<PluginManifest[]>([])
   const [storePlugins, setStorePlugins] = useState<string[]>([])
   const [loadingList, setLoadingList] = useState<string[]>([])
-  const [showImport, setShowImport] = useState<boolean>(false)
+  const [manifestUrl, setManifestUrl] = useState<string>('')
+  const [useProxy, setUseProxy] = useState<boolean>(false)
+  const [customPlugin, setCustomPlugin] = useState<PluginManifest>(deafultCustomPlugin)
+  const [pluginDetail, setPluginDetail] = useState<string>('')
+  const [currentTab, setCurrentTab] = useState<string>('list')
 
-  const handleClose = useCallback(
-    (open: boolean) => {
-      if (!open) {
-        onClose()
-        setPluginList(plugins)
-      }
-    },
-    [plugins, onClose],
-  )
+  const handleClose = useCallback(() => {
+    onClose()
+    if (plugins.length > 0) setPluginList(plugins)
+  }, [plugins, onClose])
 
   const handleSearch = useCallback(
     (keyword: string) => {
@@ -121,7 +143,7 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
       const token = encodeToken(password)
       const response = await fetch(`/api/plugins?token=${token}`, {
         method: 'POST',
-        body: JSON.stringify({ openapi: manifest.api.url }),
+        body: manifest.api.url,
       })
       const result: OpenAPIDocument = await response.json()
       if (result.paths) {
@@ -158,26 +180,89 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
     [handleUninstall, removePlugin],
   )
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      url: '',
-    },
-  })
-
-  const handleSubmit = useCallback(
-    async (values: z.infer<typeof formSchema>) => {
-      const manifest = await loadPluginManifest(values.url)
+  const handleLoadPlugin = useCallback(
+    async (url: string) => {
+      const token = encodeToken(password)
+      const manifest = await loadPluginManifest(url, useProxy, token)
       const parser = pluginManifestSchema.safeParse(manifest)
       if (!parser.success) {
         throw new TypeError('OpenAPI Manifest Invalid', { cause: parser.error })
       }
-      addPlugin(parser.data as PluginManifest)
-      setShowImport(false)
-      form.reset()
+      setCustomPlugin(parser.data as PluginManifest)
+      const response = await fetch(`/api/plugins?token=${token}`, {
+        method: 'POST',
+        body: manifest.api.url,
+      })
+      const result: OpenAPIDocument = await response.json()
+      if (result.paths) {
+        setPluginDetail(JSON.stringify(result, null, 4))
+      }
     },
-    [form, addPlugin],
+    [password, useProxy],
   )
+
+  const handleAddPlugin = async () => {
+    if (pluginDetail === '') {
+      toast({
+        title: t('pluginLoadingFailed'),
+        description: '插件配置内容缺失',
+      })
+      return false
+    }
+    const token = encodeToken(password)
+    const response = await fetch(`/api/plugins?token=${token}`, {
+      method: 'POST',
+      body: pluginDetail,
+    })
+    if (response.status === 200) {
+      const result: OpenAPIDocument = await response.json()
+      installPlugin(customPlugin.name_for_model, result)
+      if (customPlugin.api.url === '') {
+        try {
+          const pluginConfig: OpenAPIDocument = JSON.parse(pluginDetail)
+          const manifest = {
+            name_for_human: pluginConfig.info.title,
+            name_for_model: snakeCase(pluginConfig.info.title),
+            description_for_human: pluginConfig.info.description || pluginConfig.info.title,
+            description_for_model: pluginConfig.info.description || pluginConfig.info.title,
+            api: {
+              is_user_authenticated: false,
+              type: 'openapi',
+              url: '',
+            },
+            auth: {
+              type: 'none',
+            },
+            logo_url: '',
+            contact_email: pluginConfig.info.contact?.email || '',
+            legal_info_url: pluginConfig.info.termsOfService || '',
+            schema_version: pluginConfig.info.version,
+          }
+          setCustomPlugin(manifest)
+          addPlugin(manifest)
+          setCurrentTab('list')
+          setCustomPlugin(deafultCustomPlugin)
+          setPluginDetail('')
+        } catch (err) {
+          toast({
+            title: t('pluginLoadingFailed'),
+            description: t('pluginLoadingFailedDesc'),
+          })
+        }
+      } else {
+        addPlugin(customPlugin)
+        setCurrentTab('list')
+        setCustomPlugin(deafultCustomPlugin)
+        setPluginDetail('')
+      }
+    } else {
+      const result: ErrorResponse = await response.json()
+      toast({
+        title: t('pluginLoadingFailed'),
+        description: result.message,
+      })
+    }
+  }
 
   useEffect(() => usePluginStore.subscribe((state) => setPluginList(state.plugins)), [])
 
@@ -192,122 +277,193 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
             addPlugin(manifest)
           }
         })
+        setPluginList(plugins)
         setStorePlugins(storePluginList)
       })
     }
   }, [open, addPlugin, plugins, pluginList])
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-screen-md p-0 max-sm:h-full landscape:max-md:h-full">
-        <DialogHeader className="p-6 pb-0 max-sm:p-4 max-sm:pb-0">
-          <DialogTitle>{t('pluginMarket')}</DialogTitle>
-          <DialogDescription className="pb-2">{t('pluginMarketDesc')}</DialogDescription>
-          {showImport ? (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSubmit)} className="flex gap-2">
-                <FormField
-                  control={form.control}
-                  name="url"
-                  render={({ field }) => (
-                    <FormItem className="w-full space-y-0">
-                      <FormControl>
-                        <Input placeholder={t('pluginUrlPlaceholder')} {...field} autoFocus />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit">{t('addPlugin')}</Button>
-              </form>
-            </Form>
-          ) : (
-            <div className="flex gap-2">
-              <SearchBar onSearch={handleSearch} onClear={() => handleClear()} />
-              <Button onClick={() => setShowImport(true)}>{t('loadPlugin')}</Button>
-            </div>
-          )}
-        </DialogHeader>
-        <ScrollArea className="h-[400px] w-full scroll-smooth max-sm:h-full">
-          <div className="grid grid-cols-2 gap-2 p-6 pt-0 max-sm:grid-cols-1 max-sm:p-4 max-sm:pt-0">
-            {pluginList.map((item) => {
-              return (
-                <Card key={item.name_for_model} className="transition-colors dark:hover:border-white/80">
-                  <CardHeader className="pb-1 pt-4">
-                    <CardTitle className="flex truncate text-base font-medium">
-                      <Avatar className="mr-1 h-6 w-6">
-                        <AvatarImage src={item.logo_url} alt={item.name_for_human} />
-                        <AvatarFallback>
-                          <Box />
-                        </AvatarFallback>
-                      </Avatar>
-                      {item.name_for_human}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-line-clamp-3 h-16 pb-2 text-sm">
-                    {item.description_for_human}
-                  </CardContent>
-                  <CardFooter className="flex justify-between px-4 pb-2">
-                    <div>
-                      <a href={item.legal_info_url} title={item.legal_info_url} target="_blank">
-                        <Button className="h-8 w-8" size="icon" variant="ghost">
-                          <Globe className="h-5 w-5" />
-                        </Button>
-                      </a>
-                      <a href={`mailto:${item.contact_email}`} title={item.contact_email} target="_blank">
-                        <Button className="h-8 w-8" size="icon" variant="ghost">
-                          <Mail className="h-5 w-5" />
-                        </Button>
-                      </a>
-                    </div>
-                    <div>
-                      {storePlugins.indexOf(item.name_for_model) === -1 ? (
-                        <Button
-                          className="mr-2 h-8"
-                          variant="outline"
-                          onClick={() => handleRemove(item.name_for_model)}
-                        >
-                          {t('delete')}
-                        </Button>
-                      ) : null}
-                      <Button
-                        className="h-8 bg-red-400 hover:bg-red-500"
-                        disabled={loadingList.includes(item.name_for_model)}
-                        onClick={() =>
-                          item.name_for_model in installed
-                            ? handleUninstall(item.name_for_model)
-                            : handleInstall(item.name_for_model)
-                        }
-                      >
-                        {item.name_for_model in installed ? (
-                          <>
-                            {`${t('uninstall')} `}
-                            {loadingList.includes(item.name_for_model) ? (
-                              <LoaderCircle className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Trash className="h-4 w-4" />
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            {`${t('install')} `}
-                            {loadingList.includes(item.name_for_model) ? (
-                              <LoaderCircle className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <CloudDownload className="h-4 w-4" />
-                            )}
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </CardFooter>
-                </Card>
-              )
-            })}
+    <ResponsiveDialog
+      className="max-w-screen-md"
+      open={open}
+      onClose={handleClose}
+      title={t('pluginMarket')}
+      description={t('pluginMarketDesc')}
+    >
+      <Tabs value={currentTab} onValueChange={(value) => setCurrentTab(value)}>
+        <TabsList className="mx-auto grid w-full grid-cols-2">
+          <TabsTrigger value="list">插件列表</TabsTrigger>
+          <TabsTrigger value="custom">自定义插件</TabsTrigger>
+        </TabsList>
+        <TabsContent value="list">
+          <div className="my-4 max-sm:my-2">
+            <SearchBar onSearch={handleSearch} onClear={() => handleClear()} />
           </div>
-        </ScrollArea>
-      </DialogContent>
-    </Dialog>
+          <ScrollArea className="h-[400px] w-full scroll-smooth">
+            <div className="grid grid-cols-2 gap-2 max-sm:grid-cols-1">
+              {pluginList.map((item) => {
+                return (
+                  <Card key={item.name_for_model} className="transition-colors dark:hover:border-white/80">
+                    <CardHeader className="pb-1 pt-4">
+                      <CardTitle className="flex truncate text-base font-medium">
+                        <Avatar className="mr-0.5 h-6 w-6 p-1">
+                          <AvatarImage className="h-4 w-4 rounded-full" src={item.logo_url} alt={item.name_for_human} />
+                          <AvatarFallback>
+                            <Box className="h-4 w-4" />
+                          </AvatarFallback>
+                        </Avatar>
+                        {item.name_for_human}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-line-clamp-3 h-16 pb-2 text-sm">
+                      {item.description_for_human}
+                    </CardContent>
+                    <CardFooter className="flex justify-between px-4 pb-2">
+                      <div>
+                        {customPlugin.legal_info_url ? (
+                          <a href={item.legal_info_url} title={item.legal_info_url} target="_blank">
+                            <Button className="h-8 w-8" size="icon" variant="ghost">
+                              <Globe className="h-5 w-5" />
+                            </Button>
+                          </a>
+                        ) : null}
+                        {customPlugin.contact_email ? (
+                          <a href={`mailto:${item.contact_email}`} title={item.contact_email} target="_blank">
+                            <Button className="h-8 w-8" size="icon" variant="ghost">
+                              <Mail className="h-5 w-5" />
+                            </Button>
+                          </a>
+                        ) : null}
+                      </div>
+                      <div>
+                        {storePlugins.indexOf(item.name_for_model) === -1 ? (
+                          <Button
+                            className="mr-2 h-8"
+                            variant="outline"
+                            onClick={() => handleRemove(item.name_for_model)}
+                          >
+                            {t('delete')}
+                          </Button>
+                        ) : null}
+                        {item.api.url !== '' ? (
+                          <Button
+                            className="h-8 bg-red-400 hover:bg-red-500"
+                            disabled={loadingList.includes(item.name_for_model)}
+                            onClick={() =>
+                              item.name_for_model in installed
+                                ? handleUninstall(item.name_for_model)
+                                : handleInstall(item.name_for_model)
+                            }
+                          >
+                            {item.name_for_model in installed ? (
+                              <>
+                                {`${t('uninstall')} `}
+                                {loadingList.includes(item.name_for_model) ? (
+                                  <LoaderCircle className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash className="h-4 w-4" />
+                                )}
+                              </>
+                            ) : (
+                              <>
+                                {`${t('install')} `}
+                                {loadingList.includes(item.name_for_model) ? (
+                                  <LoaderCircle className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <CloudDownload className="h-4 w-4" />
+                                )}
+                              </>
+                            )}
+                          </Button>
+                        ) : null}
+                      </div>
+                    </CardFooter>
+                  </Card>
+                )
+              })}
+            </div>
+            <ScrollBar orientation="vertical" />
+          </ScrollArea>
+        </TabsContent>
+        <TabsContent value="custom">
+          <div>
+            <div className="mb-3 mt-4 flex w-full gap-2 max-sm:my-2">
+              <Input placeholder={t('pluginUrlPlaceholder')} onChange={(ev) => setManifestUrl(ev.target.value)} />
+              <Button type="submit" onClick={() => handleLoadPlugin(manifestUrl)}>
+                加载配置
+              </Button>
+            </div>
+            <div className="mb-3 flex gap-2">
+              <Checkbox id="proxy" onCheckedChange={(checkedState) => setUseProxy(!!checkedState)} />
+              <label htmlFor="proxy" className="text-sm font-medium leading-4">
+                服务器代理（如遇到跨域问题，请尝试开启该选项后重新加载配置）
+              </label>
+            </div>
+          </div>
+          <div className="mb-3">
+            <Card className="transition-colors dark:hover:border-white/80">
+              <CardHeader className="px-4 pb-1 pt-3">
+                <CardTitle className="inline-flex justify-between truncate text-base font-medium">
+                  <div className="inline-flex">
+                    <Avatar className="mr-0.5 h-6 w-6 p-1">
+                      <AvatarImage
+                        className="h-4 w-4 rounded-full"
+                        src={customPlugin.logo_url}
+                        alt={customPlugin.name_for_human}
+                      />
+                      <AvatarFallback>
+                        <Box className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                    {customPlugin.name_for_human}
+                  </div>
+                  <div className="inline-flex gap-1">
+                    {customPlugin.legal_info_url ? (
+                      <a href={customPlugin.legal_info_url} title={customPlugin.legal_info_url} target="_blank">
+                        <Button className="h-6 w-6 [&_svg]:size-4" size="icon" variant="ghost">
+                          <Globe />
+                        </Button>
+                      </a>
+                    ) : null}
+                    {customPlugin.contact_email ? (
+                      <a
+                        href={`mailto:${customPlugin.contact_email}`}
+                        title={customPlugin.contact_email}
+                        target="_blank"
+                      >
+                        <Button className="h-6 w-6 [&_svg]:size-4" size="icon" variant="ghost">
+                          <Mail />
+                        </Button>
+                      </a>
+                    ) : null}
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-3 pt-1 text-sm">
+                <p className="whitespace-pre-wrap">{customPlugin.description_for_human}</p>
+              </CardContent>
+            </Card>
+          </div>
+          <div>
+            <Textarea
+              className="h-[238px] whitespace-pre-wrap max-sm:h-[210px]"
+              placeholder="插件配置内容（仅支持 openAPI 3.0 以上版本）"
+              value={pluginDetail}
+              onChange={(ev) => setPluginDetail(ev.target.value)}
+            />
+            <div className="mt-2 flex justify-end gap-2 max-sm:mb-2 max-sm:justify-center">
+              <Button className="max-sm:flex-1" type="button" variant="secondary" onClick={() => setPluginDetail('')}>
+                清空
+              </Button>
+              <Button className="max-sm:flex-1" type="submit" onClick={() => handleAddPlugin()}>
+                {t('addPlugin')}
+              </Button>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </ResponsiveDialog>
   )
 }
 

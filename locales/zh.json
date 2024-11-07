@@ -75,7 +75,7 @@
   "officialPlugins": "内置插件",
   "externalPlugins": "三方插件",
   "pluginMarket": "插件市场",
-  "pluginMarketDesc": "The plugin is a set of special tools implemented through Gemini function calls.",
+  "pluginMarketDesc": "该插件是一组通过 Gemini 函数调用实现的特殊工具。",
   "webSearch": "网络搜索",
   "webReader": "网页解读",
   "realTimeWeather": "实时天气",

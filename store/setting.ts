@@ -32,7 +32,7 @@ export const useSettingStore = create(
       maxOutputTokens: 8192,
       safety: 'none',
       autoStopRecord: false,
-      update: (values) => set(() => values),
+      update: (values) => set(() => ({ ...get(), ...values })),
       setIsProtected: (isProtected) => set({ isProtected }),
     }),
     {

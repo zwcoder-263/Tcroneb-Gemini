@@ -19,18 +19,21 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer'
 import useMediaQuery from '@/hooks/useMediaQuery'
+import { cn } from '@/utils'
 
 type Props = {
   open: boolean
   onClose: () => void
-  title: string
-  description?: string
+  className?: string
+  title: string | ReactNode
+  description?: string | ReactNode
   trigger?: ReactNode
   children: ReactNode
   footer?: ReactNode
 }
 
-function DrawerDialog({ open, onClose, title, description, trigger, children, footer }: Props) {
+function DrawerDialog(props: Props) {
+  const { open, onClose, className, title, description, trigger, children, footer } = props
   const isDesktop = useMediaQuery('(min-width: 450px)')
 
   const handleClose = (open: boolean) => {
@@ -41,13 +44,13 @@ function DrawerDialog({ open, onClose, title, description, trigger, children, fo
     return (
       <Dialog open={open} onOpenChange={handleClose}>
         {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
-        <DialogContent className="overflow-y-auto landscape:max-md:h-4/5">
+        <DialogContent className={cn('overflow-y-auto landscape:max-md:h-4/5', className)}>
           <DialogHeader>
             {title ? <DialogTitle>{title}</DialogTitle> : null}
             {description ? <DialogDescription>{description}</DialogDescription> : null}
           </DialogHeader>
-          {children}
-          <DialogFooter className="mx-auto w-4/5 flex-col sm:justify-center">{footer}</DialogFooter>
+          <div>{children}</div>
+          {footer ? <DialogFooter className="mx-auto w-4/5 flex-col sm:justify-center">{footer}</DialogFooter> : null}
         </DialogContent>
       </Dialog>
     )
@@ -56,13 +59,13 @@ function DrawerDialog({ open, onClose, title, description, trigger, children, fo
   return (
     <Drawer open={open} onOpenChange={handleClose}>
       {trigger ? <DrawerTrigger asChild>{trigger}</DrawerTrigger> : null}
-      <DrawerContent>
+      <DrawerContent className={className}>
         <DrawerHeader className="text-left">
           {title ? <DrawerTitle>{title}</DrawerTitle> : null}
           {description ? <DrawerDescription>{description}</DrawerDescription> : null}
         </DrawerHeader>
-        <div className="px-4">{children}</div>
-        <DrawerFooter className="pt-2">{footer}</DrawerFooter>
+        <div className="h-full w-full overflow-hidden px-4">{children}</div>
+        {footer ? <DrawerFooter className="pt-2">{footer}</DrawerFooter> : null}
       </DrawerContent>
     </Drawer>
   )

@@ -154,4 +154,9 @@ declare global {
       link: string
     }
   }
+
+  interface ErrorResponse {
+    code: number
+    message: string
+  }
 }

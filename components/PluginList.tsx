@@ -73,6 +73,7 @@ function PluginList() {
             <Label
               className="inline-flex flex-1 cursor-pointer overflow-hidden leading-6 text-slate-500"
               htmlFor={OFFICAL_PLUGINS.SEARCH}
+              title={t('webSearch')}
             >
               <Globe className="my-1 mr-1 h-4 w-4" />
               <p className="truncate">{t('webSearch')}</p>
@@ -88,6 +89,7 @@ function PluginList() {
             <Label
               className="inline-flex flex-1 cursor-pointer overflow-hidden leading-6 text-slate-500"
               htmlFor={OFFICAL_PLUGINS.READER}
+              title={t('webReader')}
             >
               <BookOpenCheck className="my-1 mr-1 h-4 w-4" />
               <p className="truncate">{t('webReader')}</p>
@@ -96,13 +98,14 @@ function PluginList() {
               id={OFFICAL_PLUGINS.READER}
               className="my-1"
               defaultChecked={enabledTools.includes(OFFICAL_PLUGINS.READER)}
-              onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.READER, checkedState === true)}
+              onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.READER, !!checkedState)}
             />
           </div>
           <div className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">
             <Label
               className="inline-flex flex-1 cursor-pointer overflow-hidden leading-6 text-slate-500"
               htmlFor={OFFICAL_PLUGINS.WEATHER}
+              title={t('realTimeWeather')}
             >
               <CloudSun className="my-1 mr-1 h-4 w-4" />
               <p className="truncate">{t('realTimeWeather')}</p>
@@ -111,13 +114,14 @@ function PluginList() {
               id={OFFICAL_PLUGINS.WEATHER}
               className="my-1"
               defaultChecked={enabledTools.includes(OFFICAL_PLUGINS.WEATHER)}
-              onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.WEATHER, checkedState === true)}
+              onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.WEATHER, !!checkedState)}
             />
           </div>
           <div className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">
             <Label
               className="inline-flex flex-1 cursor-pointer overflow-hidden leading-6 text-slate-500"
               htmlFor={OFFICAL_PLUGINS.TIME}
+              title={t('currentTime')}
             >
               <Clock4 className="my-1 mr-1 h-4 w-4" />
               <p className="truncate">{t('currentTime')}</p>
@@ -126,13 +130,14 @@ function PluginList() {
               id={OFFICAL_PLUGINS.TIME}
               className="my-1"
               defaultChecked={enabledTools.includes(OFFICAL_PLUGINS.TIME)}
-              onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.TIME, checkedState === true)}
+              onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.TIME, !!checkedState)}
             />
           </div>
           <div className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">
             <Label
               className="inline-flex flex-1 cursor-pointer overflow-hidden leading-6 text-slate-500"
               htmlFor={OFFICAL_PLUGINS.UNSPLASH}
+              title="Unsplash"
             >
               <Camera className="my-1 mr-1 h-4 w-4" />
               <p className="truncate">Unsplash</p>
@@ -141,7 +146,7 @@ function PluginList() {
               id={OFFICAL_PLUGINS.UNSPLASH}
               className="my-1"
               defaultChecked={enabledTools.includes(OFFICAL_PLUGINS.UNSPLASH)}
-              onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.UNSPLASH, checkedState === true)}
+              onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.UNSPLASH, !!checkedState)}
             />
           </div>
         </div>
@@ -156,6 +161,7 @@ function PluginList() {
                 <Label
                   className="inline-flex flex-1 cursor-pointer overflow-hidden leading-6 text-slate-500"
                   htmlFor={plugin.name_for_model}
+                  title={plugin.description_for_human}
                 >
                   <Avatar className="my-1 mr-1 h-4 w-4">
                     <AvatarImage src={plugin.logo_url} alt={plugin.name_for_human} />
@@ -169,7 +175,7 @@ function PluginList() {
                   id={plugin.name_for_model}
                   className="my-1"
                   defaultChecked={enabledTools.includes(plugin.name_for_model)}
-                  onCheckedChange={(checkedState) => handleUsePlugin(plugin.name_for_model, checkedState === true)}
+                  onCheckedChange={(checkedState) => handleUsePlugin(plugin.name_for_model, !!checkedState)}
                 />
               </div>
             )
