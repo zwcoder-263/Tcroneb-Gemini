@@ -10,9 +10,12 @@ import {
   Mic,
   MessageSquareText,
   Settings,
+  Square,
   Pause,
   SendHorizontal,
   Github,
+  MessagesSquare,
+  LayoutList,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import ThemeToggle from '@/components/ThemeToggle'
@@ -70,9 +73,11 @@ export default function Home() {
   const edgeSpeechRef = useRef<EdgeSpeech>()
   const audioRecordRef = useRef<AudioRecorder>()
   const speechQueue = useRef<PromiseQueue>()
+  const stopGeneratingRef = useRef<boolean>(false)
   const messagesRef = useRef(useMessageStore.getState().messages)
   const messages = useMessageStore((state) => state.messages)
   const systemInstruction = useMessageStore((state) => state.systemInstruction)
+  const chatLayout = useMessageStore((state) => state.chatLayout)
   const files = useAttachmentStore((state) => state.files)
   const model = useSettingStore((state) => state.model)
   const autoStopRecord = useSettingStore((state) => state.autoStopRecord)
@@ -187,6 +192,7 @@ export default function Home() {
             const encoder = new TextEncoder()
             const functionCalls: FunctionCall[][] = []
             for await (const chunk of stream) {
+              if (stopGeneratingRef.current) return controller.close()
               const calls = chunk.functionCalls()
               if (calls) {
                 functionCalls.push(calls)
@@ -276,6 +282,7 @@ export default function Home() {
             scrollToBottom()
           }
           setIsThinking(false)
+          stopGeneratingRef.current = false
           setExecutingPlugins([])
           if (maxHistoryLength > 0) {
             const textMessages: Message[] = []
@@ -673,6 +680,11 @@ export default function Home() {
     return parts
   }, [])
 
+  const handleChangeChatLayout = useCallback((type: 'chat' | 'doc') => {
+    const { changeChatLayout } = useMessageStore.getState()
+    changeChatLayout(type)
+  }, [])
+
   useEffect(() => useMessageStore.subscribe((state) => (messagesRef.current = state.messages)), [])
 
   useEffect(() => {
@@ -735,6 +747,27 @@ export default function Home() {
             </Button>
           </a>
           <ThemeToggle />
+          {chatLayout === 'doc' ? (
+            <Button
+              className="h-8 w-8"
+              title={t('chatLayout')}
+              variant="ghost"
+              size="icon"
+              onClick={() => handleChangeChatLayout('chat')}
+            >
+              <MessagesSquare className="h-5 w-5" />
+            </Button>
+          ) : (
+            <Button
+              className="h-8 w-8"
+              title={t('docLayout')}
+              variant="ghost"
+              size="icon"
+              onClick={() => handleChangeChatLayout('doc')}
+            >
+              <LayoutList className="h-5 w-5" />
+            </Button>
+          )}
           <Button
             className="h-8 w-8"
             title={t('setting')}
@@ -763,7 +796,12 @@ export default function Home() {
               )}
               key={msg.id}
             >
-              <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
+              <div
+                className={cn(
+                  'flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80',
+                  msg.role === 'user' && chatLayout === 'chat' ? 'flex-row-reverse text-right' : '',
+                )}
+              >
                 <MessageItem {...msg} onRegenerate={handleResubmit} />
               </div>
             </div>
@@ -791,17 +829,18 @@ export default function Home() {
           ) : null}
           {content !== '' ? (
             <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
-              <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
+              <div
+                className={cn(
+                  'flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80',
+                  chatLayout === 'chat' ? 'flex-row-reverse text-right' : '',
+                )}
+              >
                 <MessageItem id="preview" role="user" parts={[{ text: content }]} />
               </div>
             </div>
           ) : null}
           {messages.length > 0 ? (
             <div className="my-2 flex h-4 justify-center text-xs text-slate-400 duration-300 dark:text-slate-600">
-              {/* <span className="mx-2 cursor-pointer hover:text-slate-500" onClick={() => handleResubmit()}>
-                {t('regenerateAnswer')}
-              </span>
-              <Separator orientation="vertical" /> */}
               <span className="mx-2 cursor-pointer hover:text-slate-500" onClick={() => handleCleanMessage()}>
                 {t('clearChatContent')}
               </span>
@@ -873,7 +912,17 @@ export default function Home() {
             ) : null}
           </div>
         </div>
-        {content === '' && files.length === 0 && supportSpeechRecognition ? (
+        {isThinking ? (
+          <Button
+            className="rounded-full max-sm:h-8 max-sm:w-8 [&_svg]:size-4 max-sm:[&_svg]:size-3"
+            title={t('stop')}
+            variant="secondary"
+            size="icon"
+            onClick={() => (stopGeneratingRef.current = true)}
+          >
+            <Square />
+          </Button>
+        ) : content === '' && files.length === 0 && supportSpeechRecognition ? (
           <Button
             className="max-sm:h-8 max-sm:w-8 [&_svg]:size-5 max-sm:[&_svg]:size-4"
             title={t('voiceMode')}

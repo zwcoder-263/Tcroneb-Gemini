@@ -12,6 +12,7 @@ type MessageStore = {
   messages: Message[]
   summary: Summary
   systemInstruction: string
+  chatLayout: 'chat' | 'doc'
   add: (message: Message) => void
   update: (id: string, message: Message) => void
   remove: (id: string) => void
@@ -19,6 +20,7 @@ type MessageStore = {
   revoke: (id: string) => void
   instruction: (prompt: string) => void
   summarize: (ids: string[], content: string) => void
+  changeChatLayout: (type: 'chat' | 'doc') => void
 }
 
 export const useMessageStore = create(
@@ -30,6 +32,7 @@ export const useMessageStore = create(
         content: '',
       },
       systemInstruction: '',
+      chatLayout: 'doc',
       add: (message) => {
         set((state) => ({
           messages: [...state.messages, message],
@@ -78,6 +81,9 @@ export const useMessageStore = create(
             content,
           },
         }))
+      },
+      changeChatLayout: (type) => {
+        set(() => ({ chatLayout: type }))
       },
     }),
     {

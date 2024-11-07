@@ -48,7 +48,6 @@ import 'highlight.js/styles/a11y-light.css'
 import 'yet-another-react-lightbox/styles.css'
 
 interface Props extends Message {
-  loading?: boolean
   onRegenerate?: (id: string) => void
 }
 
@@ -93,7 +92,7 @@ function mergeSentences(sentences: string[], sentenceLength = 20): string[] {
 }
 
 function MessageItem(props: Props) {
-  const { id, role, parts, attachments, loading, onRegenerate } = props
+  const { id, role, parts, attachments, onRegenerate } = props
   const { t } = useTranslation()
   const [html, setHtml] = useState<string>('')
   const [hasTextContent, setHasTextContent] = useState<boolean>(false)
