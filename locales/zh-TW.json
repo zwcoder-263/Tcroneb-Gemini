@@ -86,5 +86,28 @@
   "loadPlugin": "載入插件",
   "addPlugin": "添加插件",
   "uninstall": "解除安裝",
-  "install": "安裝"
+  "install": "安裝",
+  "plugins": {
+    "unsplash": {
+      "viewAll": "查看全部",
+      "totalPictures": "共 {{total}} 張圖片，"
+    },
+    "weather": {
+      "date": "日期",
+      "weather": "天氣",
+      "temperatureMax": "最高溫度",
+      "temperatureMin": "最低溫度",
+      "precipitationAmount": "降水量",
+      "windSpeedAvg": "風速",
+      "viewAll": "查看過去十天的天氣狀況",
+      "dialogTitle": "未來十天的天氣預報",
+      "dialogDescription": "天氣預報數據來源於 Weather。"
+    },
+    "webSearch": {
+      "totalDataSources": "筆數據來源",
+      "viewAll": "查看全部",
+      "dialogTitle": "搜尋結果",
+      "dialogDescription": "數據來源於 DuckDuckGo 搜尋引擎。"
+    }
+  }
 }

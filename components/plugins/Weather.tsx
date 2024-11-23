@@ -1,5 +1,6 @@
 'use client'
 import { useState, memo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ChevronRight } from 'lucide-react'
 import ResponsiveDialog from '@/components/ResponsiveDialog'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
@@ -73,6 +74,7 @@ function renderTableRow(forecast: ForecastDaily) {
 
 function Weather(props: Props) {
   const { data } = props
+  const { t } = useTranslation()
   const [dialogOpen, setDialogOpen] = useState<boolean>(false)
 
   if (isUndefined(data)) return null
@@ -107,11 +109,11 @@ function Weather(props: Props) {
                 </div>
               </div>
               <div className="w-24 text-center">
-                <Avatar className="mx-4 h-16 w-16">
+                <Avatar className="mx-4 mt-3 h-16 w-16" title={data.currentWeather.conditionCode}>
                   <AvatarImage src={`./plugins/weather/${data.currentWeather.conditionCode}.svg`} />
                   <AvatarFallback>{data.currentWeather.conditionCode}</AvatarFallback>
                 </Avatar>
-                <p>{data.currentWeather.conditionCode}</p>
+                {/* <p>{data.currentWeather.conditionCode}</p> */}
               </div>
             </div>
           </CardContent>
@@ -120,26 +122,26 @@ function Weather(props: Props) {
           <small>{dayjs(data.currentWeather.asOf).format('YYYY-MM-DD HH:mm:ss')}</small>
         </p>
         <div className="inline-flex cursor-pointer text-blue-500" onClick={() => setDialogOpen(true)}>
-          <span className="text-sm underline-offset-2 hover:underline">查看近十天的天气情况</span>
+          <span className="text-sm underline-offset-2 hover:underline">{t('plugins.weather.viewAll')}</span>
           <ChevronRight className="h-5 w-5" />
         </div>
       </div>
       <ResponsiveDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
-        title="未来十天的天气预报"
-        description="天气预报数据来源于 Weather。"
+        title={t('plugins.weather.dialogTitle')}
+        description={t('plugins.weather.dialogDescription')}
       >
         <ScrollArea className="h-[500px]">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>日期</TableHead>
-                <TableHead>天气</TableHead>
-                <TableHead className="text-center">最高温度</TableHead>
-                <TableHead className="text-center">最低温度</TableHead>
-                <TableHead className="text-center max-sm:hidden">降水量</TableHead>
-                <TableHead className="text-center max-sm:hidden">风速</TableHead>
+                <TableHead>{t('plugins.weather.date')}</TableHead>
+                <TableHead>{t('plugins.weather.weather')}</TableHead>
+                <TableHead className="text-center">{t('plugins.weather.temperatureMax')}</TableHead>
+                <TableHead className="text-center">{t('plugins.weather.temperatureMin')}</TableHead>
+                <TableHead className="text-center max-sm:hidden">{t('plugins.weather.precipitationAmount')}</TableHead>
+                <TableHead className="text-center max-sm:hidden">{t('plugins.weather.windSpeedAvg')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>{data.forecastDaily.days.map((item) => renderTableRow(item))}</TableBody>

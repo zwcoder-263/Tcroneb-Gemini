@@ -1,5 +1,6 @@
 'use client'
 import { useState, useCallback, memo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Download } from 'lucide-react'
 import Lightbox from 'yet-another-react-lightbox'
 import LightboxFullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
@@ -17,6 +18,7 @@ type Props = {
 
 function Unsplash(props: Props) {
   const { data = [] } = props
+  const { t } = useTranslation()
   const [showLightbox, setShowLightbox] = useState<boolean>(false)
   const [lightboxIndex, setLightboxIndex] = useState<number>(0)
 
@@ -68,12 +70,12 @@ function Unsplash(props: Props) {
       </div>
       <div className="flex justify-between py-2">
         <p className="text-sm">
-          共 {data.length} 张图片，
+          {t('plugins.unsplash.totalPictures', { total: data.length })}
           <span
             className="cursor-pointer text-sm text-blue-500 underline-offset-2 hover:underline"
             onClick={() => openLightbox(0)}
           >
-            查看全部
+            {t('plugins.unsplash.viewAll')}
           </span>
         </p>
       </div>

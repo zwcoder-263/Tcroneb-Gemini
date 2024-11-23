@@ -18,7 +18,8 @@ export async function GET(req: NextRequest) {
   try {
     const apiBaseUrl = geminiApiBaseUrl || 'https://generativelanguage.googleapis.com'
     const response = await fetch(`${apiBaseUrl}/v1beta/models?key=${geminiApiKey}`)
-    return new NextResponse(response.body)
+    const result = await response.json()
+    return NextResponse.json(result)
   } catch (error) {
     if (error instanceof Error) {
       return handleError(error.message)

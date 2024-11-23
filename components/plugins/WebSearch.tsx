@@ -1,5 +1,6 @@
 'use client'
 import { memo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, ChevronRight } from 'lucide-react'
 import ResponsiveDialog from '@/components/ResponsiveDialog'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
@@ -13,6 +14,7 @@ type Props = {
 
 function WebSearch(props: Props) {
   const { data = [] } = props
+  const { t } = useTranslation()
   const [dialogOpen, setDialogOpen] = useState<boolean>(false)
 
   if (data.length === 0) return null
@@ -52,7 +54,7 @@ function WebSearch(props: Props) {
       </div>
       <div className="flex justify-between py-2">
         <div className="inline-flex">
-          <div className="grid h-5 w-32 grid-cols-6 p-0.5">
+          <div className="grid h-5 w-32 grid-cols-4 p-0.5">
             {data.slice(4, 8).map((item, idx) => {
               return (
                 <Avatar key={idx} className="h-4 w-4" title={item.title}>
@@ -65,19 +67,19 @@ function WebSearch(props: Props) {
             })}
           </div>
           <p className="text-sm">
-            共 <span className="text-blue-500">{data.length}</span> 条数据源
+            <span className="text-blue-500">{data.length}</span> {t('plugins.webSearch.totalDataSources')}
           </p>
         </div>
         <div className="inline-flex cursor-pointer text-blue-500" onClick={() => setDialogOpen(true)}>
-          <span className="text-sm underline-offset-2 hover:underline">查看全部</span>
+          <span className="text-sm underline-offset-2 hover:underline">{t('plugins.webSearch.viewAll')}</span>
           <ChevronRight className="h-5 w-5" />
         </div>
       </div>
       <ResponsiveDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
-        title="搜索结果"
-        description="数据来源于 DuckDuckGo 搜索引擎。"
+        title={t('plugins.webSearch.dialogTitle')}
+        description={t('plugins.webSearch.dialogDescription')}
       >
         <ScrollArea className="h-[500px]">
           <ol>

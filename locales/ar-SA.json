@@ -86,5 +86,28 @@
   "loadPlugin": "تحميل الإضافة",
   "addPlugin": "إضافة الإضافة",
   "uninstall": "إلغاء التثبيت",
-  "install": "تثبيت"
+  "install": "تثبيت",
+  "plugins": {
+    "unsplash": {
+      "viewAll": "عرض الكل",
+      "totalPictures": "يوجد {{total}} صورة إجمالاً،"
+    },
+    "weather": {
+      "date": "تاريخ",
+      "weather": "الطقس",
+      "temperatureMax": "أعلى درجة حرارة",
+      "temperatureMin": "أدنى درجة حرارة",
+      "precipitationAmount": "مقدار الهطول",
+      "windSpeedAvg": "سرعة الرياح",
+      "viewAll": "تحقق من توقعات الطقس لعشرة أيام الماضية",
+      "dialogTitle": "توقعات الطقس للعشرة أيام القادمة",
+      "dialogDescription": "تأتي بيانات توقعات الطقس من Weather."
+    },
+    "webSearch": {
+      "totalDataSources": "مصادر البيانات",
+      "viewAll": "عرض الكل",
+      "dialogTitle": "نتائج البحث",
+      "dialogDescription": "تأتي البيانات من محرك بحث DuckDuckGo."
+    }
+  }
 }

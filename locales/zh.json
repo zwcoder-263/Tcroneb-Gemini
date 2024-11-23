@@ -86,5 +86,28 @@
   "loadPlugin": "加载插件",
   "addPlugin": "新增插件",
   "uninstall": "卸载",
-  "install": "安装"
+  "install": "安装",
+  "plugins": {
+    "unsplash": {
+      "viewAll": "查看全部",
+      "totalPictures": "共 {{total}} 张图片，"
+    },
+    "weather": {
+      "date": "日期",
+      "weather": "天气",
+      "temperatureMax": "最高温度",
+      "temperatureMin": "最低温度",
+      "precipitationAmount": "降水量",
+      "windSpeedAvg": "风速",
+      "viewAll": "查看近十天的天气情况",
+      "dialogTitle": "未来十天的天气预报",
+      "dialogDescription": "天气预报数据来源于 Weather。"
+    },
+    "webSearch": {
+      "totalDataSources": "条数据源",
+      "viewAll": "查看全部",
+      "dialogTitle": "搜索结果",
+      "dialogDescription": "数据来源于 DuckDuckGo 搜索引擎。"
+    }
+  }
 }

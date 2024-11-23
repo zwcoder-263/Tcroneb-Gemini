@@ -28,7 +28,6 @@ function SearchBar(props: Props) {
         placeholder={t('searchPlaceholder')}
         className="px-7"
         value={query}
-        autoFocus
         onChange={(ev) => {
           setQuery(ev.target.value)
           props.onSearch(ev.target.value)

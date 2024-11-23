@@ -114,21 +114,7 @@ function AssistantMarket({ open, onClose, onSelect, onLoaded }: AssistantProps) 
 
   useLayoutEffect(() => {
     if (assistantIndexUrl !== '' && lang !== '') {
-      const { cachedTime, cachedLang, setCachedTime, setCachedLang } = useAssistantStore.getState()
-      const timestamp = Date.now()
-      if (cachedTime + 2880000 < timestamp || cachedLang !== lang) {
-        fetchAssistantMarketIndex().then(() => {
-          setCachedTime(timestamp)
-          setCachedLang(lang)
-        })
-      } else {
-        const { assistants, tags } = useAssistantStore.getState()
-        updateAssistants(assistants)
-        setAssistantList(assistants)
-        setTagList(tags)
-        updateTags(tags)
-        onLoaded()
-      }
+      fetchAssistantMarketIndex()
     }
   }, [assistantIndexUrl, lang, fetchAssistantMarketIndex, updateAssistants, updateTags, onLoaded])
 

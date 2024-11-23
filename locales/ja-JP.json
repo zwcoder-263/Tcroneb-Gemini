@@ -86,5 +86,28 @@
   "loadPlugin": "プラグインを読み込む",
   "addPlugin": "プラグインを追加する",
   "uninstall": "アンインストール",
-  "install": "インストールする"
+  "install": "インストールする",
+  "plugins": {
+    "unsplash": {
+      "viewAll": "すべて表示",
+      "totalPictures": "合計で {{total}} 枚の画像があります、"
+    },
+    "weather": {
+      "date": "日付",
+      "weather": "天気",
+      "temperatureMax": "最高温度",
+      "temperatureMin": "最低温度",
+      "precipitationAmount": "降水量",
+      "windSpeedAvg": "風速",
+      "viewAll": "過去10日間の天気状況を確認する",
+      "dialogTitle": "今後10日間の天気予報",
+      "dialogDescription": "天気予報データはWeatherから取得されています。"
+    },
+    "webSearch": {
+      "totalDataSources": "データソース",
+      "viewAll": "すべて表示",
+      "dialogTitle": "検索結果",
+      "dialogDescription": "データはDuckDuckGo検索エンジンから取得されています。"
+    }
+  }
 }

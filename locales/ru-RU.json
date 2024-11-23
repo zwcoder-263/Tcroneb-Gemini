@@ -86,5 +86,28 @@
   "loadPlugin": "Загрузить плагин",
   "addPlugin": "Добавить плагин",
   "uninstall": "Деинсталлировать",
-  "install": "Установить"
+  "install": "Установить",
+  "plugins": {
+    "unsplash": {
+      "viewAll": "Посмотреть все",
+      "totalPictures": "Всего {{total}} изображений,"
+    },
+    "weather": {
+      "date": "Дата",
+      "weather": "Погода",
+      "temperatureMax": "Максимальная температура",
+      "temperatureMin": "Минимальная температура",
+      "precipitationAmount": "Количество осадков",
+      "windSpeedAvg": "Средняя скорость ветра",
+      "viewAll": "Проверьте погодные условия за последние десять дней",
+      "dialogTitle": "Прогноз погоды на следующие десять дней",
+      "dialogDescription": "Данные о прогнозе погоды предоставлены Weather."
+    },
+    "webSearch": {
+      "totalDataSources": "источников данных",
+      "viewAll": "Посмотреть все",
+      "dialogTitle": "Результаты поиска",
+      "dialogDescription": "Данные поступают из поисковой системы DuckDuckGo."
+    }
+  }
 }

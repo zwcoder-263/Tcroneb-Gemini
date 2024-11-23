@@ -86,5 +86,28 @@
   "loadPlugin": "플러그인 로드",
   "addPlugin": "플러그인 추가",
   "uninstall": "제거",
-  "install": "설치"
+  "install": "설치",
+  "plugins": {
+    "unsplash": {
+      "viewAll": "모두 보기",
+      "totalPictures": "총 {{total}} 장의 사진이 있습니다,"
+    },
+    "weather": {
+      "date": "날짜",
+      "weather": "날씨",
+      "temperatureMax": "최고 온도",
+      "temperatureMin": "최저 온도",
+      "precipitationAmount": "강수량",
+      "windSpeedAvg": "바람 속도",
+      "viewAll": "지난 10일 간의 날씨 상태 확인",
+      "dialogTitle": "다음 10일 간의 날씨 예보",
+      "dialogDescription": "날씨 예보 데이터는 Weather 에서 제공합니다."
+    },
+    "webSearch": {
+      "totalDataSources": "데이터 출처",
+      "viewAll": "모두 보기",
+      "dialogTitle": "검색 결과",
+      "dialogDescription": "데이터는 DuckDuckGo 검색 엔진에서 제공합니다."
+    }
+  }
 }

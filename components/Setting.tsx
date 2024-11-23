@@ -114,10 +114,9 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
     resolver: zodResolver(formSchema),
     defaultValues: async () => {
       return new Promise((resolve) => {
-        useSettingStore.persist.onFinishHydration((state) => {
-          const store = omitBy(state, (item) => isFunction(item)) as z.infer<typeof formSchema>
-          resolve(store)
-        })
+        const state = useSettingStore.getState()
+        const store = omitBy(state, (item) => isFunction(item)) as z.infer<typeof formSchema>
+        resolve(store)
       })
     },
   })
@@ -158,17 +157,13 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
 
   useLayoutEffect(() => {
     if (open) {
-      const { cachedTime, update, setCachedTime } = useModelStore.getState()
-      const timestamp = Date.now()
-      if (cachedTime + 2880000 < timestamp) {
-        const { apiKey, apiProxy, password } = useSettingStore.getState()
-        fetchModels({ apiKey, apiProxy, password }).then((models) => {
-          if (models.length > 0) {
-            update(models)
-            setCachedTime(timestamp)
-          }
-        })
-      }
+      const { update } = useModelStore.getState()
+      const { apiKey, apiProxy, password } = useSettingStore.getState()
+      fetchModels({ apiKey, apiProxy, password }).then((models) => {
+        if (models.length > 0) {
+          update(models)
+        }
+      })
     }
   }, [open])
 

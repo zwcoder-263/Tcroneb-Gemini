@@ -5,18 +5,14 @@ import { omitBy, isFunction, isNull } from 'lodash-es'
 
 type ModelStore = {
   models: Model[]
-  cachedTime: number
   update: (models: Model[]) => void
-  setCachedTime: (timestamp: number) => void
 }
 
 export const useModelStore = create(
   persist<ModelStore>(
     (set) => ({
       models: [],
-      cachedTime: 0,
       update: (models) => set(() => ({ models: [...models] })),
-      setCachedTime: (timestamp) => set(() => ({ cachedTime: timestamp })),
     }),
     {
       name: 'modelStore',
@@ -24,25 +20,26 @@ export const useModelStore = create(
       storage: {
         getItem: async (key: string) => {
           const store = await storage.getItem<StorageValue<ModelStore>>(key)
-          if (isNull(store)) return store
           /**
            * Since the data storage structure has changed since version 0.13.0,
            * the logic here is used to migrate the data content of the old version.
            */
-          const state: any = {}
-          const oldState: string[] = ['models', 'cachedTime', 'modelsCachedTime']
-          for await (const name of oldState) {
-            const data = await storage.getItem(name)
-            if (data) {
-              if (name === 'modelsCachedTime') {
-                state['cachedTime'] = data
-              } else {
-                state[name] = data
+          if (isNull(store)) {
+            const state: Record<string, any> = {}
+            const oldState: string[] = ['models', 'cachedTime', 'modelsCachedTime']
+            for await (const name of oldState) {
+              const data = await storage.getItem(name)
+              if (data) {
+                if (name === 'modelsCachedTime') {
+                  state['cachedTime'] = data
+                } else {
+                  state[name] = data
+                }
               }
+              await storage.removeItem(name)
             }
-            await storage.removeItem(name)
+            return { state, version: 1 } as StorageValue<ModelStore>
           }
-          store.state = { ...store.state, ...state }
           return store
         },
         setItem: async (key: string, store: StorageValue<ModelStore>) => {

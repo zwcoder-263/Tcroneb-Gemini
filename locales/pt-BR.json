@@ -86,5 +86,28 @@
   "loadPlugin": "Carregar plugin",
   "addPlugin": "Adicionar plugin",
   "uninstall": "Desinstalar",
-  "install": "Instalar"
+  "install": "Instalar",
+  "plugins": {
+    "unsplash": {
+      "viewAll": "Ver Tudo",
+      "totalPictures": "Há {{total}} fotos no total,"
+    },
+    "weather": {
+      "date": "Data",
+      "weather": "Clima",
+      "temperatureMax": "Temperatura Máxima",
+      "temperatureMin": "Temperatura Mínima",
+      "precipitationAmount": "Quantidade de Precipitação",
+      "windSpeedAvg": "Velocidade do Vento",
+      "viewAll": "Ver as condições climáticas dos últimos dez dias",
+      "dialogTitle": "Previsão do tempo para os próximos dez dias",
+      "dialogDescription": "Os dados da previsão do tempo vêm do Weather."
+    },
+    "webSearch": {
+      "totalDataSources": "fontes de dados",
+      "viewAll": "Ver Tudo",
+      "dialogTitle": "Resultados da Pesquisa",
+      "dialogDescription": "Os dados vêm do motor de busca DuckDuckGo."
+    }
+  }
 }

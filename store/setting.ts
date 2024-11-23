@@ -41,39 +41,41 @@ export const useSettingStore = create(
       storage: {
         getItem: async (key: string) => {
           const store = await storage.getItem<StorageValue<SettingStore>>(key)
-          if (isNull(store)) return store
+          console.log('getItem', store)
           /**
            * Since the data storage structure has changed since version 0.13.0,
            * the logic here is used to migrate the data content of the old version.
            */
-          const state: any = {}
-          const oldState: string[] = [
-            'password',
-            'apiKey',
-            'apiProxy',
-            'uploadProxy',
-            'model',
-            'sttLang',
-            'ttsLang',
-            'ttsVoice',
-            'lang',
-            'talkMode',
-            'assistantIndexUrl',
-            'safety',
-            'maxHistoryLength',
-            'topP',
-            'topK',
-            'temperature',
-            'maxOutputTokens',
-            'isProtected',
-            'autoStopRecord',
-          ]
-          for await (const name of oldState) {
-            const data = await storage.getItem(name)
-            if (data) state[name] = data
-            await storage.removeItem(name)
+          if (isNull(store)) {
+            const state: Record<string, any> = {}
+            const oldState: string[] = [
+              'password',
+              'apiKey',
+              'apiProxy',
+              'uploadProxy',
+              'model',
+              'sttLang',
+              'ttsLang',
+              'ttsVoice',
+              'lang',
+              'talkMode',
+              'assistantIndexUrl',
+              'safety',
+              'maxHistoryLength',
+              'topP',
+              'topK',
+              'temperature',
+              'maxOutputTokens',
+              'isProtected',
+              'autoStopRecord',
+            ]
+            for await (const name of oldState) {
+              const data = await storage.getItem(name)
+              if (data) state[name] = data
+              await storage.removeItem(name)
+            }
+            return { state, version: 1 } as StorageValue<SettingStore>
           }
-          store.state = { ...store.state, ...state }
           return store
         },
         setItem: async (key: string, store: StorageValue<SettingStore>) => {

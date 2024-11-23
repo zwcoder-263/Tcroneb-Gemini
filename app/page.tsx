@@ -320,6 +320,16 @@ export default function Home() {
         }
         const operation = findOperationById(pluginManifest, call.name.substring(2 + pluginId.length))
         if (!operation) return handleError('FunctionCall execution failed!')
+        const functionCallMessage = {
+          id: nanoid(),
+          role: 'model',
+          parts: [
+            {
+              functionCall: call,
+            },
+          ],
+        }
+        addMessage(functionCallMessage)
         const { password } = useSettingStore.getState()
         const token = encodeToken(password)
         const payload: GatewayPayload = {
