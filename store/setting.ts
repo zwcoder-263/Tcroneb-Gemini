@@ -41,7 +41,6 @@ export const useSettingStore = create(
       storage: {
         getItem: async (key: string) => {
           const store = await storage.getItem<StorageValue<SettingStore>>(key)
-          console.log('getItem', store)
           /**
            * Since the data storage structure has changed since version 0.13.0,
            * the logic here is used to migrate the data content of the old version.

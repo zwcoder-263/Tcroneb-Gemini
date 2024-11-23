@@ -518,15 +518,15 @@ export default function Home() {
   const handleResubmit = useCallback(
     async (id: string) => {
       const { model } = useSettingStore.getState()
-      const { revoke: rovokeMessage } = useMessageStore.getState()
+      const { messages, revoke: rovokeMessage } = useMessageStore.getState()
       if (id !== 'error') {
-        const messageIndex = findIndex(messagesRef.current, { id })
+        const messageIndex = findIndex(messages, { id })
         if (messageIndex !== -1) {
-          if (messagesRef.current[messageIndex].role === 'model') {
+          if (messages[messageIndex].role === 'model') {
             rovokeMessage(id)
           } else {
-            const nextMessage = messagesRef.current[messageIndex + 1]
-            if (nextMessage) rovokeMessage(messagesRef.current[messageIndex + 1].id)
+            const nextMessage = messages[messageIndex + 1]
+            if (nextMessage) rovokeMessage(messages[messageIndex + 1].id)
           }
         }
       }

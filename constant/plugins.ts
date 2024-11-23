@@ -542,6 +542,159 @@ export const officialPlugins: Record<string, OpenAPIDocument> = {
     ],
   },
   OfficialTime: {
+    components: {
+      schemas: {
+        Location: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+            },
+            geo: {
+              type: 'object',
+              properties: {
+                name: {
+                  type: 'string',
+                },
+                country: {
+                  type: 'object',
+                  properties: {
+                    id: {
+                      type: 'string',
+                    },
+                    name: {
+                      type: 'string',
+                    },
+                  },
+                },
+                latitude: {
+                  type: 'number',
+                },
+                longitude: {
+                  type: 'number',
+                },
+                zonename: {
+                  type: 'string',
+                },
+              },
+            },
+            matches: {
+              type: 'string',
+            },
+            score: {
+              type: 'integer',
+            },
+            time: {
+              type: 'object',
+              properties: {
+                iso: {
+                  type: 'string',
+                },
+                datetime: {
+                  type: 'object',
+                  properties: {
+                    year: {
+                      type: 'integer',
+                    },
+                    month: {
+                      type: 'integer',
+                    },
+                    day: {
+                      type: 'integer',
+                    },
+                    hour: {
+                      type: 'integer',
+                    },
+                    minute: {
+                      type: 'integer',
+                    },
+                    second: {
+                      type: 'integer',
+                    },
+                  },
+                },
+                timezone: {
+                  type: 'object',
+                  properties: {
+                    offset: {
+                      type: 'string',
+                    },
+                    zoneabb: {
+                      type: 'string',
+                    },
+                    zonename: {
+                      type: 'string',
+                    },
+                    zoneoffset: {
+                      type: 'integer',
+                    },
+                    zonedst: {
+                      type: 'integer',
+                    },
+                    zonetotaloffset: {
+                      type: 'integer',
+                    },
+                  },
+                },
+              },
+            },
+            timechanges: {
+              type: 'array',
+              items: {
+                type: 'object',
+              },
+            },
+            astronomy: {
+              type: 'object',
+              properties: {
+                objects: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      name: {
+                        type: 'string',
+                      },
+                      events: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            type: {
+                              type: 'string',
+                            },
+                            hour: {
+                              type: 'integer',
+                            },
+                            minute: {
+                              type: 'integer',
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        LocationResponse: {
+          type: 'object',
+          properties: {
+            version: {
+              type: 'integer',
+            },
+            locations: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/Location',
+              },
+            },
+          },
+        },
+      },
+    },
     info: {
       title: 'Current Time',
       description: 'Get the current time for a given location.',
@@ -562,17 +715,12 @@ export const officialPlugins: Record<string, OpenAPIDocument> = {
                   properties: {
                     location: {
                       type: 'string',
-                      description: 'The location where the current time request was made.',
+                      description:
+                        'The location where the current time request was made. Parameters only accept English.',
                       example: 'New York',
                     },
-                    timezone: {
-                      type: 'string',
-                      description:
-                        'The normalized time zone of the location where the current date and time request was made. Default is "Asia/Shanghai".',
-                      example: 'Asia/Shanghai',
-                    },
                   },
-                  required: ['timezone'],
+                  required: ['location'],
                 },
               },
             },
@@ -583,25 +731,7 @@ export const officialPlugins: Record<string, OpenAPIDocument> = {
               content: {
                 'application/json': {
                   schema: {
-                    type: 'object',
-                    properties: {
-                      location: {
-                        type: 'string',
-                        description: 'The query location.',
-                      },
-                      timezone: {
-                        type: 'string',
-                        default: 'The Time Zone.',
-                      },
-                      currentTime: {
-                        type: 'string',
-                        default: 'The Current time.',
-                      },
-                      dayOfWeek: {
-                        type: 'string',
-                        description: 'Get the day of the week.',
-                      },
-                    },
+                    $ref: '#/components/schemas/LocationResponse',
                   },
                 },
               },
