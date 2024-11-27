@@ -80,6 +80,7 @@
   "webReader": "ウェブリーダー",
   "realTimeWeather": "天気",
   "currentTime": "現在の時刻",
+  "arxivSearch": "Arxiv 検索",
   "pluginLoadingFailed": "プラグインの読み込みに失敗しました",
   "pluginLoadingFailedDesc": "このプラグインは正しく読み込まれませんでした。一時的に利用できません。",
   "pluginUrlPlaceholder": "プラグインの設定ファイルのURLを入力してください",
@@ -108,6 +109,12 @@
       "viewAll": "すべて表示",
       "dialogTitle": "検索結果",
       "dialogDescription": "データはDuckDuckGo検索エンジンから取得されています。"
+    },
+    "arxiv": {
+      "totalDataSources": "データソース",
+      "viewAll": "すべて表示",
+      "dialogTitle": "検索結果",
+      "dialogDescription": "データはArxiv.orgから取得されています。"
     }
   }
 }

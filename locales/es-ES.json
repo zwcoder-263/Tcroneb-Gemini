@@ -80,6 +80,7 @@
   "webReader": "Lector web",
   "realTimeWeather": "Clima",
   "currentTime": "Hora Actual",
+  "arxivSearch": "Búsqueda en Arxiv",
   "pluginLoadingFailed": "Error al cargar el plugin",
   "pluginLoadingFailedDesc": "Este complemento no pudo cargarse correctamente y está temporalmente no disponible.",
   "pluginUrlPlaceholder": "Por favor, ingrese la URL del archivo de configuración del complemento",
@@ -108,6 +109,12 @@
       "viewAll": "Ver todo",
       "dialogTitle": "Resultados de la búsqueda",
       "dialogDescription": "Los datos provienen del motor de búsqueda DuckDuckGo."
+    },
+    "arxiv": {
+      "totalDataSources": "fuentes de datos",
+      "viewAll": "Ver todo",
+      "dialogTitle": "Resultados de la búsqueda",
+      "dialogDescription": "Los datos provienen de Arxiv.org."
     }
   }
 }

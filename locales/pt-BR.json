@@ -80,6 +80,7 @@
   "webReader": "Leitor web",
   "realTimeWeather": "Tempo",
   "currentTime": "Hora Atual",
+  "arxivSearch": "Pesquisa Arxiv",
   "pluginLoadingFailed": "Falha ao carregar o plugin",
   "pluginLoadingFailedDesc": "Este plugin não pôde ser carregado corretamente e está temporariamente indisponível.",
   "pluginUrlPlaceholder": "Por favor, insira a URL do arquivo de configuração do plugin",
@@ -108,6 +109,12 @@
       "viewAll": "Ver Tudo",
       "dialogTitle": "Resultados da Pesquisa",
       "dialogDescription": "Os dados vêm do motor de busca DuckDuckGo."
+    },
+    "arxiv": {
+      "totalDataSources": "fontes de dados",
+      "viewAll": "Ver Tudo",
+      "dialogTitle": "Resultados da Pesquisa",
+      "dialogDescription": "Os dados vêm do Arxiv.org."
     }
   }
 }

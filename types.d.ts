@@ -155,6 +155,28 @@ declare global {
     }
   }
 
+  interface ArxivArticle {
+    id: string
+    updated: string
+    published: string
+    title: string
+    summary: string
+    author: string[]
+    link: string
+    pdf: string
+  }
+
+  interface ArxivResult {
+    link: string
+    title: string
+    id: string
+    updated: string
+    total: number
+    page: number
+    size: number
+    data: ArxivArticle[]
+  }
+
   interface ErrorResponse {
     code: number
     message: string

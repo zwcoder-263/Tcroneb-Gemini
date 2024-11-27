@@ -35,13 +35,14 @@ import Button from '@/components/Button'
 import WebSearch from '@/components/plugins/WebSearch'
 import Weather, { type WeatherResult } from '@/components/plugins/Weather'
 import Unsplash from '@/components/plugins/Unsplash'
+import Arxiv from '@/components/plugins/Arxiv'
 import { useMessageStore } from '@/store/chat'
 import { useSettingStore } from '@/store/setting'
 import { usePluginStore } from '@/store/plugin'
 import AudioStream from '@/utils/AudioStream'
 import { sentenceSegmentation } from '@/utils/common'
 import { OFFICAL_PLUGINS } from '@/constant/plugins'
-import { upperFirst, isFunction, find, isNull } from 'lodash-es'
+import { upperFirst, isFunction, find } from 'lodash-es'
 
 import 'katex/dist/katex.min.css'
 import 'highlight.js/styles/a11y-light.css'
@@ -336,6 +337,9 @@ function MessageItem(props: Props) {
             {detail.id === OFFICAL_PLUGINS.WEATHER ? <Weather data={detail.response.content as WeatherResult} /> : null}
             {detail.id === OFFICAL_PLUGINS.UNSPLASH ? (
               <Unsplash data={detail.response.content as UnsplashImage[]} />
+            ) : null}
+            {detail.id === OFFICAL_PLUGINS.ARXIV ? (
+              <Arxiv data={(detail.response.content as ArxivResult)?.data} />
             ) : null}
           </div>
         ) : (

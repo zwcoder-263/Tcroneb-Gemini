@@ -39,21 +39,20 @@ export const useMessageStore = create(
         }))
       },
       update: (id, message) => {
-        set((state) => {
-          const index = findIndex(state.messages, { id })
-          state.messages[index] = message
-          return {
-            messages: [...state.messages],
-          }
-        })
+        const messages = [...get().messages]
+        const index = findIndex(messages, { id })
+        if (index > -1) {
+          messages[index] = message
+          set(() => ({ messages }))
+        }
       },
       remove: (id) => {
-        set((state) => {
-          const index = findIndex(state.messages, { id })
-          const messages = [...state.messages]
+        const messages = [...get().messages]
+        const index = findIndex(messages, { id })
+        if (index > -1) {
           messages.splice(index, 1)
-          return { messages }
-        })
+          set(() => ({ messages }))
+        }
       },
       clear: () => {
         set(() => ({
@@ -65,11 +64,12 @@ export const useMessageStore = create(
         }))
       },
       revoke: (id) => {
-        set((state) => {
-          const index = findIndex(state.messages, { id })
-          const messages = [...state.messages]
-          return { messages: messages.slice(0, index) }
-        })
+        const messages = [...get().messages]
+        const index = findIndex(messages, { id })
+        if (index > -1) {
+          messages.splice(index, 1)
+          set(() => ({ messages: messages.slice(0, index) }))
+        }
       },
       instruction: (prompt) => {
         set(() => ({ systemInstruction: prompt }))

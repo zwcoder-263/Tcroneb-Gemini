@@ -80,6 +80,7 @@
   "webReader": "网页解读",
   "realTimeWeather": "实时天气",
   "currentTime": "当前时间",
+  "arxivSearch": "论文检索",
   "pluginLoadingFailed": "插件加载失败",
   "pluginLoadingFailedDesc": "该插件无法正确加载，暂时不可用。",
   "pluginUrlPlaceholder": "请输入插件配置文件的网址",
@@ -108,6 +109,12 @@
       "viewAll": "查看全部",
       "dialogTitle": "搜索结果",
       "dialogDescription": "数据来源于 DuckDuckGo 搜索引擎。"
+    },
+    "arxiv": {
+      "totalDataSources": "条数据源",
+      "viewAll": "查看全部",
+      "dialogTitle": "搜索结果",
+      "dialogDescription": "数据来源于 Arxiv.org。"
     }
   }
 }

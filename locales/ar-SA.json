@@ -80,6 +80,7 @@
   "webReader": "قارئ الويب",
   "realTimeWeather": "الطقس",
   "currentTime": "الوقت الحالي",
+  "arxivSearch": "Arxiv بحث",
   "pluginLoadingFailed": "فشل تحميل البرنامج المساعد",
   "pluginLoadingFailedDesc": "لا يمكن تحميل هذا الإضافة بشكل صحيح وهي غير متوفرة مؤقتًا",
   "pluginUrlPlaceholder": "الرجاء إدخال عنوان URL لملف تكوين الوصلة الإضافية",
@@ -108,6 +109,12 @@
       "viewAll": "عرض الكل",
       "dialogTitle": "نتائج البحث",
       "dialogDescription": "تأتي البيانات من محرك بحث DuckDuckGo."
+    },
+    "arxiv": {
+      "totalDataSources": "مصادر البيانات",
+      "viewAll": "عرض الكل",
+      "dialogTitle": "نتائج البحث",
+      "dialogDescription": "تأتي البيانات من Arxiv.org."
     }
   }
 }

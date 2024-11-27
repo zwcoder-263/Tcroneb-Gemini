@@ -24,9 +24,7 @@ export const usePluginStore = create(
       installed: {},
       tools: [],
       addPlugin: (plugin) => {
-        set(() => ({
-          plugins: [plugin, ...get().plugins],
-        }))
+        set(() => ({ plugins: [...get().plugins, plugin] }))
       },
       removePlugin: (id) => {
         get().uninstallPlugin(id)

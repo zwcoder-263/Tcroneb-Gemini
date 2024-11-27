@@ -852,6 +852,135 @@ export const officialPlugins: Record<string, OpenAPIDocument> = {
       },
     ],
   },
+  OfficialArxiv: {
+    components: {
+      schemas: {
+        queryResponse: {
+          type: 'object',
+          description: 'The query results from unsplash.',
+          properties: {
+            results: {
+              type: 'object',
+              properties: {
+                link: {
+                  type: 'string',
+                },
+                title: {
+                  type: 'string',
+                },
+                id: {
+                  type: 'string',
+                },
+                updated: {
+                  type: 'string',
+                },
+                total: {
+                  type: 'number',
+                },
+                page: {
+                  type: 'number',
+                },
+                size: {
+                  type: 'number',
+                },
+                data: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: {
+                        type: 'string',
+                      },
+                      updated: {
+                        type: 'string',
+                      },
+                      published: {
+                        type: 'string',
+                      },
+                      title: {
+                        type: 'string',
+                      },
+                      summary: {
+                        type: 'string',
+                      },
+                      author: {
+                        type: 'array',
+                        items: {
+                          type: 'string',
+                        },
+                      },
+                      link: {
+                        type: 'string',
+                      },
+                      pdf: {
+                        type: 'string',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    info: {
+      title: 'Arxiv Search',
+      description: 'Run Arxiv search and get the article information.',
+      version: 'v1.0.0',
+    },
+    openapi: '3.1.0',
+    paths: {
+      '/arxiv': {
+        post: {
+          operationId: 'ArxivSearch',
+          description: 'Run Arxiv search and get the article information.',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    query: {
+                      type: 'string',
+                      description: 'Same as the search_query parameter rules of the arxiv API.',
+                    },
+                    page: {
+                      type: 'number',
+                      description: 'The index of the first returned result.',
+                    },
+                    size: {
+                      type: 'number',
+                      description: 'The number of results returned by the query.',
+                    },
+                  },
+                  required: ['query'],
+                },
+              },
+            },
+          },
+          responses: {
+            '200': {
+              description: 'OK',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/queryResponse',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    servers: [
+      {
+        url: '/api/plugins',
+      },
+    ],
+  },
 }
 
 export const OFFICAL_PLUGINS = {
@@ -860,6 +989,7 @@ export const OFFICAL_PLUGINS = {
   WEATHER: 'OfficialWeather',
   TIME: 'OfficialTime',
   UNSPLASH: 'OfficialUnsplash',
+  ARXIV: 'OfficialArxiv',
 }
 
 export default officialPlugins

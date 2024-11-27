@@ -80,6 +80,7 @@
   "webReader": "Веб-ридер",
   "realTimeWeather": "Погода",
   "currentTime": "Текущее время",
+  "arxivSearch": "Поиск Arxiv",
   "pluginLoadingFailed": "Ошибка загрузки плагина",
   "pluginLoadingFailedDesc": "Этот плагин не может быть загружен правильно и временно недоступен.",
   "pluginUrlPlaceholder": "Пожалуйста, введите URL файла конфигурации плагина",
@@ -108,6 +109,12 @@
       "viewAll": "Посмотреть все",
       "dialogTitle": "Результаты поиска",
       "dialogDescription": "Данные поступают из поисковой системы DuckDuckGo."
+    },
+    "arxiv": {
+      "totalDataSources": "источников данных",
+      "viewAll": "Посмотреть все",
+      "dialogTitle": "Результаты поиска",
+      "dialogDescription": "Данные поступают с Arxiv.org."
     }
   }
 }

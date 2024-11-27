@@ -2,7 +2,18 @@
 import dynamic from 'next/dynamic'
 import { useState, useMemo, useCallback, memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Blocks, ArrowRight, Store, Globe, BookOpenCheck, CloudSun, Clock4, Camera, Box } from 'lucide-react'
+import {
+  Blocks,
+  ArrowRight,
+  Store,
+  Globe,
+  BookOpenCheck,
+  CloudSun,
+  Clock4,
+  Camera,
+  Box,
+  Microscope,
+} from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -99,6 +110,22 @@ function PluginList() {
               className="my-1"
               defaultChecked={enabledTools.includes(OFFICAL_PLUGINS.READER)}
               onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.READER, !!checkedState)}
+            />
+          </div>
+          <div className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">
+            <Label
+              className="inline-flex flex-1 cursor-pointer overflow-hidden leading-6 text-slate-500"
+              htmlFor={OFFICAL_PLUGINS.ARXIV}
+              title="Arxiv"
+            >
+              <Microscope className="my-1 mr-1 h-4 w-4" />
+              <p className="truncate">{t('arxivSearch')}</p>
+            </Label>
+            <Checkbox
+              id={OFFICAL_PLUGINS.ARXIV}
+              className="my-1"
+              defaultChecked={enabledTools.includes(OFFICAL_PLUGINS.ARXIV)}
+              onCheckedChange={(checkedState) => handleUsePlugin(OFFICAL_PLUGINS.ARXIV, !!checkedState)}
             />
           </div>
           <div className="flex rounded-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">

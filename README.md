@@ -1,5 +1,5 @@
 <div align="center">
-<h1>Talk With Gemini</h1>
+<h1>Gemini Next Chat</h1>
 
 ![GitHub deployments](https://img.shields.io/github/deployments/Amery2010/TalkWithGemini/Production)
 ![GitHub Release](https://img.shields.io/github/v/release/Amery2010/TalkWithGemini)
@@ -269,6 +269,21 @@ pnpm build:export
 ```
 
 If you deploy the project in a subdirectory and encounter resource loading failures when accessing, please add `EXPORT_BASE_PATH=/path/project` in the `.env` file or variable setting page.
+
+## Thanks
+
+### Technology Stack
+
+[Next.js](https://nextjs.org/)
+[Shadcn UI](https://ui.shadcn.com/)
+[Tailwindcss](https://tailwindcss.com/)
+[Zustand](https://zustand-demo.pmnd.rs/)
+
+### Project Reference
+
+[Lobe Chat](https://github.com/lobehub/lobe-chat)
+[ChatGPT-Next-Web](https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web)
+[GeminiProChat](https://github.com/babaohuang/GeminiProChat)
 
 ## FAQ
 

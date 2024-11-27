@@ -116,6 +116,7 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
       return new Promise((resolve) => {
         const state = useSettingStore.getState()
         const store = omitBy(state, (item) => isFunction(item)) as z.infer<typeof formSchema>
+        setTtsLang(state.ttsLang)
         resolve(store)
       })
     },

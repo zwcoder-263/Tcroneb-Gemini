@@ -1,5 +1,5 @@
 <div align="center">
-<h1>与 Gemini 交谈</h1>
+<h1>Gemini Next Chat</h1>
 
 ![GitHub deployments](https://img.shields.io/github/deployments/Amery2010/TalkWithGemini/Production)
 ![GitHub Release](https://img.shields.io/github/v/release/Amery2010/TalkWithGemini)
@@ -285,6 +285,21 @@ pnpm build:export
 ### 为什么我用 vercel 一键部署后的网站无法在中国正常访问
 
 vercel 部署后生成的域名在几年前就已经被国内网络屏蔽，但并没有屏蔽服务器的 ip 地址。可以自定义域名，就可以在国内正常访问了。由于 vercel 在国内并没有服务器，所以有时候会出现些许的网络波动，属于正常现象。如何设置域名，可以参考我从网上找到的解决文章[Vercel绑定自定义域名](https://docs.tangly1024.com/article/vercel-domain)。
+
+## 感谢
+
+### 技术栈
+
+[Next.js](https://nextjs.org/)
+[Shadcn UI](https://ui.shadcn.com/)
+[Tailwindcss](https://tailwindcss.com/)
+[Zustand](https://zustand-demo.pmnd.rs/)
+
+### 项目参考
+
+[Lobe Chat](https://github.com/lobehub/lobe-chat)
+[ChatGPT-Next-Web](https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web)
+[GeminiProChat](https://github.com/babaohuang/GeminiProChat)
 
 ## 收藏历史
 

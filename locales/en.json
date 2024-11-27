@@ -80,6 +80,7 @@
   "webReader": "Web Reader",
   "realTimeWeather": "Weather",
   "currentTime": "Current Time",
+  "arxivSearch": "Arxiv Search",
   "pluginLoadingFailed": "Plugin loading failed",
   "pluginLoadingFailedDesc": "This plugin could not be loaded properly and is temporarily unavailable.",
   "pluginUrlPlaceholder": "Please enter the URL of the plugin configuration file",
@@ -108,6 +109,12 @@
       "viewAll": "View All",
       "dialogTitle": "Search Results",
       "dialogDescription": "The data comes from the DuckDuckGo search engine."
+    },
+    "arxiv": {
+      "totalDataSources": "data sources",
+      "viewAll": "View All",
+      "dialogTitle": "Search Results",
+      "dialogDescription": "The data comes from the Arxiv.org."
     }
   }
 }

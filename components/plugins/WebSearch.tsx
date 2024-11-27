@@ -33,7 +33,7 @@ function WebSearch(props: Props) {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="px-2 py-0" title={item.description}>
-                    <p className="text-line-clamp-2 text-sm">{item.description}</p>
+                    <p className="text-line-clamp-2 text-sm" dangerouslySetInnerHTML={{ __html: item.description }}></p>
                   </CardContent>
                   <CardFooter className="p-2" title={item.url}>
                     <div className="inline-flex w-full">
@@ -43,7 +43,11 @@ function WebSearch(props: Props) {
                           <Link />
                         </AvatarFallback>
                       </Avatar>
-                      <span className="ml-1.5 truncate text-sm leading-4">{item.hostname}</span>
+                      <span className="ml-1.5 truncate text-sm leading-4">
+                        <a href={item.hostname} target="_blank">
+                          {item.hostname}
+                        </a>
+                      </span>
                     </div>
                   </CardFooter>
                 </Card>
@@ -83,7 +87,7 @@ function WebSearch(props: Props) {
       >
         <ScrollArea className="h-[500px]">
           <ol>
-            {data.slice(4).map((item, idx) => {
+            {data.map((item, idx) => {
               return (
                 <li className="mb-2 border-b-[1px] border-solid border-gray-200 last:border-b-0" key={idx}>
                   <div className="inline-flex text-blue-400">
@@ -93,7 +97,11 @@ function WebSearch(props: Props) {
                         <Link className="scale-75" />
                       </AvatarFallback>
                     </Avatar>
-                    <small className="ml-1.5 truncate text-sm leading-4">{item.hostname}</small>
+                    <small className="ml-1.5 truncate text-sm leading-4">
+                      <a href={item.hostname} target="_blank">
+                        {item.hostname}
+                      </a>
+                    </small>
                   </div>
                   <h3 className="my-1 text-base text-blue-500 underline-offset-2 hover:underline">
                     <a href={item.url} target="_blank">

@@ -80,6 +80,7 @@
   "webReader": "웹 리더",
   "realTimeWeather": "날씨",
   "currentTime": "현재 시간",
+  "arxivSearch": "Arxiv 검색",
   "pluginLoadingFailed": "플러그인 로딩 실패",
   "pluginLoadingFailedDesc": "이 플러그인을 올바르게 로드할 수 없어 일시적으로 사용할 수 없습니다.",
   "pluginUrlPlaceholder": "플러그인 구성 파일의 URL을 입력하세요",
@@ -108,6 +109,12 @@
       "viewAll": "모두 보기",
       "dialogTitle": "검색 결과",
       "dialogDescription": "데이터는 DuckDuckGo 검색 엔진에서 제공합니다."
+    },
+    "arxiv": {
+      "totalDataSources": "데이터 출처",
+      "viewAll": "모두 보기",
+      "dialogTitle": "검색 결과",
+      "dialogDescription": "데이터는 Arxiv.org에서 제공됩니다."
     }
   }
 }
