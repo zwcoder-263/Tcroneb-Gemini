@@ -1,11 +1,11 @@
 [package]
-name = "talk-with-gemini"
+name = "gemini-next-chat"
 version = "0.13.0"
 description = "Your private Gemini application."
-authors = ["Amery2010 amery@xiangfa.org"]
-license = "GPL-3.0-only"
+authors = ["Amery2010<amery@xiangfa.org>"]
+license = "MIT"
 repository = "https://github.com/Amery2010/TalkWithGemini"
-default-run = "talk-with-gemini"
+default-run = "gemini-next-chat"
 edition = "2021"
 rust-version = "1.60"
 

@@ -1,8 +1,8 @@
 {
-  "name": "Talk with Gemini",
-  "short_name": "Talk with Gemini",
+  "name": "Gemini Next Chat",
+  "short_name": "Gemini Next Chat",
   "description": "Deploy your private Gemini application for free with one click, supporting Gemini 1.5 Pro, Gemini 1.5 Flash, Gemini Pro and Gemini Pro Vision models.",
-  "id": "talk-with-gemini",
+  "id": "gemini-next-chat",
   "scope": ".",
   "icons": [
     {

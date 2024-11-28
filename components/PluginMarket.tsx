@@ -205,7 +205,7 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
     if (pluginDetail === '') {
       toast({
         title: t('pluginLoadingFailed'),
-        description: '插件配置内容缺失',
+        description: t('pluginLoadingFailedDesc'),
       })
       return false
     }
@@ -293,8 +293,8 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
     >
       <Tabs value={currentTab} onValueChange={(value) => setCurrentTab(value)}>
         <TabsList className="mx-auto grid w-full grid-cols-2">
-          <TabsTrigger value="list">插件列表</TabsTrigger>
-          <TabsTrigger value="custom">自定义插件</TabsTrigger>
+          <TabsTrigger value="list">{t('pluginList')}</TabsTrigger>
+          <TabsTrigger value="custom">{t('customPlugin')}</TabsTrigger>
         </TabsList>
         <TabsContent value="list">
           <div className="my-4 max-sm:my-2">
@@ -391,13 +391,13 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
             <div className="mb-3 mt-4 flex w-full gap-2 max-sm:my-2">
               <Input placeholder={t('pluginUrlPlaceholder')} onChange={(ev) => setManifestUrl(ev.target.value)} />
               <Button type="submit" onClick={() => handleLoadPlugin(manifestUrl)}>
-                加载配置
+                {t('loadingConfig')}
               </Button>
             </div>
             <div className="mb-3 flex gap-2">
               <Checkbox id="proxy" onCheckedChange={(checkedState) => setUseProxy(!!checkedState)} />
               <label htmlFor="proxy" className="text-sm font-medium leading-4">
-                服务器代理（如遇到跨域问题，请尝试开启该选项后重新加载配置）
+                {t('pluginServerProxy')}
               </label>
             </div>
           </div>
@@ -448,13 +448,13 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
           <div>
             <Textarea
               className="h-[238px] whitespace-pre-wrap max-sm:h-[210px]"
-              placeholder="插件配置内容（仅支持 openAPI 3.0 以上版本）"
+              placeholder={t('customPluginPlaceholder')}
               value={pluginDetail}
               onChange={(ev) => setPluginDetail(ev.target.value)}
             />
             <div className="mt-2 flex justify-end gap-2 max-sm:mb-2 max-sm:justify-center">
               <Button className="max-sm:flex-1" type="button" variant="secondary" onClick={() => setPluginDetail('')}>
-                清空
+                {t('clear')}
               </Button>
               <Button className="max-sm:flex-1" type="submit" onClick={() => handleAddPlugin()}>
                 {t('addPlugin')}

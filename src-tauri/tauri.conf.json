@@ -7,7 +7,7 @@
     "distDir": "../out"
   },
   "package": {
-    "productName": "talk-with-gemini",
+    "productName": "gemini-next-chat",
     "version": "0.13.0"
   },
   "tauri": {
