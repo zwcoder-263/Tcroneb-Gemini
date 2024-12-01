@@ -5,16 +5,18 @@ import { shuffleArray } from '@/utils/common'
 import { omitBy, isFunction, findIndex } from 'lodash-es'
 
 type AssistantStore = {
-  assistants: Assistant[]
-  customAssistants: Assistant[]
+  assistants: AssistantDetail[]
+  favorites: string[]
   tags: string[]
-  recommendation: Assistant[]
+  recommendation: AssistantDetail[]
   cachedTime: number
   cachedLang: string
-  update: (assistants: Assistant[]) => void
-  addAssistant: (assistant: Assistant) => void
-  updateAssistant: (id: string, assistant: Assistant) => void
+  update: (assistants: AssistantDetail[]) => void
+  addAssistant: (assistant: AssistantDetail) => void
+  updateAssistant: (id: string, assistant: AssistantDetail) => void
   removeAssistant: (id: string) => void
+  addFavorite: (id: string) => void
+  removeFavorite: (id: string) => void
   updateTags: (tags: string[]) => void
   recommend: (amount: number) => void
   setCachedTime: (timestamp: number) => void
@@ -25,39 +27,57 @@ export const useAssistantStore = create(
   persist<AssistantStore>(
     (set, get) => ({
       assistants: [],
-      customAssistants: [],
+      favorites: [],
       tags: [],
       recommendation: [],
       cachedTime: 0,
       cachedLang: '',
-      update: (assistants) => {
-        set(() => ({ assistants: [...assistants] }))
+      update: (assistantList) => {
+        const assistants = [...get().assistants]
+        assistantList.reverse().forEach((item) => {
+          const index = findIndex(assistants, { identifier: item.identifier })
+          if (index > -1) {
+            if (!assistants[index].config) {
+              assistants[index] = item
+            }
+          } else {
+            assistants.unshift(item)
+          }
+        })
+        set(() => ({ assistants }))
       },
       addAssistant: (assistant) => {
-        set(() => ({ customAssistants: [...get().customAssistants, assistant] }))
+        set(() => ({ assistants: [assistant, ...get().assistants] }))
       },
       updateAssistant: (id, assistant) => {
-        const assistants = [...get().customAssistants]
+        const assistants = [...get().assistants]
         const index = findIndex(assistants, { identifier: id })
         if (index > -1) {
           assistants[index] = assistant
-          set(() => ({ customAssistants: assistants }))
+          set(() => ({ assistants }))
         }
       },
       removeAssistant: (id) => {
-        const assistants = [...get().customAssistants]
-        const index = findIndex(assistants, { identifier: id })
-        if (index > -1) {
-          assistants.splice(index)
-          set(() => ({ customAssistants: assistants }))
+        const newAssistants = get().assistants.filter((item) => item.identifier !== id)
+        set(() => ({ assistants: newAssistants }))
+      },
+      addFavorite: (id) => {
+        const favorites = [...get().favorites]
+        if (!favorites.includes(id)) {
+          favorites.push(id)
+          set(() => ({ favorites }))
         }
+      },
+      removeFavorite: (id) => {
+        const newFavorites = get().favorites.filter((item) => item !== id)
+        set(() => ({ favorites: newFavorites }))
       },
       updateTags: (tags) => {
         set(() => ({ tags: [...tags] }))
       },
       recommend: (amount = 1) => {
         set(() => ({
-          recommendation: shuffleArray<Assistant>(get().assistants).slice(0, amount),
+          recommendation: shuffleArray(get().assistants).slice(0, amount),
         }))
       },
       setCachedTime: (timestamp) => set(() => ({ cachedTime: timestamp })),

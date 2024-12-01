@@ -12,6 +12,7 @@ type MessageStore = {
   messages: Message[]
   summary: Summary
   systemInstruction: string
+  systemInstructionEditMode: boolean
   chatLayout: 'chat' | 'doc'
   add: (message: Message) => void
   update: (id: string, message: Message) => void
@@ -19,6 +20,7 @@ type MessageStore = {
   clear: () => void
   revoke: (id: string) => void
   instruction: (prompt: string) => void
+  setSystemInstructionEditMode: (open: boolean) => void
   summarize: (ids: string[], content: string) => void
   changeChatLayout: (type: 'chat' | 'doc') => void
 }
@@ -32,6 +34,7 @@ export const useMessageStore = create(
         content: '',
       },
       systemInstruction: '',
+      systemInstructionEditMode: false,
       chatLayout: 'doc',
       add: (message) => {
         set((state) => ({
@@ -47,20 +50,13 @@ export const useMessageStore = create(
         }
       },
       remove: (id) => {
-        const messages = [...get().messages]
-        const index = findIndex(messages, { id })
-        if (index > -1) {
-          messages.splice(index, 1)
-          set(() => ({ messages }))
-        }
+        const newMessages = get().messages.filter((item) => item.id !== id)
+        set(() => ({ messages: newMessages }))
       },
       clear: () => {
         set(() => ({
           messages: [],
-          summary: {
-            ids: [],
-            content: '',
-          },
+          summary: { ids: [], content: '' },
         }))
       },
       revoke: (id) => {
@@ -74,13 +70,11 @@ export const useMessageStore = create(
       instruction: (prompt) => {
         set(() => ({ systemInstruction: prompt }))
       },
+      setSystemInstructionEditMode: (open) => {
+        set(() => ({ systemInstructionEditMode: open }))
+      },
       summarize: (ids, content) => {
-        set(() => ({
-          summary: {
-            ids,
-            content,
-          },
-        }))
+        set(() => ({ summary: { ids, content } }))
       },
       changeChatLayout: (type) => {
         set(() => ({ chatLayout: type }))

@@ -1,23 +1,50 @@
 'use client'
 import { useState, useEffect, useCallback, memo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 import MarkdownIt from 'markdown-it'
 import markdownHighlight from 'markdown-it-highlightjs'
 import highlight from 'highlight.js'
 import markdownKatex from '@traptitech/markdown-it-katex'
-import { X } from 'lucide-react'
+import { X, SquarePen } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
+import { Textarea } from '@/components/ui/textarea'
+import Button from '@/components/Button'
+import { useMessageStore } from '@/store/chat'
 import { upperFirst } from 'lodash-es'
 
-type Props = {
-  prompt: string
-  onClear: () => void
-}
+const formSchema = z.object({
+  content: z.string(),
+})
 
-function SystemInstruction({ prompt, onClear }: Props) {
+function SystemInstruction() {
   const { t } = useTranslation()
+  const { instruction, setSystemInstructionEditMode } = useMessageStore()
+  const systemInstruction = useMessageStore((state) => state.systemInstruction)
+  const systemInstructionEditMode = useMessageStore((state) => state.systemInstructionEditMode)
   const [html, setHtml] = useState<string>('')
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      content: systemInstruction,
+    },
+  })
+
+  const handleSave = useCallback(() => {
+    const { content } = form.getValues()
+    instruction(content)
+    setSystemInstructionEditMode(false)
+  }, [])
+
+  const handleClear = useCallback(() => {
+    instruction('')
+    setSystemInstructionEditMode(false)
+  }, [])
 
   const render = useCallback((content: string) => {
     const md: MarkdownIt = MarkdownIt({
@@ -61,28 +88,70 @@ function SystemInstruction({ prompt, onClear }: Props) {
   }, [])
 
   useEffect(() => {
-    setHtml(render(prompt))
+    setHtml(render(systemInstruction))
     return () => {
       setHtml('')
     }
-  }, [prompt, render])
+  }, [systemInstruction, render])
 
   return (
     <Card className="w-full">
-      <CardHeader className="relative px-4 pb-2 pt-4">
-        <CardTitle className="text-lg font-medium">{t('assistantSetting')}</CardTitle>
-        <X
-          className="absolute right-4 top-3 h-6 w-6 cursor-pointer rounded-full p-1 text-muted-foreground hover:bg-secondary/80"
-          onClick={() => onClear()}
-        />
+      <CardHeader className="flex flex-row justify-between space-y-0 px-4 pb-2 pt-4">
+        <CardTitle className="inline-flex text-lg font-medium">
+          {t('assistantSetting')}{' '}
+          <Button
+            className="ml-2 h-7 w-7"
+            size="icon"
+            variant="ghost"
+            title="编辑助理设定"
+            onClick={() => setSystemInstructionEditMode(true)}
+          >
+            <SquarePen />
+          </Button>
+        </CardTitle>
+        {systemInstructionEditMode ? (
+          <div className="inline-flex gap-2">
+            <Button className="h-7" size="sm" variant="outline" onClick={() => setSystemInstructionEditMode(false)}>
+              {t('cancel')}
+            </Button>
+            <Button className="h-7" size="sm" type="submit" onClick={() => handleSave()}>
+              {t('save')}
+            </Button>
+          </div>
+        ) : (
+          <X
+            className="h-7 w-7 cursor-pointer rounded-full p-1 text-muted-foreground hover:bg-secondary/80"
+            onClick={() => handleClear()}
+          />
+        )}
       </CardHeader>
       <ScrollArea className="max-h-[130px] overflow-y-auto max-sm:max-h-[90px]">
         <CardContent className="p-4 pt-0">
-          <div
-            className="prose w-full overflow-hidden break-words text-sm leading-6"
-            dangerouslySetInnerHTML={{ __html: html }}
-          ></div>
+          {systemInstructionEditMode ? (
+            <Form {...form}>
+              <form>
+                <FormField
+                  control={form.control}
+                  name="content"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea placeholder="请输入助理角色设定..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
+          ) : (
+            <div
+              className="prose w-full overflow-hidden break-words text-sm leading-6"
+              dangerouslySetInnerHTML={{ __html: html }}
+            ></div>
+          )}
         </CardContent>
+        <ScrollBar orientation="vertical" />
       </ScrollArea>
     </Card>
   )

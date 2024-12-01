@@ -17,7 +17,7 @@ import SearchBar from '@/components/SearchBar'
 import { usePluginStore } from '@/store/plugin'
 import { useSettingStore } from '@/store/setting'
 import { encodeToken } from '@/utils/signature'
-import { isUndefined, find, snakeCase } from 'lodash-es'
+import { isUndefined, find, findIndex, snakeCase } from 'lodash-es'
 
 type PluginStoreProps = {
   open: boolean
@@ -102,8 +102,17 @@ function search(keyword: string, data: PluginManifest[]): PluginManifest[] {
 
 function PluginMarket({ open, onClose }: PluginStoreProps) {
   const { password } = useSettingStore()
-  const { plugins, tools, installed, addPlugin, removePlugin, installPlugin, uninstallPlugin, removeTool } =
-    usePluginStore()
+  const {
+    plugins,
+    tools,
+    installed,
+    addPlugin,
+    updatePlugin,
+    removePlugin,
+    installPlugin,
+    uninstallPlugin,
+    removeTool,
+  } = usePluginStore()
   const { t } = useTranslation()
   const { toast } = useToast()
   const [pluginList, setPluginList] = useState<PluginManifest[]>([])
@@ -215,11 +224,9 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
       body: pluginDetail,
     })
     if (response.status === 200) {
-      const result: OpenAPIDocument = await response.json()
-      installPlugin(customPlugin.name_for_model, result)
+      const pluginConfig: OpenAPIDocument = await response.json()
       if (customPlugin.api.url === '') {
         try {
-          const pluginConfig: OpenAPIDocument = JSON.parse(pluginDetail)
           const manifest = {
             name_for_human: pluginConfig.info.title,
             name_for_model: snakeCase(pluginConfig.info.title),
@@ -243,6 +250,7 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
           setCurrentTab('list')
           setCustomPlugin(deafultCustomPlugin)
           setPluginDetail('')
+          installPlugin(manifest.name_for_model, pluginConfig)
         } catch (err) {
           toast({
             title: t('pluginLoadingFailed'),
@@ -268,20 +276,23 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
 
   useLayoutEffect(() => {
     if (open && pluginList.length === 0) {
-      fetch('/plugins/store.json').then(async (response) => {
+      fetch('./plugins/store.json').then(async (response) => {
         const data: PluginManifest[] = await response.json()
         const storePluginList: string[] = []
         data.forEach((manifest) => {
           storePluginList.push(manifest.name_for_model)
-          if (!find(plugins, { name_for_model: manifest.name_for_model })) {
+          const index = findIndex(plugins, { name_for_model: manifest.name_for_model })
+          if (index === -1) {
             addPlugin(manifest)
+          } else {
+            updatePlugin(manifest.name_for_model, manifest)
           }
         })
         setPluginList(plugins)
         setStorePlugins(storePluginList)
       })
     }
-  }, [open, addPlugin, plugins, pluginList])
+  }, [open, addPlugin, updatePlugin, plugins, pluginList])
 
   return (
     <ResponsiveDialog
@@ -297,11 +308,11 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
           <TabsTrigger value="custom">{t('customPlugin')}</TabsTrigger>
         </TabsList>
         <TabsContent value="list">
-          <div className="my-4 max-sm:my-2">
+          <div className="pb-2 pt-1">
             <SearchBar onSearch={handleSearch} onClear={() => handleClear()} />
           </div>
           <ScrollArea className="h-[400px] w-full scroll-smooth">
-            <div className="grid grid-cols-2 gap-2 max-sm:grid-cols-1">
+            <div className="grid grid-cols-2 gap-2 pb-2 max-sm:grid-cols-1">
               {pluginList.map((item) => {
                 return (
                   <Card key={item.name_for_model} className="transition-colors dark:hover:border-white/80">
@@ -387,80 +398,83 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
           </ScrollArea>
         </TabsContent>
         <TabsContent value="custom">
-          <div>
-            <div className="mb-3 mt-4 flex w-full gap-2 max-sm:my-2">
-              <Input placeholder={t('pluginUrlPlaceholder')} onChange={(ev) => setManifestUrl(ev.target.value)} />
-              <Button type="submit" onClick={() => handleLoadPlugin(manifestUrl)}>
-                {t('loadingConfig')}
-              </Button>
+          <ScrollArea className="h-[452px] w-full scroll-smooth">
+            <div className="pt-1">
+              <div className="flex w-full gap-2">
+                <Input placeholder={t('pluginUrlPlaceholder')} onChange={(ev) => setManifestUrl(ev.target.value)} />
+                <Button type="submit" onClick={() => handleLoadPlugin(manifestUrl)}>
+                  {t('loadingConfig')}
+                </Button>
+              </div>
+              <div className="my-2 flex gap-2">
+                <Checkbox id="proxy" onCheckedChange={(checkedState) => setUseProxy(!!checkedState)} />
+                <label htmlFor="proxy" className="text-sm font-medium leading-4">
+                  {t('pluginServerProxy')}
+                </label>
+              </div>
             </div>
-            <div className="mb-3 flex gap-2">
-              <Checkbox id="proxy" onCheckedChange={(checkedState) => setUseProxy(!!checkedState)} />
-              <label htmlFor="proxy" className="text-sm font-medium leading-4">
-                {t('pluginServerProxy')}
-              </label>
+            <div className="mb-3">
+              <Card className="transition-colors dark:hover:border-white/80">
+                <CardHeader className="px-4 pb-1 pt-3">
+                  <CardTitle className="inline-flex justify-between truncate text-base font-medium">
+                    <div className="inline-flex">
+                      <Avatar className="mr-0.5 h-6 w-6 p-1">
+                        <AvatarImage
+                          className="h-4 w-4 rounded-full"
+                          src={customPlugin.logo_url}
+                          alt={customPlugin.name_for_human}
+                        />
+                        <AvatarFallback>
+                          <Box className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                      {customPlugin.name_for_human}
+                    </div>
+                    <div className="inline-flex gap-1">
+                      {customPlugin.legal_info_url ? (
+                        <a href={customPlugin.legal_info_url} title={customPlugin.legal_info_url} target="_blank">
+                          <Button className="h-6 w-6 [&_svg]:size-4" size="icon" variant="ghost">
+                            <Globe />
+                          </Button>
+                        </a>
+                      ) : null}
+                      {customPlugin.contact_email ? (
+                        <a
+                          href={`mailto:${customPlugin.contact_email}`}
+                          title={customPlugin.contact_email}
+                          target="_blank"
+                        >
+                          <Button className="h-6 w-6 [&_svg]:size-4" size="icon" variant="ghost">
+                            <Mail />
+                          </Button>
+                        </a>
+                      ) : null}
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-4 pb-3 pt-1 text-sm">
+                  <p className="whitespace-pre-wrap">{customPlugin.description_for_human}</p>
+                </CardContent>
+              </Card>
             </div>
-          </div>
-          <div className="mb-3">
-            <Card className="transition-colors dark:hover:border-white/80">
-              <CardHeader className="px-4 pb-1 pt-3">
-                <CardTitle className="inline-flex justify-between truncate text-base font-medium">
-                  <div className="inline-flex">
-                    <Avatar className="mr-0.5 h-6 w-6 p-1">
-                      <AvatarImage
-                        className="h-4 w-4 rounded-full"
-                        src={customPlugin.logo_url}
-                        alt={customPlugin.name_for_human}
-                      />
-                      <AvatarFallback>
-                        <Box className="h-4 w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                    {customPlugin.name_for_human}
-                  </div>
-                  <div className="inline-flex gap-1">
-                    {customPlugin.legal_info_url ? (
-                      <a href={customPlugin.legal_info_url} title={customPlugin.legal_info_url} target="_blank">
-                        <Button className="h-6 w-6 [&_svg]:size-4" size="icon" variant="ghost">
-                          <Globe />
-                        </Button>
-                      </a>
-                    ) : null}
-                    {customPlugin.contact_email ? (
-                      <a
-                        href={`mailto:${customPlugin.contact_email}`}
-                        title={customPlugin.contact_email}
-                        target="_blank"
-                      >
-                        <Button className="h-6 w-6 [&_svg]:size-4" size="icon" variant="ghost">
-                          <Mail />
-                        </Button>
-                      </a>
-                    ) : null}
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-4 pb-3 pt-1 text-sm">
-                <p className="whitespace-pre-wrap">{customPlugin.description_for_human}</p>
-              </CardContent>
-            </Card>
-          </div>
-          <div>
-            <Textarea
-              className="h-[238px] whitespace-pre-wrap max-sm:h-[210px]"
-              placeholder={t('customPluginPlaceholder')}
-              value={pluginDetail}
-              onChange={(ev) => setPluginDetail(ev.target.value)}
-            />
-            <div className="mt-2 flex justify-end gap-2 max-sm:mb-2 max-sm:justify-center">
-              <Button className="max-sm:flex-1" type="button" variant="secondary" onClick={() => setPluginDetail('')}>
-                {t('clear')}
-              </Button>
-              <Button className="max-sm:flex-1" type="submit" onClick={() => handleAddPlugin()}>
-                {t('addPlugin')}
-              </Button>
+            <div>
+              <Textarea
+                className="h-[220px] whitespace-pre-wrap max-sm:h-[212px]"
+                placeholder={t('customPluginPlaceholder')}
+                value={pluginDetail}
+                onChange={(ev) => setPluginDetail(ev.target.value)}
+              />
+              <div className="mt-2 flex justify-end gap-2 max-sm:mb-2 max-sm:justify-center">
+                <Button className="max-sm:flex-1" type="button" variant="outline" onClick={() => setPluginDetail('')}>
+                  {t('clear')}
+                </Button>
+                <Button className="max-sm:flex-1" type="submit" onClick={() => handleAddPlugin()}>
+                  {t('addPlugin')}
+                </Button>
+              </div>
             </div>
-          </div>
+            <ScrollBar orientation="vertical" />
+          </ScrollArea>
         </TabsContent>
       </Tabs>
     </ResponsiveDialog>

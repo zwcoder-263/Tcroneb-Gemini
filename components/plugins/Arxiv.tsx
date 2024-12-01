@@ -62,7 +62,10 @@ function Arxiv(props: Props) {
           <ol>
             {data.map((item) => {
               return (
-                <li key={item.id} className="mb-2 border-b-[1px] border-solid border-gray-200 last:border-b-0">
+                <li
+                  key={item.id}
+                  className="mb-2 border-b-[1px] border-solid border-gray-200 last:border-b-0 dark:border-gray-700"
+                >
                   <h3 className="my-1 text-lg font-semibold text-blue-500 underline-offset-2 hover:underline">
                     <a href={item.link} target="_blank">
                       {item.title}

@@ -224,6 +224,14 @@ function MessageItem(props: Props) {
         return defaultTextRules(tokens, idx, options, env, self)
       }
 
+      md.renderer.rules.table_open = function (tokens, idx, options) {
+        return `<div style="overflow-x:auto;"><table>`
+      }
+
+      md.renderer.rules.table_close = function (tokens, idx, options) {
+        return '</table></div>'
+      }
+
       const mathLineRender = md.renderer.rules.math_inline!
       md.renderer.rules.math_inline = (...params) => {
         const [tokens, idx] = params

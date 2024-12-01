@@ -74,7 +74,7 @@ function PluginList() {
 
   return (
     <Popover>
-      <PopoverTrigger className="inline-flex h-10 w-10 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-secondary text-sm font-medium text-secondary-foreground ring-offset-background transition-colors hover:bg-secondary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 max-sm:h-8 max-sm:w-8 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0 max-sm:[&_svg]:size-4">
+      <PopoverTrigger className="inline-flex h-10 w-10 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-secondary text-sm font-medium text-secondary-foreground ring-offset-background transition-colors hover:bg-secondary/80 focus-visible:border-foreground focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 max-sm:h-8 max-sm:w-8 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0 max-sm:[&_svg]:size-4">
         <Blocks />
       </PopoverTrigger>
       <PopoverContent className="max-h-[330px] w-48 overflow-y-auto">

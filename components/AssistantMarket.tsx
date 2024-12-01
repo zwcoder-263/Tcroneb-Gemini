@@ -1,12 +1,18 @@
 'use client'
-import { useState, useCallback, useLayoutEffect, memo } from 'react'
+import { useState, useCallback, useLayoutEffect, useEffect, useRef, memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { EllipsisVertical, Heart } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardHeader, CardContent, CardFooter, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import ResponsiveDialog from '@/components/ResponsiveDialog'
 import SearchBar from '@/components/SearchBar'
+import AssistantForm from '@/components/AssistantForm'
+import Button from '@/components/Button'
+import { useMessageStore } from '@/store/chat'
 import { useAssistantStore } from '@/store/assistant'
 import { useSettingStore } from '@/store/setting'
 import AssistantMarketUrl from '@/utils/AssistantMarketUrl'
@@ -14,18 +20,17 @@ import AssistantMarketUrl from '@/utils/AssistantMarketUrl'
 type AssistantProps = {
   open: boolean
   onClose: () => void
-  onSelect: (prompt: string) => void
   onLoaded: () => void
 }
 
 type AssistantMarketIndex = {
-  agents: Assistant[]
+  agents: AssistantDetail[]
   tags: string[]
   schemaVersion: number
 }
 
-function search(keyword: string, data: Assistant[]): Assistant[] {
-  const results: Assistant[] = []
+function search(keyword: string, data: AssistantDetail[]): AssistantDetail[] {
+  const results: AssistantDetail[] = []
   // 'i' means case-insensitive
   const regex = new RegExp(keyword.trim(), 'gi')
   data.forEach((item) => {
@@ -36,24 +41,30 @@ function search(keyword: string, data: Assistant[]): Assistant[] {
   return results
 }
 
-function filterDataByTag(data: Assistant[], tag: string): Assistant[] {
+function filterDataByTag(data: AssistantDetail[], tag: string): AssistantDetail[] {
   return tag !== 'all' ? data.filter((item) => item.meta.tags.includes(tag)) : data
 }
 
-function AssistantMarket({ open, onClose, onSelect, onLoaded }: AssistantProps) {
+function AssistantMarket(props: AssistantProps) {
+  const { open, onClose, onLoaded } = props
   const { t } = useTranslation()
-  const { update: updateAssistants, updateTags } = useAssistantStore()
+  const { update: updateAssistants, removeAssistant, addFavorite, removeFavorite, updateTags } = useAssistantStore()
   const assistants = useAssistantStore((state) => state.assistants)
+  const favorites = useAssistantStore((state) => state.favorites)
   const lang = useSettingStore((state) => state.lang)
   const assistantIndexUrl = useSettingStore((state) => state.assistantIndexUrl)
-  const [assistantList, setAssistantList] = useState<Assistant[]>([])
+  const [assistantList, setAssistantList] = useState<AssistantDetail[]>([])
   const [tagList, setTagList] = useState<string[]>([])
   const [currentTag, setCurrentTag] = useState<string>('all')
-  const [showTagList, setShowTagList] = useState<boolean>(false)
+  const [freezeSelection, setFreezeSelection] = useState<boolean>(false)
+  const [currentTab, setCurrentTab] = useState<string>('list')
+  const favoriteList = useMemo(() => {
+    return assistantList.filter((item) => favorites.includes(item.identifier))
+  }, [assistantList, favorites])
 
   const handleClear = useCallback(() => {
     setAssistantList(filterDataByTag(assistants, currentTag))
-  }, [currentTag, assistants])
+  }, [assistants, currentTag])
 
   const handleClose = useCallback(() => {
     onClose()
@@ -63,15 +74,21 @@ function AssistantMarket({ open, onClose, onSelect, onLoaded }: AssistantProps) 
   }, [assistants, onClose, handleClear])
 
   const handleSelect = useCallback(
-    async (assistant: Assistant) => {
-      if (showTagList) return null
+    async (assistant: AssistantDetail) => {
+      if (freezeSelection) return false
       handleClose()
-      const assistantMarketUrl = new AssistantMarketUrl(assistantIndexUrl)
-      const response = await fetch(assistantMarketUrl.getAssistantUrl(assistant.identifier, lang))
-      const assistantDeatil: AssistantDetail = await response.json()
-      onSelect(assistantDeatil.config.systemRole)
+      const { instruction, clear: clearMessage } = useMessageStore.getState()
+      clearMessage()
+      if (assistant.config?.systemRole) {
+        instruction(assistant.config.systemRole)
+      } else {
+        const assistantMarketUrl = new AssistantMarketUrl(assistantIndexUrl)
+        const response = await fetch(assistantMarketUrl.getAssistantUrl(assistant.identifier, lang))
+        const assistantDeatil: AssistantDetail = await response.json()
+        instruction(assistantDeatil.config.systemRole)
+      }
     },
-    [lang, assistantIndexUrl, showTagList, handleClose, onSelect],
+    [lang, assistantIndexUrl, freezeSelection, handleClose],
   )
 
   const handleSearch = useCallback(
@@ -79,7 +96,7 @@ function AssistantMarket({ open, onClose, onSelect, onLoaded }: AssistantProps) 
       const result = search(keyword, filterDataByTag(assistants, currentTag))
       setAssistantList(result)
     },
-    [assistants, currentTag],
+    [currentTag, assistants],
   )
 
   const handleSelectTag = useCallback(
@@ -92,11 +109,11 @@ function AssistantMarket({ open, onClose, onSelect, onLoaded }: AssistantProps) 
 
   const handleTagListOpenChange = useCallback((open: boolean) => {
     if (open) {
-      setShowTagList(open)
+      setFreezeSelection(open)
     } else {
       // Fixed the click-through issue on mobile devices
       setTimeout(() => {
-        setShowTagList(open)
+        setFreezeSelection(open)
       }, 350)
     }
   }, [])
@@ -111,6 +128,8 @@ function AssistantMarket({ open, onClose, onSelect, onLoaded }: AssistantProps) 
     updateTags(assistantMarketIndex.tags)
     onLoaded()
   }, [lang, assistantIndexUrl, updateAssistants, updateTags, onLoaded])
+
+  useEffect(() => setAssistantList(assistants), [assistants])
 
   useLayoutEffect(() => {
     if (assistantIndexUrl !== '' && lang !== '') {
@@ -131,77 +150,158 @@ function AssistantMarket({ open, onClose, onSelect, onLoaded }: AssistantProps) 
     }
   }, [assistantIndexUrl, lang, fetchAssistantMarketIndex, updateAssistants, updateTags, onLoaded])
 
+  const renderAssistantList = (assistantList: AssistantDetail[]) => {
+    return assistantList.map((assistant) => {
+      return (
+        <Card
+          key={assistant.identifier}
+          className="cursor-pointer transition-colors hover:drop-shadow-md dark:hover:border-white/80"
+          onClick={() => handleSelect(assistant)}
+        >
+          <CardHeader className="p-4 pb-2">
+            <CardTitle className="flex justify-between text-base">
+              <div className="inline-flex">
+                <Avatar className="mr-1 h-6 w-6">
+                  {assistant.meta.avatar.startsWith('http') ? (
+                    <AvatarImage className="m-1 h-4 w-4 rounded-full" src={assistant.meta.avatar} />
+                  ) : null}
+                  <AvatarFallback className="bg-transparent">{assistant.meta.avatar}</AvatarFallback>
+                </Avatar>
+                <span className="truncate font-medium">{assistant.meta.title}</span>
+              </div>
+              <div className="inline-flex gap-1">
+                <Button
+                  className="h-6 w-6"
+                  size="icon"
+                  variant="ghost"
+                  onClick={(ev) => {
+                    ev.stopPropagation()
+                    ev.preventDefault()
+                    if (favorites.includes(assistant.identifier)) {
+                      removeFavorite(assistant.identifier)
+                    } else {
+                      addFavorite(assistant.identifier)
+                    }
+                  }}
+                >
+                  <Heart className={favorites.includes(assistant.identifier) ? 'text-red-400' : ''} />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                    <Button
+                      className="h-6 w-6"
+                      variant="ghost"
+                      size="icon"
+                      title="操作"
+                      onClick={(ev) => {
+                        ev.stopPropagation()
+                        ev.preventDefault()
+                      }}
+                    >
+                      <EllipsisVertical />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem
+                      onClick={(ev) => {
+                        ev.stopPropagation()
+                        ev.preventDefault()
+                      }}
+                    >
+                      编辑
+                    </DropdownMenuItem>
+                    {assistant.author === '' ? (
+                      <DropdownMenuItem
+                        className="text-red-500"
+                        onClick={(ev) => {
+                          ev.stopPropagation()
+                          ev.preventDefault()
+                          removeAssistant(assistant.identifier)
+                        }}
+                      >
+                        删除
+                      </DropdownMenuItem>
+                    ) : null}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-line-clamp-2 mb-2 h-10 px-4 text-sm">{assistant.meta.description}</CardContent>
+          <CardFooter className="flex justify-between p-3 px-4 pt-0 text-sm">
+            <span>{assistant.createAt}</span>
+            {assistant.author ? (
+              <a
+                className="inline-block underline-offset-4 hover:underline"
+                href={assistant.homepage}
+                target="_blank"
+                onClick={(ev) => ev.stopPropagation()}
+              >
+                @{assistant.author}
+              </a>
+            ) : null}
+          </CardFooter>
+        </Card>
+      )
+    })
+  }
+
   return (
     <ResponsiveDialog
-      className="max-w-screen-md"
+      className="max-h-[95vh] max-w-screen-md"
       open={open}
       onClose={handleClose}
       title={
         <>
           {t('assistantMarket')}
-          <small>{t('totalAssistant', { total: assistants.length })}</small>
+          <small>{t('totalAssistant', { total: assistantList.length })}</small>
         </>
       }
       description={t('assistantMarketDescription')}
     >
-      <div className="mb-2 mt-1 flex gap-2">
-        <Select defaultValue="all" onValueChange={handleSelectTag} onOpenChange={handleTagListOpenChange}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="请选择分类" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">全部</SelectItem>
-            {tagList.map((tag) => {
-              return (
-                <SelectItem key={tag} value={tag}>
-                  {tag}
-                </SelectItem>
-              )
-            })}
-          </SelectContent>
-        </Select>
-        <SearchBar onSearch={handleSearch} onClear={() => handleClear()} />
-      </div>
-      <ScrollArea className="h-[400px] w-full scroll-smooth">
-        <div className="grid grid-cols-2 gap-2 max-sm:grid-cols-1 ">
-          {assistantList.map((assistant) => {
-            return (
-              <Card
-                key={assistant.identifier}
-                className="cursor-pointer transition-colors hover:drop-shadow-md dark:hover:border-white/80"
-                onClick={() => handleSelect(assistant)}
-              >
-                <CardHeader className="p-4 pb-2">
-                  <CardTitle className="flex text-base">
-                    <Avatar className="mr-1 h-6 w-6">
-                      {assistant.meta.avatar.startsWith('http') ? (
-                        <AvatarImage className="m-1 h-4 w-4 rounded-full" src={assistant.meta.avatar} />
-                      ) : null}
-                      <AvatarFallback className="bg-transparent">{assistant.meta.avatar}</AvatarFallback>
-                    </Avatar>
-                    <span className="truncate font-medium">{assistant.meta.title}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="text-line-clamp-2 mb-2 h-10 px-4 text-sm">
-                  {assistant.meta.description}
-                </CardContent>
-                <CardFooter className="flex justify-between p-3 px-4 pt-0 text-sm">
-                  <span>{assistant.createAt}</span>
-                  <a
-                    className="underline-offset-4 hover:underline"
-                    href={assistant.homepage}
-                    target="_blank"
-                    onClick={(ev) => ev.stopPropagation()}
-                  >
-                    @{assistant.author}
-                  </a>
-                </CardFooter>
-              </Card>
-            )
-          })}
-        </div>
-        <ScrollBar orientation="vertical" />
-      </ScrollArea>
+      <Tabs value={currentTab} onValueChange={(value) => setCurrentTab(value)}>
+        <TabsList className="mx-auto grid w-full grid-cols-3">
+          <TabsTrigger value="list">助理列表</TabsTrigger>
+          <TabsTrigger value="favorite">收藏列表</TabsTrigger>
+          <TabsTrigger value="custom">自定义助理</TabsTrigger>
+        </TabsList>
+        <TabsContent value="list">
+          <div className="flex gap-2 pb-2 pt-1">
+            <Select defaultValue="all" onValueChange={handleSelectTag} onOpenChange={handleTagListOpenChange}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="请选择分类" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部</SelectItem>
+                {tagList.map((tag) => {
+                  return (
+                    <SelectItem key={tag} value={tag}>
+                      {tag}
+                    </SelectItem>
+                  )
+                })}
+              </SelectContent>
+            </Select>
+            <SearchBar onSearch={handleSearch} onClear={() => handleClear()} />
+          </div>
+          <ScrollArea className="h-[400px] w-full scroll-smooth">
+            <div className="grid grid-cols-2 gap-2 max-sm:grid-cols-1">{renderAssistantList(assistantList)}</div>
+            <ScrollBar orientation="vertical" />
+          </ScrollArea>
+        </TabsContent>
+        <TabsContent value="favorite">
+          <ScrollArea className="h-[452px] w-full scroll-smooth">
+            <div className="grid grid-cols-2 gap-2 max-sm:grid-cols-1">{renderAssistantList(favoriteList)}</div>
+            <ScrollBar orientation="vertical" />
+          </ScrollArea>
+        </TabsContent>
+        <TabsContent value="custom">
+          <ScrollArea className="h-[452px] w-full scroll-smooth">
+            <AssistantForm afterSubmit={() => setCurrentTab('list')} />
+            <ScrollBar orientation="vertical" />
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
     </ResponsiveDialog>
   )
 }

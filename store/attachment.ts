@@ -28,12 +28,8 @@ export const useAttachmentStore = create<AttachmentStore>((set, get) => ({
     }
   },
   remove: (id) => {
-    const files = [...get().files]
-    const fileIndex = findIndex(files, { id })
-    if (fileIndex !== -1) {
-      files.splice(fileIndex, 1)
-      set(() => ({ files }))
-    }
+    const newFiles = get().files.filter((item) => item.id !== id)
+    set(() => ({ files: newFiles }))
   },
   clear: () => {
     set(() => ({ files: [] }))

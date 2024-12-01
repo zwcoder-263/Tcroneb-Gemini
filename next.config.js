@@ -12,6 +12,7 @@ module.exports = async (phase) => {
     images: {
       unoptimized: mode === 'export',
     },
+    reactStrictMode: false,
   }
   if (mode === 'export') {
     nextConfig.output = 'export'

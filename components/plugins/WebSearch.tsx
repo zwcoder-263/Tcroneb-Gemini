@@ -89,7 +89,10 @@ function WebSearch(props: Props) {
           <ol>
             {data.map((item, idx) => {
               return (
-                <li className="mb-2 border-b-[1px] border-solid border-gray-200 last:border-b-0" key={idx}>
+                <li
+                  className="mb-2 border-b-[1px] border-solid border-gray-200 last:border-b-0 dark:border-gray-700"
+                  key={idx}
+                >
                   <div className="inline-flex text-blue-400">
                     <Avatar className="h-4 w-4">
                       <AvatarImage src={item.icon} />

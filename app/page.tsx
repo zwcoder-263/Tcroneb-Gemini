@@ -77,6 +77,7 @@ export default function Home() {
   const messagesRef = useRef(useMessageStore.getState().messages)
   const messages = useMessageStore((state) => state.messages)
   const systemInstruction = useMessageStore((state) => state.systemInstruction)
+  const systemInstructionEditMode = useMessageStore((state) => state.systemInstructionEditMode)
   const chatLayout = useMessageStore((state) => state.chatLayout)
   const files = useAttachmentStore((state) => state.files)
   const model = useSettingStore((state) => state.model)
@@ -224,14 +225,14 @@ export default function Home() {
       const { ids, prompt } = summarizePrompt(messages, summary.ids, summary.content)
       await fetchAnswer({
         messages: [{ id: 'summary', role: 'user', parts: [{ text: prompt }] }],
-        model: 'gemini-pro',
+        model,
         onResponse: async (readableStream) => {
           const text = await streamToText(readableStream)
           summarizeChat(ids, text.trim())
         },
       })
     },
-    [fetchAnswer],
+    [fetchAnswer, model],
   )
 
   const handleError = useCallback(async (message: string, code?: number) => {
@@ -668,12 +669,6 @@ export default function Home() {
     [handleFileUpload],
   )
 
-  const initAssistant = useCallback((prompt: string) => {
-    const { instruction, clear: clearMessage } = useMessageStore.getState()
-    clearMessage()
-    instruction(prompt)
-  }, [])
-
   const genPluginStatusPart = useCallback((plugins: string[]) => {
     const parts = []
     for (const name of plugins) {
@@ -695,7 +690,7 @@ export default function Home() {
     changeChatLayout(type)
   }, [])
 
-  useEffect(() => useMessageStore.subscribe((state) => (messagesRef.current = state.messages)), [])
+  useEffect(() => useMessageStore.subscribe((state) => (messagesRef.current = state.messages)), [messages])
 
   useEffect(() => {
     const { ttsLang, ttsVoice, update } = useSettingStore.getState()
@@ -748,7 +743,7 @@ export default function Home() {
       <div className="mb-2 mt-6 flex justify-between p-4 pr-2 max-sm:mt-2 max-sm:pr-2 landscape:max-md:mt-0">
         <div className="flex flex-row text-xl leading-8 text-red-400 max-sm:text-base">
           <MessageCircleHeart className="h-10 w-10 max-sm:h-8 max-sm:w-8" />
-          <div className="ml-3 font-bold leading-10 max-sm:leading-8">{t('title')}</div>
+          <div className="ml-2 font-bold leading-10 max-sm:ml-1 max-sm:leading-8">Gemini Next Chat</div>
         </div>
         <div className="flex items-center gap-1">
           <a href="https://github.com/Amery2010/TalkWithGemini" target="_blank">
@@ -789,13 +784,13 @@ export default function Home() {
           </Button>
         </div>
       </div>
-      {messages.length === 0 && content === '' && systemInstruction === '' ? (
-        <AssistantRecommend initAssistant={initAssistant} />
+      {messages.length === 0 && content === '' && systemInstruction === '' && !systemInstructionEditMode ? (
+        <AssistantRecommend />
       ) : (
         <div className="flex min-h-full flex-1 grow flex-col justify-start overflow-hidden max-md:w-full">
-          {systemInstruction !== '' ? (
+          {systemInstruction !== '' || systemInstructionEditMode ? (
             <div className="p-4 pt-0">
-              <SystemInstruction prompt={systemInstruction} onClear={() => initAssistant('')} />
+              <SystemInstruction />
             </div>
           ) : null}
           {messages.map((msg, idx) => (
