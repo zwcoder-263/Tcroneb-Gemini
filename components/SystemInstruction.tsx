@@ -8,13 +8,16 @@ import MarkdownIt from 'markdown-it'
 import markdownHighlight from 'markdown-it-highlightjs'
 import highlight from 'highlight.js'
 import markdownKatex from '@traptitech/markdown-it-katex'
-import { X, SquarePen } from 'lucide-react'
+import { X, SquarePen, Sparkles } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Textarea } from '@/components/ui/textarea'
 import Button from '@/components/Button'
 import { useMessageStore } from '@/store/chat'
+import { useSettingStore } from '@/store/setting'
+import { encodeToken } from '@/utils/signature'
+import optimizePrompt, { type RequestProps } from '@/utils/optimizePrompt'
 import { upperFirst } from 'lodash-es'
 
 const formSchema = z.object({
@@ -44,6 +47,31 @@ function SystemInstruction() {
   const handleClear = useCallback(() => {
     instruction('')
     setSystemInstructionEditMode(false)
+  }, [])
+
+  const optimizeAssistantPrompt = useCallback(async () => {
+    if (systemInstruction === '') return false
+    const { apiKey, apiProxy, model, password } = useSettingStore.getState()
+    const config: RequestProps = {
+      apiKey,
+      model,
+      content: systemInstruction,
+    }
+    if (apiKey !== '') {
+      if (apiProxy) config.baseUrl = apiProxy
+    } else {
+      config.apiKey = encodeToken(password)
+      config.baseUrl = '/api/google'
+    }
+    const readableStream = await optimizePrompt(config)
+    let content = ''
+    const reader = readableStream.getReader()
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      content += new TextDecoder().decode(value)
+      form.setValue('content', content)
+    }
   }, [])
 
   const render = useCallback((content: string) => {
@@ -99,15 +127,27 @@ function SystemInstruction() {
       <CardHeader className="flex flex-row justify-between space-y-0 px-4 pb-2 pt-4">
         <CardTitle className="inline-flex text-lg font-medium">
           {t('assistantSetting')}{' '}
-          <Button
-            className="ml-2 h-7 w-7"
-            size="icon"
-            variant="ghost"
-            title="编辑助理设定"
-            onClick={() => setSystemInstructionEditMode(true)}
-          >
-            <SquarePen />
-          </Button>
+          {systemInstructionEditMode ? (
+            <Button
+              className="ml-2 h-7 w-7"
+              size="icon"
+              variant="ghost"
+              title={t('optimizePrompt')}
+              onClick={() => optimizeAssistantPrompt()}
+            >
+              <Sparkles />
+            </Button>
+          ) : (
+            <Button
+              className="ml-2 h-7 w-7"
+              size="icon"
+              variant="ghost"
+              title={t('editAssistantSettings')}
+              onClick={() => setSystemInstructionEditMode(true)}
+            >
+              <SquarePen />
+            </Button>
+          )}
         </CardTitle>
         {systemInstructionEditMode ? (
           <div className="inline-flex gap-2">
@@ -125,7 +165,7 @@ function SystemInstruction() {
           />
         )}
       </CardHeader>
-      <ScrollArea className="max-h-[130px] overflow-y-auto max-sm:max-h-[90px]">
+      <ScrollArea className="max-h-[140px] overflow-y-auto">
         <CardContent className="p-4 pt-0">
           {systemInstructionEditMode ? (
             <Form {...form}>
@@ -136,7 +176,7 @@ function SystemInstruction() {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Textarea placeholder="请输入助理角色设定..." {...field} />
+                        <Textarea rows={5} placeholder={t('systemInstructionPlaceholder')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

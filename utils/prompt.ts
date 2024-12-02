@@ -120,11 +120,11 @@ export function getTalkAudioPrompt(messages: Message[]): Message[] {
 
 export function getFunctionCallPrompt() {
   return `
-  Before calling the function, if you cannot understand the content of the message or cannot correctly extract the information, please stop calling the function and guide the user to complete or modify the information.
-  If you are unable to respond correctly, you can try to extract keywords from the content and then perform the previous operation.
+Before calling the function, if you cannot understand the content of the message or cannot correctly extract the information, please stop calling the function and guide the user to complete or modify the information.
+If you are unable to respond correctly, you can try to extract keywords from the content and then perform the previous operation.
 
-  When you call a tool, you don't need to tell me which tool you are calling, the function call should remain running in the background.
+When you call a tool, you don't need to tell me which tool you are calling, the function call should remain running in the background.
 
-  Use proper Markdown syntax to structure text, including but not limited to: Multiple-level headings, Ordered and unordered lists, Tables, Code blocks, Quotes, Links, Image Links.
+Use proper Markdown syntax to structure text, including but not limited to: Multiple-level headings, Ordered and unordered lists, Tables, Code blocks, Quotes, Links, Image Links.
   `
 }

@@ -1,5 +1,5 @@
 'use client'
-import { useState, useCallback, useLayoutEffect, useEffect, useRef, memo, useMemo } from 'react'
+import { useState, useCallback, useLayoutEffect, useEffect, memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { EllipsisVertical, Heart } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -58,6 +58,7 @@ function AssistantMarket(props: AssistantProps) {
   const [currentTag, setCurrentTag] = useState<string>('all')
   const [freezeSelection, setFreezeSelection] = useState<boolean>(false)
   const [currentTab, setCurrentTab] = useState<string>('list')
+  const [data, setData] = useState<AssistantDetail>()
   const favoriteList = useMemo(() => {
     return assistantList.filter((item) => favorites.includes(item.identifier))
   }, [assistantList, favorites])
@@ -188,27 +189,24 @@ function AssistantMarket(props: AssistantProps) {
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger>
-                    <Button
-                      className="h-6 w-6"
-                      variant="ghost"
-                      size="icon"
-                      title="操作"
+                    <EllipsisVertical
+                      className="h-5 w-5"
                       onClick={(ev) => {
                         ev.stopPropagation()
                         ev.preventDefault()
                       }}
-                    >
-                      <EllipsisVertical />
-                    </Button>
+                    />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                     <DropdownMenuItem
                       onClick={(ev) => {
                         ev.stopPropagation()
                         ev.preventDefault()
+                        setData(assistant)
+                        setCurrentTab('custom')
                       }}
                     >
-                      编辑
+                      {t('edit')}
                     </DropdownMenuItem>
                     {assistant.author === '' ? (
                       <DropdownMenuItem
@@ -219,7 +217,7 @@ function AssistantMarket(props: AssistantProps) {
                           removeAssistant(assistant.identifier)
                         }}
                       >
-                        删除
+                        {t('delete')}
                       </DropdownMenuItem>
                     ) : null}
                   </DropdownMenuContent>
@@ -261,18 +259,18 @@ function AssistantMarket(props: AssistantProps) {
     >
       <Tabs value={currentTab} onValueChange={(value) => setCurrentTab(value)}>
         <TabsList className="mx-auto grid w-full grid-cols-3">
-          <TabsTrigger value="list">助理列表</TabsTrigger>
-          <TabsTrigger value="favorite">收藏列表</TabsTrigger>
-          <TabsTrigger value="custom">自定义助理</TabsTrigger>
+          <TabsTrigger value="list">{t('assistantList')}</TabsTrigger>
+          <TabsTrigger value="favorite">{t('favoriteList')}</TabsTrigger>
+          <TabsTrigger value="custom">{t('customAssistant')}</TabsTrigger>
         </TabsList>
         <TabsContent value="list">
           <div className="flex gap-2 pb-2 pt-1">
             <Select defaultValue="all" onValueChange={handleSelectTag} onOpenChange={handleTagListOpenChange}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="请选择分类" />
+                <SelectValue placeholder={t('selectCategory')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全部</SelectItem>
+                <SelectItem value="all">{t('all')}</SelectItem>
                 {tagList.map((tag) => {
                   return (
                     <SelectItem key={tag} value={tag}>
@@ -297,7 +295,15 @@ function AssistantMarket(props: AssistantProps) {
         </TabsContent>
         <TabsContent value="custom">
           <ScrollArea className="h-[452px] w-full scroll-smooth">
-            <AssistantForm afterSubmit={() => setCurrentTab('list')} />
+            <AssistantForm
+              data={data}
+              onChange={(status) => {
+                setData(undefined)
+                if (status !== 'clear') {
+                  setCurrentTab('list')
+                }
+              }}
+            />
             <ScrollBar orientation="vertical" />
           </ScrollArea>
         </TabsContent>

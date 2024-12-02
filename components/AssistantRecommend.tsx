@@ -66,7 +66,7 @@ function AssistantRecommend() {
           <div>
             <Button
               className="h-6 w-6 p-1"
-              title="自定义助理设定"
+              title={t('customizeAssistantSetting')}
               variant="ghost"
               size="icon"
               onClick={() => handleCustomAssistant()}
