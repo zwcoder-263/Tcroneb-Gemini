@@ -181,4 +181,17 @@ declare global {
     code: number
     message: string
   }
+
+  interface Summary {
+    ids: string[]
+    content: string
+  }
+
+  interface Conversation {
+    title: string
+    messages: Message[]
+    summary: Summary
+    systemInstruction: string
+    chatLayout: 'chat' | 'doc'
+  }
 }

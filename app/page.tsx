@@ -14,11 +14,12 @@ import {
   Pause,
   SendHorizontal,
   Github,
-  MessagesSquare,
-  LayoutList,
+  PanelLeftOpen,
+  PanelLeftClose,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import ThemeToggle from '@/components/ThemeToggle'
+import { useSidebar } from '@/components/ui/sidebar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import SystemInstruction from '@/components/SystemInstruction'
 import AttachmentArea from '@/components/AttachmentArea'
@@ -56,7 +57,7 @@ interface AnswerParams {
 
 const BUILD_MODE = process.env.NEXT_PUBLIC_BUILD_MODE as string
 const TEXTAREA_DEFAULT_HEIGHT = 30
-const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 8)
+const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 12)
 
 const MessageItem = dynamic(() => import('@/components/MessageItem'))
 const ErrorMessageItem = dynamic(() => import('@/components/ErrorMessageItem'))
@@ -67,6 +68,7 @@ const PluginList = dynamic(() => import('@/components/PluginList'))
 
 export default function Home() {
   const { t } = useTranslation()
+  const { state, toggleSidebar } = useSidebar()
   const siriWaveRef = useRef<HTMLDivElement>(null)
   const scrollAreaBottomRef = useRef<HTMLDivElement>(null)
   const audioStreamRef = useRef<AudioStream>()
@@ -739,8 +741,8 @@ export default function Home() {
   }, [])
 
   return (
-    <main className="mx-auto flex min-h-[100vh] max-w-screen-md flex-col justify-between pb-20 pt-6 max-sm:pb-14 max-sm:pt-0 landscape:max-md:pt-0">
-      <div className="mb-2 mt-6 flex justify-between p-4 pr-2 max-sm:mt-2 max-sm:pr-2 landscape:max-md:mt-0">
+    <main className="mx-auto flex w-full max-w-screen-md flex-col justify-between max-sm:pt-0 landscape:max-md:pt-0">
+      <div className="flex justify-between p-4 pr-2 pt-10 max-sm:pr-2 max-sm:pt-6 landscape:max-md:mt-0">
         <div className="flex flex-row text-xl leading-8 text-red-400 max-sm:text-base">
           <MessageCircleHeart className="h-10 w-10 max-sm:h-8 max-sm:w-8" />
           <div className="ml-2 font-bold leading-10 max-sm:ml-1 max-sm:leading-8">Gemini Next Chat</div>
@@ -752,27 +754,9 @@ export default function Home() {
             </Button>
           </a>
           <ThemeToggle />
-          {chatLayout === 'doc' ? (
-            <Button
-              className="h-8 w-8"
-              title={t('chatLayout')}
-              variant="ghost"
-              size="icon"
-              onClick={() => handleChangeChatLayout('chat')}
-            >
-              <MessagesSquare className="h-5 w-5" />
-            </Button>
-          ) : (
-            <Button
-              className="h-8 w-8"
-              title={t('docLayout')}
-              variant="ghost"
-              size="icon"
-              onClick={() => handleChangeChatLayout('doc')}
-            >
-              <LayoutList className="h-5 w-5" />
-            </Button>
-          )}
+          <Button className="h-8 w-8" title="对话列表" variant="ghost" size="icon" onClick={() => toggleSidebar()}>
+            {state === 'collapsed' ? <PanelLeftOpen /> : <PanelLeftClose className="h-5 w-5" />}
+          </Button>
           <Button
             className="h-8 w-8"
             title={t('setting')}
@@ -787,7 +771,7 @@ export default function Home() {
       {messages.length === 0 && content === '' && systemInstruction === '' && !systemInstructionEditMode ? (
         <AssistantRecommend />
       ) : (
-        <div className="flex min-h-full flex-1 grow flex-col justify-start overflow-hidden max-md:w-full">
+        <div className="flex flex-1 grow flex-col justify-start overflow-hidden">
           {systemInstruction !== '' || systemInstructionEditMode ? (
             <div className="p-4 pt-0">
               <SystemInstruction />
@@ -803,7 +787,7 @@ export default function Home() {
             >
               <div
                 className={cn(
-                  'flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80',
+                  'relative flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80',
                   msg.role === 'user' && chatLayout === 'chat' ? 'flex-row-reverse text-right' : '',
                 )}
               >
@@ -846,7 +830,14 @@ export default function Home() {
           ) : null}
           {messages.length > 0 ? (
             <div className="my-2 flex h-4 justify-center text-xs text-slate-400 duration-300 dark:text-slate-600">
-              <span className="mx-2 cursor-pointer hover:text-slate-500" onClick={() => handleCleanMessage()}>
+              <span
+                className="cursor-pointer hover:text-slate-500"
+                onClick={() => handleChangeChatLayout(chatLayout === 'doc' ? 'chat' : 'doc')}
+              >
+                调整对话布局
+              </span>
+              <span className="mx-2 mt-0.5 h-3 border-r-[1px]"></span>
+              <span className="cursor-pointer hover:text-slate-500" onClick={() => handleCleanMessage()}>
                 {t('clearChatContent')}
               </span>
             </div>
@@ -854,7 +845,7 @@ export default function Home() {
         </div>
       )}
       <div ref={scrollAreaBottomRef}></div>
-      <div className="fixed bottom-0 flex w-full max-w-screen-md items-end gap-2 bg-background p-4 pb-8 max-sm:p-2 max-sm:pb-3 landscape:max-md:pb-4">
+      <div className="flex w-full max-w-screen-md items-end gap-2 bg-background p-4 pb-8 max-sm:p-2 max-sm:pb-3 landscape:max-md:pb-4">
         {!isOldVisionModel ? <PluginList /> : null}
         <div
           className="relative box-border flex w-full flex-1 rounded-md border border-input bg-[hsl(var(--background))] py-1 max-sm:py-0"

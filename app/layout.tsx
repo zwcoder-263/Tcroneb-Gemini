@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
+import { Toaster } from '@/components/ui/toaster'
 import ThemeProvider from '@/components/ThemeProvider'
 import StoreProvider from '@/components/StoreProvider'
 import I18Provider from '@/components/I18nProvider'
-import { Toaster } from '@/components/ui/toaster'
+import { SidebarProvider } from '@/components/ui/sidebar'
+import AppSidebar from '@/components/AppSidebar'
 import { isUndefined } from 'lodash-es'
 
 import './globals.css'
@@ -76,7 +78,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <StoreProvider isProtected={ENABLE_PROTECT}>
-            <I18Provider>{children}</I18Provider>
+            <I18Provider>
+              <div className="min-h-[100vh]">
+                <SidebarProvider defaultOpen>
+                  <AppSidebar />
+                  {children}
+                </SidebarProvider>
+              </div>
+            </I18Provider>
           </StoreProvider>
         </ThemeProvider>
         <Toaster />

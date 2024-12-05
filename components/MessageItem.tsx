@@ -41,6 +41,7 @@ import { useSettingStore } from '@/store/setting'
 import { usePluginStore } from '@/store/plugin'
 import AudioStream from '@/utils/AudioStream'
 import { sentenceSegmentation } from '@/utils/common'
+import { cn } from '@/utils'
 import { OFFICAL_PLUGINS } from '@/constant/plugins'
 import { upperFirst, isFunction, find } from 'lodash-es'
 
@@ -96,6 +97,7 @@ function MessageItem(props: Props) {
   const { id, role, parts, attachments, onRegenerate } = props
   const { t } = useTranslation()
   const [html, setHtml] = useState<string>('')
+  const chatLayout = useMessageStore((state) => state.chatLayout)
   const [hasTextContent, setHasTextContent] = useState<boolean>(false)
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const [isCopyed, setIsCopyed] = useState<boolean>(false)
@@ -363,7 +365,7 @@ function MessageItem(props: Props) {
       })
     } else {
       return (
-        <div className="group relative flex-auto">
+        <div className="group flex-auto">
           {fileList.length > 0 ? (
             <div className="not:last:border-dashed not:last:border-b w-full pb-2">
               <FileList fileList={fileList} />
@@ -397,7 +399,12 @@ function MessageItem(props: Props) {
                 className="prose chat-content break-words pb-3 text-base leading-8"
                 dangerouslySetInnerHTML={{ __html: html }}
               ></div>
-              <div className="absolute -bottom-3 right-0 flex gap-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              <div
+                className={cn(
+                  'absolute bottom-1 flex gap-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100',
+                  role === 'user' && chatLayout === 'chat' ? 'left-3.5 flex-row-reverse text-right' : 'right-3.5',
+                )}
+              >
                 {id !== 'preview' ? (
                   <>
                     <IconButton

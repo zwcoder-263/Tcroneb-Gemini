@@ -65,16 +65,19 @@ function AssistantForm(props: Props) {
     },
   })
 
-  const reset = useCallback((status: ChangeStauts) => {
-    form.clearErrors()
-    form.reset({
-      id: '',
-      title: '',
-      description: '',
-      systemInstruction: '',
-    })
-    if (isFunction(onChange)) onChange(status)
-  }, [])
+  const reset = useCallback(
+    (status: ChangeStauts) => {
+      form.clearErrors()
+      form.reset({
+        id: '',
+        title: '',
+        description: '',
+        systemInstruction: '',
+      })
+      if (isFunction(onChange)) onChange(status)
+    },
+    [form, onChange],
+  )
 
   const handleSubmit = useCallback(
     (values: z.infer<typeof formSchema>) => {
@@ -93,7 +96,7 @@ function AssistantForm(props: Props) {
         reset('new')
       }
     },
-    [addAssistant],
+    [data, addAssistant, editMode, reset, updateAssistant],
   )
 
   const optimizeAssistantPrompt = useCallback(async () => {
@@ -120,9 +123,9 @@ function AssistantForm(props: Props) {
       systemInstruction += new TextDecoder().decode(value)
       form.setValue('systemInstruction', systemInstruction)
     }
-  }, [])
+  }, [form])
 
-  const initData = async () => {
+  const initData = useCallback(async () => {
     if (data) {
       if (isUndefined(data.config?.systemRole)) {
         const { lang, assistantIndexUrl } = useSettingStore.getState()
@@ -144,11 +147,11 @@ function AssistantForm(props: Props) {
         })
       }
     }
-  }
+  }, [data, form])
 
   useEffect(() => {
     initData()
-  }, [data])
+  }, [initData, data])
 
   return (
     <Form {...form}>

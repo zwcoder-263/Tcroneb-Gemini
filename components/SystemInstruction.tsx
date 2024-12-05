@@ -42,12 +42,12 @@ function SystemInstruction() {
     const { content } = form.getValues()
     instruction(content)
     setSystemInstructionEditMode(false)
-  }, [])
+  }, [form, instruction, setSystemInstructionEditMode])
 
   const handleClear = useCallback(() => {
     instruction('')
     setSystemInstructionEditMode(false)
-  }, [])
+  }, [instruction, setSystemInstructionEditMode])
 
   const optimizeAssistantPrompt = useCallback(async () => {
     if (systemInstruction === '') return false
@@ -72,7 +72,7 @@ function SystemInstruction() {
       content += new TextDecoder().decode(value)
       form.setValue('content', content)
     }
-  }, [])
+  }, [form, systemInstruction])
 
   const render = useCallback((content: string) => {
     const md: MarkdownIt = MarkdownIt({
@@ -124,7 +124,7 @@ function SystemInstruction() {
 
   return (
     <Card className="w-full">
-      <CardHeader className="flex flex-row justify-between space-y-0 px-4 pb-2 pt-4">
+      <CardHeader className="flex flex-row justify-between space-y-0 px-4 pb-1 pt-3">
         <CardTitle className="inline-flex text-lg font-medium">
           {t('assistantSetting')}{' '}
           {systemInstructionEditMode ? (

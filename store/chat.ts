@@ -1,14 +1,10 @@
 import { create } from 'zustand'
 import { persist, type StorageValue } from 'zustand/middleware'
 import storage from '@/utils/Storage'
-import { findIndex, omitBy, isFunction, isNull } from 'lodash-es'
-
-type Summary = {
-  ids: string[]
-  content: string
-}
+import { findIndex, omitBy, pick, isFunction, isNull } from 'lodash-es'
 
 type MessageStore = {
+  title: string
   messages: Message[]
   summary: Summary
   systemInstruction: string
@@ -23,11 +19,15 @@ type MessageStore = {
   setSystemInstructionEditMode: (open: boolean) => void
   summarize: (ids: string[], content: string) => void
   changeChatLayout: (type: 'chat' | 'doc') => void
+  setTitle: (title: string) => void
+  backup: () => Conversation
+  restore: (conversation: Conversation) => void
 }
 
 export const useMessageStore = create(
   persist<MessageStore>(
     (set, get) => ({
+      title: '',
       messages: [],
       summary: {
         ids: [],
@@ -78,6 +78,16 @@ export const useMessageStore = create(
       },
       changeChatLayout: (type) => {
         set(() => ({ chatLayout: type }))
+      },
+      setTitle: (title) => {
+        set(() => ({ title }))
+      },
+      backup: () => {
+        const store = get()
+        return { ...pick(store, ['title', 'messages', 'summary', 'systemInstruction', 'chatLayout']) }
+      },
+      restore: (conversation) => {
+        set(() => ({ ...conversation }))
       },
     }),
     {

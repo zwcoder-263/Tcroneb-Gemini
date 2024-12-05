@@ -199,7 +199,7 @@ function AssistantMarket(props: AssistantProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                     <DropdownMenuItem
-                      onClick={(ev) => {
+                      onSelect={(ev) => {
                         ev.stopPropagation()
                         ev.preventDefault()
                         setData(assistant)
@@ -211,9 +211,10 @@ function AssistantMarket(props: AssistantProps) {
                     {assistant.author === '' ? (
                       <DropdownMenuItem
                         className="text-red-500"
-                        onClick={(ev) => {
+                        onSelect={(ev) => {
                           ev.stopPropagation()
                           ev.preventDefault()
+                          removeFavorite(assistant.identifier)
                           removeAssistant(assistant.identifier)
                         }}
                       >
