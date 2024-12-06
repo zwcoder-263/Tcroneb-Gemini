@@ -1,4 +1,4 @@
-function findTextPart(message: Message) {
+export function findTextPart(message: Message) {
   const texts: string[] = []
   for (const part of message.parts) {
     if (part.text) texts.push(part.text)
@@ -127,4 +127,28 @@ When you call a tool, you don't need to tell me which tool you are calling, the 
 
 Use proper Markdown syntax to structure text, including but not limited to: Multiple-level headings, Ordered and unordered lists, Tables, Code blocks, Quotes, Links, Image Links.
   `
+}
+
+export function getSummaryTitlePrompt(lang: string, messages: Message[], systemInstruction: string) {
+  const langPrompt = `<lang>${lang}</lang>`
+  const conversationPrompt = `
+<conversation>
+${messages
+  .map((item) => {
+    const texts = findTextPart(item)
+    return `${item.role === 'user' ? 'Human' : 'AI'}: ${texts.join('\n')}`
+  })
+  .join('\n\n')}
+</conversation>
+`
+  if (systemInstruction) {
+    const systemInstructionPrompt = `
+<systemInstruction>
+${systemInstruction}
+</systemInstruction>
+`
+    return langPrompt + systemInstructionPrompt + conversationPrompt
+  } else {
+    return langPrompt + conversationPrompt
+  }
 }

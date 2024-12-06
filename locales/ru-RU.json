@@ -136,5 +136,15 @@
       "dialogTitle": "Результаты поиска",
       "dialogDescription": "Данные поступают с Arxiv.org."
     }
-  }
+  },
+  "conversationList": "Список бесед",
+  "newConversation": "Начать новую беседу",
+  "defaultConversation": "Стандартная беседа",
+  "pinned": "Закреплено",
+  "pin": "Закрепить",
+  "unpin": "Открепить",
+  "newCopy": "Новая копия",
+  "AIRename": "Переименовать ИИ",
+  "rename": "Переименовать",
+  "chatAnything": "Чат на любую тему"
 }

@@ -79,12 +79,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <StoreProvider isProtected={ENABLE_PROTECT}>
             <I18Provider>
-              <div className="min-h-[100vh]">
-                <SidebarProvider defaultOpen>
-                  <AppSidebar />
-                  {children}
-                </SidebarProvider>
-              </div>
+              <SidebarProvider defaultOpen={false}>
+                <AppSidebar />
+                {children}
+              </SidebarProvider>
             </I18Provider>
           </StoreProvider>
         </ThemeProvider>

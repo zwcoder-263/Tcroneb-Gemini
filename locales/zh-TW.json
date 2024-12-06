@@ -136,5 +136,15 @@
       "dialogTitle": "搜尋結果",
       "dialogDescription": "數據來源於 Arxiv.org。"
     }
-  }
+  },
+  "conversationList": "對話列表",
+  "newConversation": "開始新對話",
+  "defaultConversation": "預設對話",
+  "pinned": "已固定",
+  "pin": "固定",
+  "unpin": "取消固定",
+  "newCopy": "新增副本",
+  "AIRename": "AI 重命名",
+  "rename": "重命名",
+  "chatAnything": "隨便聊天"
 }

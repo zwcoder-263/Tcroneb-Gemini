@@ -10,7 +10,6 @@ import highlight from 'highlight.js'
 import markdownKatex from '@traptitech/markdown-it-katex'
 import { X, SquarePen, Sparkles } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Textarea } from '@/components/ui/textarea'
 import Button from '@/components/Button'
@@ -123,7 +122,7 @@ function SystemInstruction() {
   }, [systemInstruction, render])
 
   return (
-    <Card className="w-full">
+    <Card>
       <CardHeader className="flex flex-row justify-between space-y-0 px-4 pb-1 pt-3">
         <CardTitle className="inline-flex text-lg font-medium">
           {t('assistantSetting')}{' '}
@@ -165,7 +164,7 @@ function SystemInstruction() {
           />
         )}
       </CardHeader>
-      <ScrollArea className="max-h-[140px] overflow-y-auto">
+      <div className="max-h-[140px] overflow-auto">
         <CardContent className="p-4 pt-0">
           {systemInstructionEditMode ? (
             <Form {...form}>
@@ -185,14 +184,10 @@ function SystemInstruction() {
               </form>
             </Form>
           ) : (
-            <div
-              className="prose w-full overflow-hidden break-words text-sm leading-6"
-              dangerouslySetInnerHTML={{ __html: html }}
-            ></div>
+            <div className="prose break-all text-sm leading-6" dangerouslySetInnerHTML={{ __html: html }}></div>
           )}
         </CardContent>
-        <ScrollBar orientation="vertical" />
-      </ScrollArea>
+      </div>
     </Card>
   )
 }

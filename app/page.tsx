@@ -68,7 +68,7 @@ const PluginList = dynamic(() => import('@/components/PluginList'))
 
 export default function Home() {
   const { t } = useTranslation()
-  const { state, toggleSidebar } = useSidebar()
+  const { state: sidebarState, toggleSidebar } = useSidebar()
   const siriWaveRef = useRef<HTMLDivElement>(null)
   const scrollAreaBottomRef = useRef<HTMLDivElement>(null)
   const audioStreamRef = useRef<AudioStream>()
@@ -692,6 +692,12 @@ export default function Home() {
     changeChatLayout(type)
   }, [])
 
+  const handleToggleSidebar = useCallback(() => {
+    const { update } = useSettingStore.getState()
+    toggleSidebar()
+    update({ sidebarState: sidebarState === 'expanded' ? 'collapsed' : 'expanded' })
+  }, [toggleSidebar])
+
   useEffect(() => useMessageStore.subscribe((state) => (messagesRef.current = state.messages)), [messages])
 
   useEffect(() => {
@@ -729,6 +735,11 @@ export default function Home() {
   }, [])
 
   useLayoutEffect(() => {
+    const settings = useSettingStore.getState()
+    if (sidebarState !== settings.sidebarState) toggleSidebar()
+  }, [sidebarState, toggleSidebar])
+
+  useLayoutEffect(() => {
     const { update } = useSettingStore.getState()
     const lang = detectLanguage()
     i18n.changeLanguage(lang)
@@ -741,8 +752,8 @@ export default function Home() {
   }, [])
 
   return (
-    <main className="mx-auto flex w-full max-w-screen-md flex-col justify-between max-sm:pt-0 landscape:max-md:pt-0">
-      <div className="flex justify-between p-4 pr-2 pt-10 max-sm:pr-2 max-sm:pt-6 landscape:max-md:mt-0">
+    <main className="mx-auto flex h-screen w-full max-w-screen-md flex-col justify-between overflow-hidden max-sm:pt-0 landscape:max-md:pt-0">
+      <div className="flex justify-between px-4 pb-2 pr-2 pt-10 max-sm:pr-2 max-sm:pt-6 landscape:max-md:pt-4">
         <div className="flex flex-row text-xl leading-8 text-red-400 max-sm:text-base">
           <MessageCircleHeart className="h-10 w-10 max-sm:h-8 max-sm:w-8" />
           <div className="ml-2 font-bold leading-10 max-sm:ml-1 max-sm:leading-8">Gemini Next Chat</div>
@@ -754,8 +765,14 @@ export default function Home() {
             </Button>
           </a>
           <ThemeToggle />
-          <Button className="h-8 w-8" title="对话列表" variant="ghost" size="icon" onClick={() => toggleSidebar()}>
-            {state === 'collapsed' ? <PanelLeftOpen /> : <PanelLeftClose className="h-5 w-5" />}
+          <Button
+            className="h-8 w-8"
+            title={t('conversationList')}
+            variant="ghost"
+            size="icon"
+            onClick={() => handleToggleSidebar()}
+          >
+            {sidebarState === 'collapsed' ? <PanelLeftOpen /> : <PanelLeftClose className="h-5 w-5" />}
           </Button>
           <Button
             className="h-8 w-8"
@@ -771,81 +788,83 @@ export default function Home() {
       {messages.length === 0 && content === '' && systemInstruction === '' && !systemInstructionEditMode ? (
         <AssistantRecommend />
       ) : (
-        <div className="flex flex-1 grow flex-col justify-start overflow-hidden">
-          {systemInstruction !== '' || systemInstructionEditMode ? (
-            <div className="p-4 pt-0">
-              <SystemInstruction />
-            </div>
-          ) : null}
-          {messages.map((msg, idx) => (
-            <div
-              className={cn(
-                'group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent',
-                msg.role === 'model' && msg.parts && msg.parts[0].functionCall ? 'hidden' : '',
-              )}
-              key={msg.id}
-            >
+        <div className="w-full max-w-screen-md flex-1 overflow-y-auto scroll-smooth">
+          <div className="flex grow flex-col justify-start">
+            {systemInstruction !== '' || systemInstructionEditMode ? (
+              <div className="w-full flex-1 px-4 py-2">
+                <SystemInstruction />
+              </div>
+            ) : null}
+            {messages.map((msg, idx) => (
               <div
                 className={cn(
-                  'relative flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80',
-                  msg.role === 'user' && chatLayout === 'chat' ? 'flex-row-reverse text-right' : '',
+                  'group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent',
+                  msg.role === 'model' && msg.parts && msg.parts[0].functionCall ? 'hidden' : '',
                 )}
+                key={msg.id}
               >
-                <MessageItem {...msg} onRegenerate={handleResubmit} />
+                <div
+                  className={cn(
+                    'relative flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80',
+                    msg.role === 'user' && chatLayout === 'chat' ? 'flex-row-reverse text-right' : '',
+                  )}
+                >
+                  <MessageItem {...msg} onRegenerate={handleResubmit} />
+                </div>
               </div>
-            </div>
-          ))}
-          {isThinking ? (
-            <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
-              <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
-                <MessageItem id="message" role="model" parts={[{ text: message }]} />
+            ))}
+            {isThinking ? (
+              <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
+                <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
+                  <MessageItem id="message" role="model" parts={[{ text: message }]} />
+                </div>
               </div>
-            </div>
-          ) : null}
-          {executingPlugins.length > 0 ? (
-            <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
-              <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
-                <MessageItem id="message" role="function" parts={genPluginStatusPart(executingPlugins)} />
+            ) : null}
+            {executingPlugins.length > 0 ? (
+              <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
+                <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
+                  <MessageItem id="message" role="function" parts={genPluginStatusPart(executingPlugins)} />
+                </div>
               </div>
-            </div>
-          ) : null}
-          {errorMessage !== '' ? (
-            <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
-              <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
-                <ErrorMessageItem content={errorMessage} onRegenerate={() => handleResubmit('error')} />
+            ) : null}
+            {errorMessage !== '' ? (
+              <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
+                <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
+                  <ErrorMessageItem content={errorMessage} onRegenerate={() => handleResubmit('error')} />
+                </div>
               </div>
-            </div>
-          ) : null}
-          {content !== '' ? (
-            <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
-              <div
-                className={cn(
-                  'flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80',
-                  chatLayout === 'chat' ? 'flex-row-reverse text-right' : '',
-                )}
-              >
-                <MessageItem id="preview" role="user" parts={[{ text: content }]} />
+            ) : null}
+            {content !== '' ? (
+              <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
+                <div
+                  className={cn(
+                    'relative flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80',
+                    chatLayout === 'chat' ? 'flex-row-reverse text-right' : '',
+                  )}
+                >
+                  <MessageItem id="preview" role="user" parts={[{ text: content }]} />
+                </div>
               </div>
-            </div>
-          ) : null}
-          {messages.length > 0 ? (
-            <div className="my-2 flex h-4 justify-center text-xs text-slate-400 duration-300 dark:text-slate-600">
-              <span
-                className="cursor-pointer hover:text-slate-500"
-                onClick={() => handleChangeChatLayout(chatLayout === 'doc' ? 'chat' : 'doc')}
-              >
-                调整对话布局
-              </span>
-              <span className="mx-2 mt-0.5 h-3 border-r-[1px]"></span>
-              <span className="cursor-pointer hover:text-slate-500" onClick={() => handleCleanMessage()}>
-                {t('clearChatContent')}
-              </span>
-            </div>
-          ) : null}
+            ) : null}
+            {messages.length > 0 ? (
+              <div className="my-2 flex h-4 justify-center text-xs text-slate-400 duration-300 dark:text-slate-600">
+                <span
+                  className="cursor-pointer hover:text-slate-500"
+                  onClick={() => handleChangeChatLayout(chatLayout === 'doc' ? 'chat' : 'doc')}
+                >
+                  调整对话布局
+                </span>
+                <span className="mx-2 mt-0.5 h-3 border-r-[1px]"></span>
+                <span className="cursor-pointer hover:text-slate-500" onClick={() => handleCleanMessage()}>
+                  {t('clearChatContent')}
+                </span>
+              </div>
+            ) : null}
+            <div ref={scrollAreaBottomRef}></div>
+          </div>
         </div>
       )}
-      <div ref={scrollAreaBottomRef}></div>
-      <div className="flex w-full max-w-screen-md items-end gap-2 bg-background p-4 pb-8 max-sm:p-2 max-sm:pb-3 landscape:max-md:pb-4">
+      <div className="flex w-full max-w-screen-md items-end gap-2 bg-background px-4 pb-8 pt-2 max-sm:p-2 max-sm:pb-3 landscape:max-md:pb-4">
         {!isOldVisionModel ? <PluginList /> : null}
         <div
           className="relative box-border flex w-full flex-1 rounded-md border border-input bg-[hsl(var(--background))] py-1 max-sm:py-0"
@@ -942,7 +961,7 @@ export default function Home() {
         )}
       </div>
       <div style={{ display: talkMode === 'voice' ? 'block' : 'none' }}>
-        <div className="fixed left-0 right-0 top-0 flex h-full w-screen flex-col items-center justify-center bg-slate-900">
+        <div className="fixed left-0 right-0 top-0 z-50 flex h-full w-screen flex-col items-center justify-center bg-slate-900">
           <div className="h-1/5 w-full" ref={siriWaveRef}></div>
           <div className="absolute bottom-0 flex h-2/5 w-2/3 flex-col justify-between pb-12 text-center">
             <div className="text-sm leading-6">
@@ -957,7 +976,7 @@ export default function Home() {
             </div>
             <div className="flex items-center justify-center pt-2">
               <Button
-                className="h-10 w-10 rounded-full text-slate-700 dark:text-slate-500"
+                className="h-10 w-10 rounded-full text-slate-700 dark:text-slate-500 [&_svg]:size-5"
                 title={t('chatMode')}
                 variant="secondary"
                 size="icon"
@@ -967,7 +986,7 @@ export default function Home() {
               </Button>
               {status === 'talking' ? (
                 <Button
-                  className="mx-6 h-14 w-14 rounded-full"
+                  className="mx-6 h-14 w-14 rounded-full [&_svg]:size-8"
                   title={t('stopTalking')}
                   variant="destructive"
                   size="icon"
@@ -977,7 +996,7 @@ export default function Home() {
                 </Button>
               ) : (
                 <Button
-                  className="mx-6 h-14 w-14 rounded-full font-mono"
+                  className="mx-6 h-14 w-14 rounded-full font-mono [&_svg]:size-8"
                   title={t('startRecording')}
                   variant="destructive"
                   size="icon"
@@ -988,7 +1007,7 @@ export default function Home() {
                 </Button>
               )}
               <Button
-                className="h-10 w-10 rounded-full text-slate-700 dark:text-slate-500"
+                className="h-10 w-10 rounded-full text-slate-700 dark:text-slate-500 [&_svg]:size-5"
                 title={t('setting')}
                 variant="secondary"
                 size="icon"

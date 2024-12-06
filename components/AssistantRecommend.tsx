@@ -53,7 +53,7 @@ function AssistantRecommend() {
       const response = await fetch(assistantMarketUrl.getAssistantUrl(identifier, settingStore.lang))
       const data: AssistantDetail = await response.json()
       clearMessage()
-      instruction(data.config.systemRole)
+      instruction(data.config.systemRole, data.meta.title)
     },
     [settingStore.lang, settingStore.assistantIndexUrl],
   )

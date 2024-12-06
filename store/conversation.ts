@@ -27,14 +27,14 @@ export const useConversationStore = create(
       currentId: 'default',
       query: (id) => get().conversationList[id],
       addOrUpdate: (id, conversation) => {
-        const list = { ...get().conversationList }
+        const list = get().conversationList
         list[id] = { ...conversation }
-        set(() => ({ conversationList: list }))
+        set(() => ({ conversationList: { ...list } }))
       },
       remove: (id) => {
-        const list = { ...get().conversationList }
+        const list = get().conversationList
         delete list[id]
-        set(() => ({ conversationList: list }))
+        set(() => ({ conversationList: { ...list } }))
       },
       pin: (id) => {
         set((state) => ({ pinned: [...state.pinned, id] }))
@@ -45,11 +45,11 @@ export const useConversationStore = create(
       },
       copy: (id) => {
         set((state) => {
-          const list = { ...state.conversationList }
+          const list = state.conversationList
           const original = state.query(id)
           const newId = nanoid()
           list[newId] = { ...original }
-          return { conversationList: list, currentId: newId }
+          return { conversationList: { ...list }, currentId: newId }
         })
       },
       setCurrentId: (id) => {

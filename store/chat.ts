@@ -15,7 +15,7 @@ type MessageStore = {
   remove: (id: string) => void
   clear: () => void
   revoke: (id: string) => void
-  instruction: (prompt: string) => void
+  instruction: (prompt: string, title?: string) => void
   setSystemInstructionEditMode: (open: boolean) => void
   summarize: (ids: string[], content: string) => void
   changeChatLayout: (type: 'chat' | 'doc') => void
@@ -67,8 +67,9 @@ export const useMessageStore = create(
           set(() => ({ messages: messages.slice(0, index) }))
         }
       },
-      instruction: (prompt) => {
-        set(() => ({ systemInstruction: prompt }))
+      instruction: (prompt, title) => {
+        if (title) set(() => ({ title }))
+        set(() => ({ title, systemInstruction: prompt }))
       },
       setSystemInstructionEditMode: (open) => {
         set(() => ({ systemInstructionEditMode: open }))

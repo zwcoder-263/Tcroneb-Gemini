@@ -136,5 +136,15 @@
       "dialogTitle": "搜索结果",
       "dialogDescription": "数据来源于 Arxiv.org。"
     }
-  }
+  },
+  "conversationList": "会话列表",
+  "newConversation": "开始新会话",
+  "defaultConversation": "默认会话",
+  "pinned": "置顶",
+  "pin": "置顶",
+  "unpin": "取消置顶",
+  "newCopy": "创建副本",
+  "AIRename": "智能命名",
+  "rename": "重命名",
+  "chatAnything": "随便聊聊"
 }

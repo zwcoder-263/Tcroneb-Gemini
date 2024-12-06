@@ -136,5 +136,15 @@
       "dialogTitle": "검색 결과",
       "dialogDescription": "데이터는 Arxiv.org에서 제공됩니다."
     }
-  }
+  },
+  "conversationList": "대화 목록",
+  "newConversation": "새 대화 시작",
+  "defaultConversation": "기본 대화",
+  "pinned": "고정됨",
+  "pin": "고정",
+  "unpin": "고정 해제",
+  "newCopy": "새 복사본",
+  "AIRename": "AI 이름 변경",
+  "rename": "이름 변경",
+  "chatAnything": "무엇이든 대화하기"
 }

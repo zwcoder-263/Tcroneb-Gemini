@@ -136,5 +136,15 @@
       "dialogTitle": "検索結果",
       "dialogDescription": "データはArxiv.orgから取得されています。"
     }
-  }
+  },
+  "conversationList": "会話リスト",
+  "newConversation": "新しい会話を開始",
+  "defaultConversation": "デフォルトの会話",
+  "pinned": "ピン留め",
+  "pin": "ピン留めする",
+  "unpin": "ピン留め解除",
+  "newCopy": "新しいコピー",
+  "AIRename": "AIリネーム",
+  "rename": "名前を変更",
+  "chatAnything": "何でもチャット"
 }

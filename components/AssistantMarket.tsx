@@ -81,12 +81,12 @@ function AssistantMarket(props: AssistantProps) {
       const { instruction, clear: clearMessage } = useMessageStore.getState()
       clearMessage()
       if (assistant.config?.systemRole) {
-        instruction(assistant.config.systemRole)
+        instruction(assistant.config.systemRole, assistant.meta.title)
       } else {
         const assistantMarketUrl = new AssistantMarketUrl(assistantIndexUrl)
         const response = await fetch(assistantMarketUrl.getAssistantUrl(assistant.identifier, lang))
         const assistantDeatil: AssistantDetail = await response.json()
-        instruction(assistantDeatil.config.systemRole)
+        instruction(assistantDeatil.config.systemRole, assistantDeatil.meta.title)
       }
     },
     [lang, assistantIndexUrl, freezeSelection, handleClose],

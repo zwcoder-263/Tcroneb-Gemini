@@ -137,5 +137,15 @@
       "dialogTitle": "نتائج البحث",
       "dialogDescription": "تأتي البيانات من Arxiv.org."
     }
-  }
+  },
+  "conversationList": "قائمة المحادثات",
+  "newConversation": "ابدأ محادثة جديدة",
+  "defaultConversation": "المحادثة الافتراضية",
+  "pinned": "مثبت",
+  "pin": "تثبيت",
+  "unpin": "إلغاء التثبيت",
+  "newCopy": "نسخة جديدة",
+  "AIRename": "إعادة تسمية الذكاء الاصطناعي",
+  "rename": "إعادة التسمية",
+  "chatAnything": "الدردشة عن أي شيء"
 }

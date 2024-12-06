@@ -1,6 +1,7 @@
 'use client'
-import { useCallback, memo, useMemo } from 'react'
-import { MessageSquarePlus, EllipsisVertical, Pin, PinOff, Copy, SquarePen, Trash } from 'lucide-react'
+import { useCallback, memo, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { MessageSquarePlus, EllipsisVertical, Pin, PinOff, Copy, PencilLine, WandSparkles, Trash } from 'lucide-react'
 import {
   Sidebar,
   SidebarHeader,
@@ -19,14 +20,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { Input } from '@/components/ui/input'
 import Button from '@/components/Button'
 import SearchBar from '@/components/SearchBar'
 import { useMessageStore } from '@/store/chat'
 import { useConversationStore } from '@/store/conversation'
+import { useSettingStore } from '@/store/setting'
+import { encodeToken } from '@/utils/signature'
+import summaryTitle, { type RequestProps } from '@/utils/summaryTitle'
 import { cn } from '@/utils'
 import { customAlphabet } from 'nanoid'
-import { entries } from 'lodash-es'
+import { entries, isNull } from 'lodash-es'
 
 type Props = {
   id: string
@@ -41,10 +45,33 @@ interface ConversationItem extends Conversation {
 
 const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 12)
 
+function search(keyword: string, data: Record<string, Conversation>): Record<string, Conversation> {
+  const results: Record<string, Conversation> = {}
+  // 'i' means case-insensitive
+  const regex = new RegExp(keyword.trim(), 'gi')
+  for (const [id, item] of entries(data)) {
+    if (regex.test(item.title) || regex.test(item.systemInstruction)) {
+      results[id] = item
+    }
+    item.messages.forEach((message) => {
+      message.parts.forEach((part) => {
+        if (part.text && regex.test(part.text)) {
+          results[id] = item
+        }
+      })
+    })
+  }
+  return results
+}
+
 function ConversationItem(props: Props) {
   const { id, title, pinned = false, isActive = false } = props
+  const { t } = useTranslation()
   const { pin, unpin, copy, remove } = useConversationStore()
-  const conversationTitle = useMemo(() => (title === '' ? '随便聊聊' : title), [title])
+  const { setTitle } = useMessageStore()
+  const [customTitle, setCustomTitle] = useState<string>(title)
+  const [editTitleMode, setEditTitleMode] = useState<boolean>(false)
+  const conversationTitle = useMemo(() => (title === '' ? t('chatAnything') : title), [title])
 
   const handleSelect = useCallback((id: string) => {
     const { currentId, query, addOrUpdate, setCurrentId } = useConversationStore.getState()
@@ -57,73 +84,137 @@ function ConversationItem(props: Props) {
     restore(newConversation)
   }, [])
 
+  const editTitle = useCallback((text: string) => {
+    setTitle(text)
+    setEditTitleMode(false)
+  }, [])
+
+  const handleSummaryTitle = useCallback(async (id: string) => {
+    const { lang, apiKey, apiProxy, model, password } = useSettingStore.getState()
+    const { currentId, query, addOrUpdate } = useConversationStore.getState()
+    const { messages, systemInstruction } = useMessageStore.getState()
+    const conversation = query(id)
+    const config: RequestProps = {
+      apiKey,
+      model,
+      lang,
+      messages: id === currentId ? messages : conversation.messages,
+      systemRole: id === currentId ? systemInstruction : conversation.systemInstruction,
+    }
+    if (apiKey !== '') {
+      if (apiProxy) config.baseUrl = apiProxy
+    } else {
+      config.apiKey = encodeToken(password)
+      config.baseUrl = '/api/google'
+    }
+    const readableStream = await summaryTitle(config)
+    let content = ''
+    const reader = readableStream.getReader()
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      content += new TextDecoder().decode(value)
+      addOrUpdate(id, { ...conversation, title: content })
+    }
+    if (id === currentId) setTitle(content)
+  }, [])
+
   return (
     <div
       className={cn(
         'inline-flex h-10 w-full cursor-pointer justify-between rounded-md px-2 hover:bg-[hsl(var(--sidebar-accent))]',
         isActive ? 'bg-[hsl(var(--sidebar-accent))] font-medium' : '',
+        editTitleMode ? 'bg-transparent hover:bg-transparent' : '',
       )}
       onClick={() => handleSelect(id)}
     >
-      <span className="truncate text-sm leading-10" title={conversationTitle}>
-        {conversationTitle}
-      </span>
-      <DropdownMenu>
-        <DropdownMenuTrigger>
-          <EllipsisVertical className="h-6 w-6 rounded-sm p-1 hover:bg-background" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          onClick={(ev) => {
-            ev.stopPropagation()
-            ev.preventDefault()
-          }}
-        >
-          {id !== 'default' ? (
-            <DropdownMenuItem onClick={() => (pinned ? unpin(id) : pin(id))}>
-              {pinned ? (
-                <>
-                  <PinOff />
-                  <span>取消置顶</span>
-                </>
-              ) : (
-                <>
-                  <Pin />
-                  <span>置顶</span>
-                </>
-              )}
-            </DropdownMenuItem>
-          ) : null}
-          <DropdownMenuItem onClick={() => copy(id)}>
-            <Copy />
-            <span>创建副本</span>
-          </DropdownMenuItem>
-          {id !== 'default' ? (
-            <DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <SquarePen />
-                <span>修改标题</span>
+      {editTitleMode ? (
+        <div className="relative w-full">
+          <Input
+            className="my-1 h-8"
+            defaultValue={conversationTitle}
+            onChange={(ev) => setCustomTitle(ev.target.value)}
+          />
+          <Button
+            className="absolute right-1 top-2 h-6 w-6"
+            size="icon"
+            variant="ghost"
+            title={t('save')}
+            onClick={() => editTitle(customTitle)}
+          >
+            <PencilLine />
+          </Button>
+        </div>
+      ) : (
+        <>
+          <span className="truncate text-sm leading-10" title={conversationTitle}>
+            {conversationTitle}
+          </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <EllipsisVertical className="h-6 w-6 rounded-sm p-1 hover:bg-background" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              onClick={(ev) => {
+                ev.stopPropagation()
+                ev.preventDefault()
+              }}
+            >
+              {id !== 'default' ? (
+                <DropdownMenuItem onClick={() => (pinned ? unpin(id) : pin(id))}>
+                  {pinned ? (
+                    <>
+                      <PinOff />
+                      <span>{t('unpin')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Pin />
+                      <span>{t('pin')}</span>
+                    </>
+                  )}
+                </DropdownMenuItem>
+              ) : null}
+              <DropdownMenuItem onClick={() => copy(id)}>
+                <Copy />
+                <span>{t('newCopy')}</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-red-500" onClick={() => remove(id)}>
-                <Trash />
-                <span>删除</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          ) : null}
-        </DropdownMenuContent>
-      </DropdownMenu>
+              {id !== 'default' ? (
+                <DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => handleSummaryTitle(id)}>
+                    <WandSparkles />
+                    <span>{t('AIRename')}</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setEditTitleMode(true)}>
+                    <PencilLine />
+                    <span>{t('rename')}</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-red-500" onClick={() => remove(id)}>
+                    <Trash />
+                    <span>{t('delete')}</span>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              ) : null}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </>
+      )}
     </div>
   )
 }
 
 function AppSidebar() {
+  const { t } = useTranslation()
   const conversationList = useConversationStore((state) => state.conversationList)
   const pinned = useConversationStore((state) => state.pinned)
   const currentId = useConversationStore((state) => state.currentId)
+  const [conversations, setConversations] = useState<Record<string, Conversation> | null>(null)
   const [list, pinnedList] = useMemo(() => {
     const list: ConversationItem[] = []
     const pinnedList: ConversationItem[] = []
-    for (const [id, conversation] of entries(conversationList)) {
+    const sources = isNull(conversations) ? conversationList : conversations
+    for (const [id, conversation] of entries(sources)) {
       if (id !== 'default') {
         if (pinned.includes(id)) {
           pinnedList.push({ id, ...conversation })
@@ -133,7 +224,7 @@ function AppSidebar() {
       }
     }
     return [list, pinnedList]
-  }, [conversationList, pinned])
+  }, [conversationList, conversations, pinned])
 
   const newConversation = useCallback(() => {
     const { currentId, addOrUpdate, setCurrentId } = useConversationStore.getState()
@@ -154,8 +245,13 @@ function AppSidebar() {
     restore(newConversation)
   }, [])
 
-  const handleSearch = useCallback((text: string) => {
-    console.log(text)
+  const handleSearch = useCallback((keyword: string) => {
+    const result = search(keyword, conversationList)
+    setConversations(result)
+  }, [])
+
+  const handleClearKeyword = useCallback(() => {
+    setConversations(null)
   }, [])
 
   return (
@@ -167,65 +263,66 @@ function AppSidebar() {
             className="h-8 w-8 [&_svg]:size-5"
             variant="ghost"
             size="icon"
-            title="开始新对话"
+            title={t('newConversation')}
             onClick={() => newConversation()}
           >
             <MessageSquarePlus />
           </Button>
         </div>
-        <SearchBar onSearch={handleSearch} />
+        <SearchBar onSearch={handleSearch} onClear={handleClearKeyword} />
       </SidebarHeader>
-      <ScrollArea className="scroll-smooth">
-        <SidebarContent className="gap-0">
+      <SidebarContent className="gap-0">
+        <SidebarGroup className="py-0">
+          <ConversationItem
+            id="default"
+            title={t('defaultConversation')}
+            isActive={currentId === 'default'}
+          ></ConversationItem>
+        </SidebarGroup>
+        {pinnedList.length > 0 ? (
           <SidebarGroup className="py-0">
-            <ConversationItem id="default" title="默认对话" isActive={currentId === 'default'}></ConversationItem>
+            <SidebarGroupLabel>{t('pinned')}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  {pinnedList.map((item) => {
+                    return (
+                      <ConversationItem
+                        key={item.id}
+                        id={item.id}
+                        title={item.title}
+                        isActive={currentId === item.id}
+                        pinned
+                      ></ConversationItem>
+                    )
+                  })}
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
           </SidebarGroup>
-          {pinnedList.length > 0 ? (
-            <SidebarGroup className="py-0">
-              <SidebarGroupLabel>置顶</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    {pinnedList.map((item) => {
-                      return (
-                        <ConversationItem
-                          key={item.id}
-                          id={item.id}
-                          title={item.title}
-                          isActive={currentId === item.id}
-                          pinned
-                        ></ConversationItem>
-                      )
-                    })}
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          ) : null}
-          {list.length > 0 ? (
-            <SidebarGroup className="py-0">
-              <SidebarGroupLabel>对话列表</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    {list.map((item) => {
-                      return (
-                        <ConversationItem
-                          key={item.id}
-                          id={item.id}
-                          title={item.title}
-                          isActive={currentId === item.id}
-                        ></ConversationItem>
-                      )
-                    })}
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          ) : null}
-        </SidebarContent>
-        <ScrollBar orientation="vertical" />
-      </ScrollArea>
+        ) : null}
+        {list.length > 0 ? (
+          <SidebarGroup className="py-0">
+            <SidebarGroupLabel>{t('conversationList')}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  {list.map((item) => {
+                    return (
+                      <ConversationItem
+                        key={item.id}
+                        id={item.id}
+                        title={item.title}
+                        isActive={currentId === item.id}
+                      ></ConversationItem>
+                    )
+                  })}
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ) : null}
+      </SidebarContent>
     </Sidebar>
   )
 }

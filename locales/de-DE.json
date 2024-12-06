@@ -136,5 +136,15 @@
       "dialogTitle": "Suchergebnisse",
       "dialogDescription": "Die Daten stammen von Arxiv.org."
     }
-  }
+  },
+  "conversationList": "Gesprächsliste",
+  "newConversation": "Neue Unterhaltung starten",
+  "defaultConversation": "Standardunterhaltung",
+  "pinned": "Fixiert",
+  "pin": "Anheften",
+  "unpin": "Lösen",
+  "newCopy": "Neue Kopie",
+  "AIRename": "KI Umbenennen",
+  "rename": "Umbenennen",
+  "chatAnything": "Über alles chatten"
 }

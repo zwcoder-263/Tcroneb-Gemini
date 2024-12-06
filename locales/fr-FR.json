@@ -137,5 +137,15 @@
       "dialogTitle": "Résultats de la recherche",
       "dialogDescription": "Les données proviennent de Arxiv.org."
     }
-  }
+  },
+  "conversationList": "Liste des conversations",
+  "newConversation": "Démarrer une nouvelle conversation",
+  "defaultConversation": "Conversation par défaut",
+  "pinned": "Épinglé",
+  "pin": "Épingler",
+  "unpin": "Désépingler",
+  "newCopy": "Nouvelle copie",
+  "AIRename": "Renommer l'IA",
+  "rename": "Renommer",
+  "chatAnything": "Discuter de tout"
 }

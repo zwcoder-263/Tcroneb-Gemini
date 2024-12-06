@@ -27,6 +27,7 @@ declare global {
     maxOutputTokens: number
     safety: 'none' | 'low' | 'middle' | 'high'
     autoStopRecord: boolean
+    sidebarState: 'expanded' | 'collapsed'
   }
 
   interface Assistant {
