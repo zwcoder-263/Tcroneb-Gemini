@@ -49,7 +49,7 @@ export const useConversationStore = create(
           const original = state.query(id)
           const newId = nanoid()
           list[newId] = { ...original }
-          return { conversationList: { ...list }, currentId: newId }
+          return { conversationList: { ...list } }
         })
       },
       setCurrentId: (id) => {

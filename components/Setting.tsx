@@ -272,7 +272,7 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                       (
                       <a
                         className="underline underline-offset-2"
-                        href="https://github.com/Amery2010/TalkWithGemini/releases"
+                        href="https://github.com/u14app/gemini-next-chat/releases"
                         target="_blank"
                       >
                         检查更新

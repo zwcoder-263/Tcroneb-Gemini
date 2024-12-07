@@ -750,8 +750,10 @@ export default function Home() {
   }, [isOldVisionModel])
 
   useLayoutEffect(() => {
-    const settings = useSettingStore.getState()
-    if (sidebarState !== settings.sidebarState) toggleSidebar()
+    const setting = useSettingStore.getState()
+    if (sidebarState === 'collapsed' && setting.sidebarState === 'expanded') {
+      toggleSidebar()
+    }
   }, [sidebarState, toggleSidebar])
 
   useLayoutEffect(() => {
@@ -776,7 +778,7 @@ export default function Home() {
           <div className="ml-2 font-bold leading-10 max-sm:ml-1 max-sm:leading-8">Gemini Next Chat</div>
         </div>
         <div className="flex items-center gap-1">
-          <a href="https://github.com/Amery2010/TalkWithGemini" target="_blank">
+          <a href="https://github.com/u14app/gemini-next-chat" target="_blank">
             <Button className="h-8 w-8" title={t('github')} variant="ghost" size="icon">
               <Github className="h-5 w-5" />
             </Button>

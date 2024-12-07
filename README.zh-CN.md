@@ -6,13 +6,12 @@
 ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/xiangfa/talk-with-gemini/latest)
 ![Docker Pulls](https://img.shields.io/docker/pulls/xiangfa/talk-with-gemini)
 ![GitHub License](https://img.shields.io/github/license/u14app/gemini-next-chat)
-[![Discord](https://img.shields.io/discord/1245639658604593152)](https://discord.gg/tUyZNd7C)
 
 一键免费部署您的私人 Gemini 应用, 支持 Gemini 1.5 Pro、Gemini 1.5 Flash、Gemini Pro 和 Gemini Pro Vision 模型。
 
 [English](./README.md) · **简体中文**
 
-[![TalkWithGemini](https://trendshift.io/api/badge/repositories/10384)](https://trendshift.io/repositories/10384)
+[![GeminiNextChat](https://trendshift.io/api/badge/repositories/10384)](https://trendshift.io/repositories/10384)
 
 [![Gemini](https://img.shields.io/badge/Gemini-8E75B2?style=flat&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
 [![Next](https://img.shields.io/badge/Next.js-000000?style=flat&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
@@ -33,7 +32,7 @@
 [MacOS-image]: https://img.shields.io/badge/-MacOS-black?logo=apple
 [Linux-image]: https://img.shields.io/badge/-Linux-333?logo=ubuntu
 
-**分享 TalkWithGemini 仓库**
+**分享 GeminiNextChat 仓库**
 
 [![][share-x-shield]][share-x-link]
 [![][share-telegram-shield]][share-telegram-link]
