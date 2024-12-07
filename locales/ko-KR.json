@@ -146,5 +146,6 @@
   "newCopy": "새 복사본",
   "AIRename": "AI 이름 변경",
   "rename": "이름 변경",
-  "chatAnything": "무엇이든 대화하기"
+  "chatAnything": "무엇이든 대화하기",
+  "changeChatLayout": "채팅 레이아웃 변경"
 }

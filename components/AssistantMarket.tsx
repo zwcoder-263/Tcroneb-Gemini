@@ -161,68 +161,70 @@ function AssistantMarket(props: AssistantProps) {
         >
           <CardHeader className="p-4 pb-2">
             <CardTitle className="flex justify-between text-base">
-              <div className="inline-flex">
+              <div className="flex w-full">
                 <Avatar className="mr-1 h-6 w-6">
                   {assistant.meta.avatar.startsWith('http') ? (
                     <AvatarImage className="m-1 h-4 w-4 rounded-full" src={assistant.meta.avatar} />
                   ) : null}
                   <AvatarFallback className="bg-transparent">{assistant.meta.avatar}</AvatarFallback>
                 </Avatar>
-                <span className="truncate font-medium">{assistant.meta.title}</span>
-              </div>
-              <div className="inline-flex gap-1">
-                <Button
-                  className="h-6 w-6"
-                  size="icon"
-                  variant="ghost"
-                  onClick={(ev) => {
-                    ev.stopPropagation()
-                    ev.preventDefault()
-                    if (favorites.includes(assistant.identifier)) {
-                      removeFavorite(assistant.identifier)
-                    } else {
-                      addFavorite(assistant.identifier)
-                    }
-                  }}
-                >
-                  <Heart className={favorites.includes(assistant.identifier) ? 'text-red-400' : ''} />
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger>
-                    <EllipsisVertical
-                      className="h-5 w-5"
-                      onClick={(ev) => {
-                        ev.stopPropagation()
-                        ev.preventDefault()
-                      }}
-                    />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem
-                      onSelect={(ev) => {
-                        ev.stopPropagation()
-                        ev.preventDefault()
-                        setData(assistant)
-                        setCurrentTab('custom')
-                      }}
-                    >
-                      {t('edit')}
-                    </DropdownMenuItem>
-                    {assistant.author === '' ? (
+                <span className="flex-1 truncate font-medium" title={assistant.meta.title}>
+                  {assistant.meta.title}
+                </span>
+                <div className="inline-flex gap-1">
+                  <Button
+                    className="h-6 w-6"
+                    size="icon"
+                    variant="ghost"
+                    onClick={(ev) => {
+                      ev.stopPropagation()
+                      ev.preventDefault()
+                      if (favorites.includes(assistant.identifier)) {
+                        removeFavorite(assistant.identifier)
+                      } else {
+                        addFavorite(assistant.identifier)
+                      }
+                    }}
+                  >
+                    <Heart className={favorites.includes(assistant.identifier) ? 'text-red-400' : ''} />
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      <EllipsisVertical
+                        className="h-5 w-5"
+                        onClick={(ev) => {
+                          ev.stopPropagation()
+                          ev.preventDefault()
+                        }}
+                      />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
                       <DropdownMenuItem
-                        className="text-red-500"
                         onSelect={(ev) => {
                           ev.stopPropagation()
                           ev.preventDefault()
-                          removeFavorite(assistant.identifier)
-                          removeAssistant(assistant.identifier)
+                          setData(assistant)
+                          setCurrentTab('custom')
                         }}
                       >
-                        {t('delete')}
+                        {t('edit')}
                       </DropdownMenuItem>
-                    ) : null}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      {assistant.author === '' ? (
+                        <DropdownMenuItem
+                          className="text-red-500"
+                          onSelect={(ev) => {
+                            ev.stopPropagation()
+                            ev.preventDefault()
+                            removeFavorite(assistant.identifier)
+                            removeAssistant(assistant.identifier)
+                          }}
+                        >
+                          {t('delete')}
+                        </DropdownMenuItem>
+                      ) : null}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
             </CardTitle>
           </CardHeader>

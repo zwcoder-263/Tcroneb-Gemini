@@ -71,7 +71,7 @@ function ConversationItem(props: Props) {
   const { setTitle } = useMessageStore()
   const [customTitle, setCustomTitle] = useState<string>(title)
   const [editTitleMode, setEditTitleMode] = useState<boolean>(false)
-  const conversationTitle = useMemo(() => (title === '' ? t('chatAnything') : title), [title])
+  const conversationTitle = useMemo(() => (title === '' ? t('chatAnything') : title), [title, t])
 
   const handleSelect = useCallback((id: string) => {
     const { currentId, query, addOrUpdate, setCurrentId } = useConversationStore.getState()
@@ -84,15 +84,18 @@ function ConversationItem(props: Props) {
     restore(newConversation)
   }, [])
 
-  const editTitle = useCallback((text: string) => {
-    setTitle(text)
-    setEditTitleMode(false)
-  }, [])
+  const editTitle = useCallback(
+    (text: string) => {
+      setTitle(text)
+      setEditTitleMode(false)
+    },
+    [setTitle],
+  )
 
   const handleSummaryTitle = useCallback(async (id: string) => {
     const { lang, apiKey, apiProxy, model, password } = useSettingStore.getState()
     const { currentId, query, addOrUpdate } = useConversationStore.getState()
-    const { messages, systemInstruction } = useMessageStore.getState()
+    const { messages, systemInstruction, setTitle } = useMessageStore.getState()
     const conversation = query(id)
     const config: RequestProps = {
       apiKey,
@@ -238,17 +241,20 @@ function AppSidebar() {
       messages: [],
       summary: { ids: [], content: '' },
       systemInstruction: '',
-      chatLayout: 'chat',
+      chatLayout: 'doc',
     }
     setCurrentId(id)
     addOrUpdate(id, newConversation)
     restore(newConversation)
   }, [])
 
-  const handleSearch = useCallback((keyword: string) => {
-    const result = search(keyword, conversationList)
-    setConversations(result)
-  }, [])
+  const handleSearch = useCallback(
+    (keyword: string) => {
+      const result = search(keyword, conversationList)
+      setConversations(result)
+    },
+    [conversationList],
+  )
 
   const handleClearKeyword = useCallback(() => {
     setConversations(null)

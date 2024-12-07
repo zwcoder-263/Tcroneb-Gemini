@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { search } from 'duck-duck-scrape'
+import { search, SafeSearchType } from 'duck-duck-scrape'
 import { ErrorType } from '@/constant/errors'
 import { handleError } from '../../utils'
 import { pick } from 'lodash-es'
@@ -15,7 +15,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const response = await search(query)
+    const response = await search(query, {
+      safeSearch: SafeSearchType.STRICT,
+    })
     return NextResponse.json(
       response.noResults
         ? []

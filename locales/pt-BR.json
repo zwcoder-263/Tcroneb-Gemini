@@ -146,5 +146,6 @@
   "newCopy": "Nova cópia",
   "AIRename": "Renomear IA",
   "rename": "Renomear",
-  "chatAnything": "Converse sobre qualquer coisa"
+  "chatAnything": "Converse sobre qualquer coisa",
+  "changeChatLayout": "Alterar layout do chat"
 }

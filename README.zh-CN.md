@@ -68,6 +68,10 @@
 
 支持 Gemini 1.5 和 Gemini 1.5 Flash 多模态模型
 
+![Support plugins](./public/screenshots/pc-screenshot-3.png)
+
+支持插件功能，内置网络搜索、网页解读、论文搜索、实时天气等多种实用插件
+
 ![Tray app](./docs/images/trayapp.png)
 
 跨平台的应用客户端，支持常驻菜单栏，让您的工作效率翻倍
@@ -102,6 +106,8 @@
 - 语音模式：让您直接与 Gemini 对话
 - 视觉识别，让 Gemini 可以看懂图片内容
 - 助理市场，拥有数百精选的系统指令
+- 插件系统，内置网络搜索、网页解读、论文搜索、实时天气等多种实用插件
+- 会话列表，让您可以保持重要的会话内容或与 Gemini 讨论不同的话题
 - 完整的 Markdown 支持：LaTex 公式、代码高亮等等
 - 自动压缩上下文聊天记录，在节省 Token 的同时支持超长对话
 - 隐私安全，所有数据保存在用户浏览器本地
@@ -116,7 +122,7 @@
 - [x] 重构话题广场，引入 Prompt 列表
 - [x] 使用 tauri 打包桌面应用
 - [x] 实现基于 functionCall 插件
-- [ ] 支持对话列表
+- [x] 支持会话列表
 
 ## 开始使用
 
@@ -274,15 +280,15 @@ pnpm build:export
 
 #### “User location is not supported for the API use” 的解决方案
 
-可以参考以下两个 Gemini Api 代理项目 [gemini-proxy](https://github.com/Jazee6/gemini-proxy) 和 [palm-netlify-proxy](https://github.com/Amery2010/palm-netlify-proxy) 的部署方式。
+1、使用 Cloudflare AI Gateway 转发 api。目前 Cloudflare AI Gateway 已经支持 Google Vertex AI 相关 api。如何使用请参考 [如何使用 Cloudflare AI Gateway](./docs/Use-Cloudflare-AI-Gateway.zh-CN.md) 。该方案速度快、稳定性好，**推荐使用**。
 
-**注意 Vercel 和 Netlify 禁止用户部署代理服务，该解决方案可能会导致封号，需谨慎使用**
+2、使用 Cloudflare Worker 进行 api 代理转发，详细设置请参考 [如何使用 Cloudflare Worker 代理 api](./docs/How-to-deploy-the-Cloudflare-Worker-api-proxy.zh-CN.md)。注意，该方案在某些情况下可能无法正常工作。
 
 #### 为什么我无法上传 doc、excel 和 ppt 这类常见文档
 
 目前 `Gemini 1.5 Pro` 和 `Gemini 1.5 Flash` 这两个模型支持的大部分的图片、音频、视频和部分文本类的文件。对于其他文档类型，后续将尝试使用 [LangChain.js](https://js.langchain.com/v0.2/docs/introduction/) 来实现。
 
-### 为什么我用 vercel 一键部署后的网站无法在中国正常访问
+#### 为什么我用 vercel 一键部署后的网站无法在中国正常访问
 
 vercel 部署后生成的域名在几年前就已经被国内网络屏蔽，但并没有屏蔽服务器的 ip 地址。可以自定义域名，就可以在国内正常访问了。由于 vercel 在国内并没有服务器，所以有时候会出现些许的网络波动，属于正常现象。如何设置域名，可以参考我从网上找到的解决文章[Vercel绑定自定义域名](https://docs.tangly1024.com/article/vercel-domain)。
 
@@ -295,7 +301,7 @@ vercel 部署后生成的域名在几年前就已经被国内网络屏蔽，但�
 [Tailwindcss](https://tailwindcss.com/)
 [Zustand](https://zustand-demo.pmnd.rs/)
 
-### 项目参考
+### 灵感来源
 
 [Lobe Chat](https://github.com/lobehub/lobe-chat)
 [ChatGPT-Next-Web](https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web)

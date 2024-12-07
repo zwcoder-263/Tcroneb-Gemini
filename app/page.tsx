@@ -97,6 +97,7 @@ export default function Home() {
   const [isRecording, setIsRecording] = useState<boolean>(false)
   const [isThinking, setIsThinking] = useState<boolean>(false)
   const [executingPlugins, setExecutingPlugins] = useState<string[]>([])
+  const [enablePlugin, setEnablePlugin] = useState<boolean>(true)
   const [status, setStatus] = useState<'thinkng' | 'silence' | 'talking'>('silence')
   const statusText = useMemo(() => {
     switch (status) {
@@ -696,9 +697,17 @@ export default function Home() {
     const { update } = useSettingStore.getState()
     toggleSidebar()
     update({ sidebarState: sidebarState === 'expanded' ? 'collapsed' : 'expanded' })
-  }, [toggleSidebar])
+  }, [sidebarState, toggleSidebar])
 
-  useEffect(() => useMessageStore.subscribe((state) => (messagesRef.current = state.messages)), [messages])
+  useEffect(() => {
+    useMessageStore.subscribe((state) => {
+      messagesRef.current = state.messages
+    })
+    if (messages.length === 0) {
+      setErrorMessage('')
+      setExecutingPlugins([])
+    }
+  }, [messages])
 
   useEffect(() => {
     const { ttsLang, ttsVoice, update } = useSettingStore.getState()
@@ -734,21 +743,29 @@ export default function Home() {
     }
   }, [])
 
+  useEffect(() => {
+    if (isOldVisionModel || '__TAURI__' in window) {
+      setEnablePlugin(false)
+    }
+  }, [isOldVisionModel])
+
   useLayoutEffect(() => {
     const settings = useSettingStore.getState()
     if (sidebarState !== settings.sidebarState) toggleSidebar()
   }, [sidebarState, toggleSidebar])
 
   useLayoutEffect(() => {
-    const { update } = useSettingStore.getState()
-    const lang = detectLanguage()
-    i18n.changeLanguage(lang)
-    const payload: Partial<Setting> = { lang, sttLang: lang, ttsLang: lang }
-    const options = new EdgeSpeech({ locale: lang }).voiceOptions
-    if (options) {
-      payload.ttsVoice = options[0].value
+    const { lang, update } = useSettingStore.getState()
+    if (lang === '') {
+      const browserLang = detectLanguage()
+      i18n.changeLanguage(browserLang)
+      const payload: Partial<Setting> = { lang: browserLang, sttLang: browserLang, ttsLang: browserLang }
+      const options = new EdgeSpeech({ locale: browserLang }).voiceOptions
+      if (options) {
+        payload.ttsVoice = options[0].value
+      }
+      update(payload)
     }
-    update(payload)
   }, [])
 
   return (
@@ -852,7 +869,7 @@ export default function Home() {
                   className="cursor-pointer hover:text-slate-500"
                   onClick={() => handleChangeChatLayout(chatLayout === 'doc' ? 'chat' : 'doc')}
                 >
-                  调整对话布局
+                  {t('changeChatLayout')}
                 </span>
                 <span className="mx-2 mt-0.5 h-3 border-r-[1px]"></span>
                 <span className="cursor-pointer hover:text-slate-500" onClick={() => handleCleanMessage()}>
@@ -865,7 +882,7 @@ export default function Home() {
         </div>
       )}
       <div className="flex w-full max-w-screen-md items-end gap-2 bg-background px-4 pb-8 pt-2 max-sm:p-2 max-sm:pb-3 landscape:max-md:pb-4">
-        {!isOldVisionModel ? <PluginList /> : null}
+        {enablePlugin ? <PluginList /> : null}
         <div
           className="relative box-border flex w-full flex-1 rounded-md border border-input bg-[hsl(var(--background))] py-1 max-sm:py-0"
           onPaste={handlePaste}

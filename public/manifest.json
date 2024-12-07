@@ -52,6 +52,12 @@
       "sizes": "2048x1640",
       "type": "image/png",
       "form_factor": "wide"
+    },
+    {
+      "src": "screenshots/pc-screenshot-3.png",
+      "sizes": "2048x1640",
+      "type": "image/png",
+      "form_factor": "wide"
     }
   ],
   "theme_color": "#FFFFFF",

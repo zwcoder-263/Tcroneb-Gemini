@@ -146,5 +146,6 @@
   "newCopy": "创建副本",
   "AIRename": "智能命名",
   "rename": "重命名",
-  "chatAnything": "随便聊聊"
+  "chatAnything": "随便聊聊",
+  "changeChatLayout": "更改聊天布局"
 }

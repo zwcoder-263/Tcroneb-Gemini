@@ -146,5 +146,6 @@
   "newCopy": "Новая копия",
   "AIRename": "Переименовать ИИ",
   "rename": "Переименовать",
-  "chatAnything": "Чат на любую тему"
+  "chatAnything": "Чат на любую тему",
+  "changeChatLayout": "Изменить макет чата"
 }

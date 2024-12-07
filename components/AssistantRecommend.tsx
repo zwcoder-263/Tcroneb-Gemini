@@ -103,32 +103,34 @@ function AssistantRecommend() {
                 >
                   <CardHeader className="p-4 pb-1 max-sm:px-3 max-sm:py-2">
                     <CardTitle className="flex justify-between text-base">
-                      <div className="inline-flex">
+                      <div className="flex w-full">
                         <Avatar className="mr-1 h-6 w-6">
                           {assistant.meta.avatar.startsWith('http') ? (
                             <AvatarImage className="m-1 h-4 w-4 rounded-full" src={assistant.meta.avatar} />
                           ) : null}
                           <AvatarFallback className="bg-transparent">{assistant.meta.avatar}</AvatarFallback>
                         </Avatar>
-                        <span className="truncate font-medium">{assistant.meta.title}</span>
-                      </div>
-                      <div className="inline-flex gap-1">
-                        <Button
-                          className="h-6 w-6"
-                          size="icon"
-                          variant="ghost"
-                          onClick={(ev) => {
-                            ev.stopPropagation()
-                            ev.preventDefault()
-                            if (favorites.includes(assistant.identifier)) {
-                              removeFavorite(assistant.identifier)
-                            } else {
-                              addFavorite(assistant.identifier)
-                            }
-                          }}
-                        >
-                          <Heart className={favorites.includes(assistant.identifier) ? 'text-red-400' : ''} />
-                        </Button>
+                        <span className="flex-1 truncate font-medium" title={assistant.meta.title}>
+                          {assistant.meta.title}
+                        </span>
+                        <div className="inline-flex gap-1">
+                          <Button
+                            className="h-6 w-6"
+                            size="icon"
+                            variant="ghost"
+                            onClick={(ev) => {
+                              ev.stopPropagation()
+                              ev.preventDefault()
+                              if (favorites.includes(assistant.identifier)) {
+                                removeFavorite(assistant.identifier)
+                              } else {
+                                addFavorite(assistant.identifier)
+                              }
+                            }}
+                          >
+                            <Heart className={favorites.includes(assistant.identifier) ? 'text-red-400' : ''} />
+                          </Button>
+                        </div>
                       </div>
                     </CardTitle>
                   </CardHeader>

@@ -68,6 +68,10 @@ Simple interface, supports image recognition and voice conversation
 
 Supports Gemini 1.5 and Gemini 1.5 Flash multimodal models
 
+![Support plugins](./public/screenshots/pc-screenshot-3.png)
+
+Support plugins, with built-in Web search, Web reader, Arxiv search, Weather and other practical plugins
+
 ![Tray app](./docs/images/trayapp.png)
 
 A cross-platform application client that supports a permanent menu bar, doubling your work efficiency
@@ -102,6 +106,8 @@ A cross-platform application client that supports a permanent menu bar, doubling
 - Talk mode: Let you talk directly to Gemini
 - Visual recognition allows Gemini to understand the content of the picture
 - Assistant market with hundreds of selected system instruction
+- Support plugins, with built-in Web search, Web reader, Arxiv search, Weather and other practical plugins
+- Conversation list, so you can keep track of important conversations or discuss different topics with Gemini
 - Full Markdown support: LaTex formulas, code highlighting, and more
 - Automatically compress contextual chat records to save Tokens while supporting very long conversations
 - Privacy and security, all data is saved locally in the user's browser
@@ -116,7 +122,7 @@ A cross-platform application client that supports a permanent menu bar, doubling
 - [x] Reconstruct the topic square and introduce Prompt list
 - [x] Use tauri to package desktop applications
 - [x] Implementation based on functionCall plug-in
-- [ ] Support conversation list
+- [x] Support conversation list
 
 ## Get Started
 
@@ -279,13 +285,19 @@ If you deploy the project in a subdirectory and encounter resource loading failu
 [Tailwindcss](https://tailwindcss.com/)
 [Zustand](https://zustand-demo.pmnd.rs/)
 
-### Project Reference
+### Inspiration
 
 [Lobe Chat](https://github.com/lobehub/lobe-chat)
 [ChatGPT-Next-Web](https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web)
 [GeminiProChat](https://github.com/babaohuang/GeminiProChat)
 
 ## FAQ
+
+#### Solution for “User location is not supported for the API use”
+
+1. Use Cloudflare AI Gateway to forward APIs. Currently, Cloudflare AI Gateway already supports Google Vertex AI related APIs. For how to use it, please refer to [How to Use Cloudflare AI Gateway](./docs/Use-Cloudflare-AI-Gateway.md). This solution is fast and stable, and is **recommended**.
+
+2. Use Cloudflare Worker for API proxy forwarding. For detailed settings, please refer to [How to Use Cloudflare Worker Proxy API](./docs/How-to-deploy-the-Cloudflare-Worker-api-proxy.md). Note that this solution may not work properly in some cases.
 
 #### Why can’t I upload common documents such as doc, excel, and ppt?
 
