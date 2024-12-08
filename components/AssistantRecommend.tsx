@@ -59,7 +59,7 @@ function AssistantRecommend() {
   )
 
   return (
-    <div className="flex grow items-center justify-center p-4 text-sm">
+    <div className="flex w-full flex-1 grow items-center justify-center overflow-y-auto scroll-smooth p-4 text-sm">
       <section className="-mt-20 w-full max-sm:mt-0">
         <div className="my-3 flex justify-between">
           <h3 className="text-base font-medium">{t('assistantRecommend')}</h3>

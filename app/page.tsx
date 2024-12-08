@@ -824,7 +824,7 @@ export default function Home() {
               >
                 <div
                   className={cn(
-                    'relative flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80',
+                    'relative flex gap-3 p-4 pb-1 hover:bg-gray-50/80 dark:hover:bg-gray-900/80',
                     msg.role === 'user' && chatLayout === 'chat' ? 'flex-row-reverse text-right' : '',
                   )}
                 >
@@ -834,7 +834,7 @@ export default function Home() {
             ))}
             {isThinking ? (
               <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
-                <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
+                <div className="flex gap-3 p-4 pb-1 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
                   <MessageItem id="message" role="model" parts={[{ text: message }]} />
                 </div>
               </div>
@@ -848,7 +848,7 @@ export default function Home() {
             ) : null}
             {errorMessage !== '' ? (
               <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
-                <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
+                <div className="flex gap-3 p-4 pb-1 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
                   <ErrorMessageItem content={errorMessage} onRegenerate={() => handleResubmit('error')} />
                 </div>
               </div>
@@ -857,7 +857,7 @@ export default function Home() {
               <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
                 <div
                   className={cn(
-                    'relative flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80',
+                    'relative flex gap-3 p-4 pb-1 hover:bg-gray-50/80 dark:hover:bg-gray-900/80',
                     chatLayout === 'chat' ? 'flex-row-reverse text-right' : '',
                   )}
                 >
@@ -886,12 +886,14 @@ export default function Home() {
       <div className="flex w-full max-w-screen-md items-end gap-2 bg-background px-4 pb-8 pt-2 max-sm:p-2 max-sm:pb-3 landscape:max-md:pb-4">
         {enablePlugin ? <PluginList /> : null}
         <div
-          className="relative box-border flex w-full flex-1 rounded-md border border-input bg-[hsl(var(--background))] py-1 max-sm:py-0"
+          className="relative box-border flex w-full flex-1 flex-col rounded-md border border-input bg-[hsl(var(--background))] py-1 max-sm:py-0"
           onPaste={handlePaste}
           onDrop={handleDrop}
           onDragOver={(ev) => ev.preventDefault()}
         >
-          <AttachmentArea className="m-2 mt-0 max-h-32 overflow-y-auto border-b border-dashed pb-2" />
+          <div className="p-2 pb-0 pt-1 empty:p-0 max-sm:pt-2">
+            <AttachmentArea className="max-h-32 w-full overflow-y-auto border-b border-dashed pb-2" />
+          </div>
           <textarea
             autoFocus
             className={cn(

@@ -44,7 +44,9 @@ function FileList({ fileList, onRemove }: Props) {
               {file.status === 'PROCESSING' ? <Loader2 className="absolute left-4 top-4 h-6 w-6 animate-spin" /> : null}
             </div>
             <div className="relative h-14 w-2/3 flex-auto pr-4 text-sm">
-              <h4 className="text-line-clamp-2 font-medium leading-5">{file.name}</h4>
+              <h4 className="text-line-clamp-2 font-medium leading-5" title={file.name}>
+                {file.name}
+              </h4>
               <p>
                 <small>{formatSize(file.size)}</small>
               </p>

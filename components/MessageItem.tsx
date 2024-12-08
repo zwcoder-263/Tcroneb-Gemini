@@ -396,13 +396,13 @@ function MessageItem(props: Props) {
           {!isEditing ? (
             <>
               <div
-                className="prose chat-content break-words pb-3 text-base leading-8"
+                className="prose chat-content break-words text-base leading-8"
                 dangerouslySetInnerHTML={{ __html: html }}
               ></div>
               <div
                 className={cn(
-                  'absolute bottom-1 flex gap-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100',
-                  role === 'user' && chatLayout === 'chat' ? 'left-3.5 flex-row-reverse text-right' : 'right-3.5',
+                  'flex gap-1 text-right opacity-0 transition-opacity duration-300 group-hover:opacity-100',
+                  role === 'user' && chatLayout === 'chat' ? 'justify-start' : 'justify-end',
                 )}
               >
                 {id !== 'preview' ? (
