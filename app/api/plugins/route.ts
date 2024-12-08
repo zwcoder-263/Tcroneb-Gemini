@@ -3,7 +3,8 @@ import OASNormalize from 'oas-normalize'
 import { ErrorType } from '@/constant/errors'
 import { handleError } from '../utils'
 
-export const preferredRegion = ['sfo1']
+export const runtime = 'edge'
+export const preferredRegion = ['cle1', 'iad1', 'pdx1', 'sfo1', 'sin1', 'syd1', 'hnd1', 'kix1']
 
 const mode = process.env.NEXT_PUBLIC_BUILD_MODE
 
