@@ -47,34 +47,39 @@ export const useSettingStore = create(
            * the logic here is used to migrate the data content of the old version.
            */
           if (isNull(store)) {
-            const state: Record<string, any> = {}
-            const oldState: string[] = [
-              'password',
-              'apiKey',
-              'apiProxy',
-              'uploadProxy',
-              'model',
-              'sttLang',
-              'ttsLang',
-              'ttsVoice',
-              'lang',
-              'talkMode',
-              'assistantIndexUrl',
-              'safety',
-              'maxHistoryLength',
-              'topP',
-              'topK',
-              'temperature',
-              'maxOutputTokens',
-              'isProtected',
-              'autoStopRecord',
-            ]
-            for await (const name of oldState) {
-              const data = await storage.getItem(name)
-              if (data) state[name] = data
-              await storage.removeItem(name)
+            try {
+              const state: Record<string, any> = {}
+              const oldState: string[] = [
+                'password',
+                'apiKey',
+                'apiProxy',
+                'uploadProxy',
+                'model',
+                'sttLang',
+                'ttsLang',
+                'ttsVoice',
+                'lang',
+                'talkMode',
+                'assistantIndexUrl',
+                'safety',
+                'maxHistoryLength',
+                'topP',
+                'topK',
+                'temperature',
+                'maxOutputTokens',
+                'isProtected',
+                'autoStopRecord',
+              ]
+              for await (const name of oldState) {
+                const data = await storage.getItem(name)
+                if (data) state[name] = data
+                await storage.removeItem(name)
+              }
+              return { state, version: 1 } as StorageValue<SettingStore>
+            } catch (err) {
+              console.error(err)
+              return store
             }
-            return { state, version: 1 } as StorageValue<SettingStore>
           }
           return store
         },

@@ -54,8 +54,6 @@
 [share-x-link]: https://x.com/intent/tweet?hashtags=chatbot%2CchatGPT%2CopenAI&text=Check%20this%20GitHub%20repository%20out%20GeminiNextChat%20-%20An%20open-source%2C%20extensible%20(Function%20Calling)%2C%20high-performance%20gemini%20chatbot%20framework.%20It%20supports%20one-click%20free%20deployment%20of%20your%20private%20Gemini%20web%20application.%20https%3A%2F%2Fgithub.com%2Fu14app%2Fgemini-next-chat
 [share-x-shield]: https://img.shields.io/badge/-share%20on%20x-black?labelColor=black&logo=x&logoColor=white&style=flat-square
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fu14app%2Fgemini-next-chat&project-name=gemini-next-chat&env=GEMINI_API_KEY&env=ACCESS_PASSWORD&repository-name=gemini-next-chat)
-
 ![cover](./public/screenshots/screenshots.png)
 
 简洁的界面，支持图片识别和语音对话
@@ -292,16 +290,16 @@ vercel 部署后生成的域名在几年前就已经被国内网络屏蔽，但�
 
 ### 技术栈
 
-[Next.js](https://nextjs.org/)
-[Shadcn UI](https://ui.shadcn.com/)
-[Tailwindcss](https://tailwindcss.com/)
-[Zustand](https://zustand-demo.pmnd.rs/)
+- [Next.js](https://nextjs.org/)
+- [Shadcn UI](https://ui.shadcn.com/)
+- [Tailwindcss](https://tailwindcss.com/)
+- [Zustand](https://zustand-demo.pmnd.rs/)
 
 ### 灵感来源
 
-[Lobe Chat](https://github.com/lobehub/lobe-chat)
-[ChatGPT-Next-Web](https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web)
-[GeminiProChat](https://github.com/babaohuang/GeminiProChat)
+- [Lobe Chat](https://github.com/lobehub/lobe-chat)
+- [ChatGPT-Next-Web](https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web)
+- [GeminiProChat](https://github.com/babaohuang/GeminiProChat)
 
 ## 收藏历史
 
