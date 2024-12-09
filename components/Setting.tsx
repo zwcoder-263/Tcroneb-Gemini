@@ -23,7 +23,7 @@ import locales from '@/constant/locales'
 import { Model } from '@/constant/model'
 import { useSettingStore } from '@/store/setting'
 import { useModelStore } from '@/store/model'
-import { toPairs, values, has, omitBy, isFunction } from 'lodash-es'
+import { toPairs, values, keys, omitBy, isFunction } from 'lodash-es'
 
 import pkg from '@/package.json'
 
@@ -71,16 +71,18 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
     const { update } = useSettingStore.getState()
 
     if (modelStore.models.length > 0) {
+      const models = values(Model)
       modelStore.models.forEach((item) => {
-        if (!has(Model, item.displayName)) {
-          Model[item.displayName] = item.name.replace('models/', '')
+        const modelName = item.name.replace('models/', '')
+        if (!models.includes(modelName)) {
+          Model[modelName] = item.displayName
         }
       })
     }
 
     let modelList: string[] = []
     let defaultModel = 'gemini-1.5-flash-latest'
-    const defaultModelList: string[] = Object.values(Model)
+    const defaultModelList: string[] = keys(Model)
     const userModels: string[] = GEMINI_MODEL_LIST ? GEMINI_MODEL_LIST.split(',') : []
 
     userModels.forEach((modelName) => {
@@ -354,7 +356,7 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                             {modelOptions.map((name) => {
                               return (
                                 <SelectItem key={name} value={name}>
-                                  {name}
+                                  {Model[name]}
                                 </SelectItem>
                               )
                             })}
