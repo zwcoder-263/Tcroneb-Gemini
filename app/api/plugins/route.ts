@@ -5,11 +5,7 @@ import { handleError } from '../utils'
 
 export const preferredRegion = ['sfo1']
 
-const mode = process.env.NEXT_PUBLIC_BUILD_MODE
-
 export async function POST(req: NextRequest) {
-  if (mode === 'export') return new NextResponse('Not available under static deployment')
-
   const body = await req.text()
 
   if (body === '') {

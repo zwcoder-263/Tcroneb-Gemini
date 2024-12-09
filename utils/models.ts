@@ -12,14 +12,10 @@ function filterModel(models: Model[]) {
 
 export async function fetchModels(options: Options) {
   if (options.apiKey === '') {
-    if (options.password !== '') {
-      const token = encodeToken(options.password)
-      const response = await fetch(`/api/models?token=${token}`)
-      const { models } = await response.json()
-      return filterModel(models)
-    } else {
-      return []
-    }
+    const token = encodeToken(options.password)
+    const response = await fetch(`/api/models?token=${token}`)
+    const { models } = await response.json()
+    return filterModel(models)
   } else {
     const response = await fetch(`${options.apiProxy}/v1beta/models?key=${options.apiKey}`)
     const { models } = await response.json()

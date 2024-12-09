@@ -744,7 +744,7 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    if (isOldVisionModel || '__TAURI__' in window) {
+    if (isOldVisionModel || BUILD_MODE === 'export' || '__TAURI__' in window) {
       setEnablePlugin(false)
     }
   }, [isOldVisionModel])
