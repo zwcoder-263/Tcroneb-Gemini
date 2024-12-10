@@ -356,7 +356,7 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                             {modelOptions.map((name) => {
                               return (
                                 <SelectItem key={name} value={name}>
-                                  {Model[name]}
+                                  {`${Model[name]}(${name})`}
                                 </SelectItem>
                               )
                             })}
