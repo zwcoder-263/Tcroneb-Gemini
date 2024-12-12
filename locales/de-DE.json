@@ -147,5 +147,6 @@
   "AIRename": "KI Umbenennen",
   "rename": "Umbenennen",
   "chatAnything": "Über alles chatten",
-  "changeChatLayout": "Chat-Layout ändern"
+  "changeChatLayout": "Chat-Layout ändern",
+  "checkForUpdate": "Auf Updates überprüfen"
 }

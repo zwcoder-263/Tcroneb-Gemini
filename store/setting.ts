@@ -27,7 +27,7 @@ export const useSettingStore = create(
       maxHistoryLength: 0,
       assistantIndexUrl: ASSISTANT_INDEX_URL || 'https://registry.npmmirror.com/@lobehub/agents-index/v1/files/public',
       topP: 0.95,
-      topK: 64,
+      topK: 40,
       temperature: 1,
       maxOutputTokens: 8192,
       safety: 'none',

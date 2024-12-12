@@ -148,5 +148,6 @@
   "AIRename": "Renombrar IA",
   "rename": "Renombrar",
   "chatAnything": "Chatear sobre cualquier cosa",
-  "changeChatLayout": "Cambiar el diseño del chat"
+  "changeChatLayout": "Cambiar el diseño del chat",
+  "checkForUpdate": "Buscar actualizaciones"
 }

@@ -147,5 +147,6 @@
   "AIRename": "AI Rename",
   "rename": "Rename",
   "chatAnything": "Chat Anything",
-  "changeChatLayout": "Change chat layout"
+  "changeChatLayout": "Change chat layout",
+  "checkForUpdate": "Check for update"
 }

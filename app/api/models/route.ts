@@ -8,6 +8,8 @@ const mode = process.env.NEXT_PUBLIC_BUILD_MODE
 
 export const preferredRegion = ['sfo1']
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(req: NextRequest) {
   if (mode === 'export') return new NextResponse('Not available under static deployment')
 
@@ -17,7 +19,9 @@ export async function GET(req: NextRequest) {
 
   try {
     const apiBaseUrl = geminiApiBaseUrl || 'https://generativelanguage.googleapis.com'
-    const response = await fetch(`${apiBaseUrl}/v1beta/models?key=${geminiApiKey}`)
+    const response = await fetch(`${apiBaseUrl}/v1beta/models?key=${geminiApiKey}`, {
+      cache: 'no-store',
+    })
     const result = await response.json()
     return NextResponse.json(result)
   } catch (error) {

@@ -848,7 +848,7 @@ export default function Home() {
             ) : null}
             {errorMessage !== '' ? (
               <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
-                <div className="flex gap-3 p-4 pb-1 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
+                <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
                   <ErrorMessageItem content={errorMessage} onRegenerate={() => handleResubmit('error')} />
                 </div>
               </div>

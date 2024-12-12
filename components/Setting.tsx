@@ -45,7 +45,7 @@ const formSchema = z.object({
   model: z.string(),
   maxHistoryLength: z.number().gte(0).lte(50).optional().default(0),
   topP: z.number().gte(0).lte(1).default(0.95),
-  topK: z.number().gte(0).lte(128).default(64),
+  topK: z.number().gte(0).lte(128).default(40),
   temperature: z.number().gte(0).lte(1).default(1),
   maxOutputTokens: z.number().gte(0).lte(8192).default(8192),
   safety: z.enum(['none', 'low', 'middle', 'high']).default('none'),
@@ -54,6 +54,8 @@ const formSchema = z.object({
   ttsVoice: z.string().optional(),
   autoStopRecord: z.boolean().default(false),
 })
+
+let cachedModelList = false
 
 function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
   const { t } = useTranslation()
@@ -159,12 +161,13 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
   )
 
   useLayoutEffect(() => {
-    if (open) {
+    if (open && !cachedModelList) {
       const { update } = useModelStore.getState()
       const { apiKey, apiProxy, password } = useSettingStore.getState()
       fetchModels({ apiKey, apiProxy, password }).then((models) => {
         if (models.length > 0) {
           update(models)
+          cachedModelList = true
         }
       })
     }
@@ -277,7 +280,7 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                         href="https://github.com/u14app/gemini-next-chat/releases"
                         target="_blank"
                       >
-                        检查更新
+                        {t('checkForUpdate')}
                       </a>
                       )
                     </small>

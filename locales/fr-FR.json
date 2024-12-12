@@ -148,5 +148,6 @@
   "AIRename": "Renommer l'IA",
   "rename": "Renommer",
   "chatAnything": "Discuter de tout",
-  "changeChatLayout": "Changer la mise en page du chat"
+  "changeChatLayout": "Changer la mise en page du chat",
+  "checkForUpdate": "Vérifier les mises à jour"
 }

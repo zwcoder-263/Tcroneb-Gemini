@@ -148,5 +148,6 @@
   "AIRename": "إعادة تسمية الذكاء الاصطناعي",
   "rename": "إعادة التسمية",
   "chatAnything": "الدردشة عن أي شيء",
-  "changeChatLayout": "تغيير تخطيط الدردشة"
+  "changeChatLayout": "تغيير تخطيط الدردشة",
+  "checkForUpdate": "التحقق من التحديث"
 }

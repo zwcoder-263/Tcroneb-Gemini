@@ -55,7 +55,7 @@ export default async function chat({
   systemInstruction,
   tools,
   toolConfig,
-  model = 'gemini-pro',
+  model = 'gemini-1.5-flash-latest',
   apiKey,
   baseUrl,
   generationConfig,
@@ -64,7 +64,7 @@ export default async function chat({
   const genAI = new GoogleGenerativeAI(apiKey)
   const modelParams: ModelParams = { model, generationConfig, safetySettings: getSafetySettings(safety) }
   if (systemInstruction) {
-    if (model.startsWith('gemini-1.5')) {
+    if (!model.startsWith('gemini-1.0')) {
       modelParams.systemInstruction = systemInstruction
     } else {
       const systemInstructionMessages = [
