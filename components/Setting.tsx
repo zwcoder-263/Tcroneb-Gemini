@@ -355,11 +355,11 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                           <SelectTrigger className="col-span-3">
                             <SelectValue placeholder={t('selectDefaultModel')} />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="text-left">
                             {modelOptions.map((name) => {
                               return (
                                 <SelectItem key={name} value={name}>
-                                  {`${Model[name]}(${name})`}
+                                  {name}
                                 </SelectItem>
                               )
                             })}
