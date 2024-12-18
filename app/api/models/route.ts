@@ -8,8 +8,6 @@ const mode = process.env.NEXT_PUBLIC_BUILD_MODE
 
 export const preferredRegion = ['sfo1']
 
-export const dynamic = 'force-dynamic'
-
 export async function GET(req: NextRequest) {
   if (mode === 'export') return new NextResponse('Not available under static deployment')
 
