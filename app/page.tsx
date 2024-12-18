@@ -434,9 +434,22 @@ export default function Home() {
     [fetchAnswer, handleResponse, handleError, executingPlugins],
   )
 
+  const checkAccessStatus = useCallback(() => {
+    const { isProtected, password, apiKey } = useSettingStore.getState()
+    const isProtectedMode = isProtected && password === '' && apiKey === ''
+    const isStaticMode = BUILD_MODE === 'export' && apiKey === ''
+    if (isProtectedMode || isStaticMode) {
+      setSetingOpen(true)
+      return false
+    } else {
+      return true
+    }
+  }, [])
+
   const handleSubmit = useCallback(
     async (text: string): Promise<void> => {
-      if (text === '') return Promise.reject(false)
+      if (!checkAccessStatus()) return
+      if (text === '') return
       const { talkMode, model } = useSettingStore.getState()
       const { files, clear: clearAttachment } = useAttachmentStore.getState()
       const { summary, add: addMessage } = useMessageStore.getState()
@@ -516,11 +529,12 @@ export default function Home() {
         },
       })
     },
-    [isOldVisionModel, fetchAnswer, handleResponse, handleFunctionCall, handleError],
+    [isOldVisionModel, fetchAnswer, handleResponse, handleFunctionCall, handleError, checkAccessStatus],
   )
 
   const handleResubmit = useCallback(
     async (id: string) => {
+      if (!checkAccessStatus()) return false
       const { model } = useSettingStore.getState()
       const { messages, revoke: rovokeMessage } = useMessageStore.getState()
       if (id !== 'error') {
@@ -548,7 +562,7 @@ export default function Home() {
         },
       })
     },
-    [fetchAnswer, handleResponse, handleFunctionCall, handleError],
+    [fetchAnswer, handleResponse, handleFunctionCall, handleError, checkAccessStatus],
   )
 
   const handleCleanMessage = useCallback(() => {
@@ -560,18 +574,6 @@ export default function Home() {
   const updateTalkMode = useCallback((type: 'chat' | 'voice') => {
     const { update } = useSettingStore.getState()
     update({ talkMode: type })
-  }, [])
-
-  const checkAccessStatus = useCallback(() => {
-    const { isProtected, password, apiKey } = useSettingStore.getState()
-    const isProtectedMode = isProtected && password === '' && apiKey === ''
-    const isStaticMode = BUILD_MODE === 'export' && apiKey === ''
-    if (isProtectedMode || isStaticMode) {
-      setSetingOpen(true)
-      return false
-    } else {
-      return true
-    }
   }, [])
 
   const handleRecorder = useCallback(() => {

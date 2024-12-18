@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
         method: req.method,
         headers: {
           'Content-Type': req.headers.get('Content-Type') || 'application/json',
-          'x-goog-api-client': req.headers.get('x-goog-api-client') || 'genai-js/0.14.0',
+          'x-goog-api-client': req.headers.get('x-goog-api-client') || 'genai-js/0.21.0',
           'x-goog-api-key': geminiApiKey,
         },
         body: req.body,
