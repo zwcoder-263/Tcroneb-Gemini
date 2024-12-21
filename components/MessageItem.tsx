@@ -26,6 +26,7 @@ import {
 import { EdgeSpeech } from '@xiangfa/polly'
 import type { SearchResult } from 'duck-duck-scrape'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import BubblesLoading from '@/components/BubblesLoading'
 import FileList from '@/components/FileList'
 import EditableArea from '@/components/EditableArea'
@@ -43,7 +44,7 @@ import AudioStream from '@/utils/AudioStream'
 import { sentenceSegmentation } from '@/utils/common'
 import { cn } from '@/utils'
 import { OFFICAL_PLUGINS } from '@/constant/plugins'
-import { upperFirst, isFunction, find } from 'lodash-es'
+import { upperFirst, isFunction, find, isUndefined } from 'lodash-es'
 
 import 'katex/dist/katex.min.css'
 import 'highlight.js/styles/a11y-light.css'
@@ -97,6 +98,7 @@ function MessageItem(props: Props) {
   const { id, role, parts, attachments, onRegenerate } = props
   const { t } = useTranslation()
   const [html, setHtml] = useState<string>('')
+  const [thoughtsHtml, setThoughtsHtml] = useState<string>('')
   const chatLayout = useMessageStore((state) => state.chatLayout)
   const [hasTextContent, setHasTextContent] = useState<boolean>(false)
   const [isEditing, setIsEditing] = useState<boolean>(false)
@@ -395,6 +397,25 @@ function MessageItem(props: Props) {
           ) : null}
           {!isEditing ? (
             <>
+              {thoughtsHtml !== '' ? (
+                <Accordion type="single" collapsible>
+                  <AccordionItem value="thoughts">
+                    <AccordionTrigger className="py-1">
+                      <span className="flex text-slate-700">
+                        {t('thoughts')}
+                        {html === '' ? (
+                          <LoaderCircle className="ml-2 mt-0.5 h-5 w-5 animate-spin" />
+                        ) : (
+                          t('expandThoughts')
+                        )}
+                      </span>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div dangerouslySetInnerHTML={{ __html: thoughtsHtml }}></div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              ) : null}
               <div
                 className="prose chat-content break-words text-base leading-8"
                 dangerouslySetInnerHTML={{ __html: html }}
@@ -447,14 +468,25 @@ function MessageItem(props: Props) {
   }
 
   useEffect(() => {
-    const messageParts: string[] = []
-    parts.forEach(async (part) => {
-      if (part.text) {
-        messageParts.push(render(part.text))
-        setHasTextContent(true)
+    const textParts = parts.filter((item) => !isUndefined(item.text))
+    if (role === 'model' && textParts.length === 2) {
+      if (textParts[0].text) {
+        setThoughtsHtml(render(textParts[0].text))
       }
-    })
-    setHtml(messageParts.join(''))
+      if (textParts[1].text) {
+        setHasTextContent(true)
+        setHtml(render(textParts[1].text))
+      }
+    } else {
+      const messageParts: string[] = []
+      parts.forEach(async (part) => {
+        if (part.text) {
+          messageParts.push(render(part.text))
+          setHasTextContent(true)
+        }
+      })
+      setHtml(messageParts.join(''))
+    }
     const copyKatexInline = registerCopy('.copy-katex-inline')
     const copyKatexBlock = registerCopy('.copy-katex-block')
     const copyCode = registerCopy('.copy-code')
@@ -464,12 +496,13 @@ function MessageItem(props: Props) {
     })
     return () => {
       setHtml('')
+      setThoughtsHtml('')
       copyKatexInline.destroy()
       copyKatexBlock.destroy()
       copyCode.destroy()
       copyContent.destroy()
     }
-  }, [id, content, parts, attachments, render])
+  }, [id, role, content, parts, attachments, render])
 
   return (
     <>

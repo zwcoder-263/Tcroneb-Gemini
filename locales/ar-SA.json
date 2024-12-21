@@ -149,5 +149,7 @@
   "rename": "إعادة التسمية",
   "chatAnything": "الدردشة عن أي شيء",
   "changeChatLayout": "تغيير تخطيط الدردشة",
-  "checkForUpdate": "التحقق من التحديث"
+  "checkForUpdate": "التحقق من التحديث",
+  "thoughts": "أفكار",
+  "expandThoughts": "(عرض عملية تفكير النموذج)"
 }

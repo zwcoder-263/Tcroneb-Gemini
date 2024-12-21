@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai'
-import type { InlineDataPart, ModelParams, Tool, ToolConfig } from '@google/generative-ai'
+import type { InlineDataPart, ModelParams, Tool, ToolConfig, Part } from '@google/generative-ai'
 import { getVisionPrompt, getFunctionCallPrompt } from '@/utils/prompt'
 import { OldVisionModel } from '@/constant/model'
 import { isUndefined, pick } from 'lodash-es'
@@ -113,7 +113,23 @@ export default async function chat({
     return stream
   } else {
     const chat = geminiModel.startChat({
-      history: messages.map((item) => pick(item, ['role', 'parts'])),
+      history: messages.map((item) => {
+        let parts: Part[] = []
+        if (item.role === 'model') {
+          let textPart: Part | null = null
+          for (const part of item.parts) {
+            if (part.text) {
+              textPart = part
+            } else {
+              parts.push(part)
+            }
+          }
+          if (textPart) parts = [textPart, ...parts]
+        } else {
+          parts = item.parts
+        }
+        return { role: item.role, parts }
+      }),
     })
     const { stream } = await chat.sendMessageStream(message.parts)
     return stream

@@ -7,7 +7,7 @@
  * @param options.onFinish finish callback function
  * @param options.sentenceLength sentence length, default is 80
  */
-export default async function textStream(options: {
+export async function textStream(options: {
   readable: ReadableStream
   locale: string
   onMessage: (text: string) => void
@@ -80,13 +80,25 @@ export default async function textStream(options: {
   }
 }
 
+export async function simpleTextStream(options: { readable: ReadableStream; onMessage: (text: string) => void }) {
+  const { readable, onMessage } = options
+  const reader = readable.getReader()
+  const decoder = new TextDecoder('utf-8')
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    const chunk = decoder.decode(value, { stream: true })
+    onMessage(chunk)
+  }
+}
+
 export async function streamToText(readableStream: ReadableStream): Promise<string> {
   const reader = readableStream.getReader()
   let text = ''
   while (true) {
     const { done, value } = await reader.read()
     if (done) break
-    text += new TextDecoder().decode(value)
+    text += new TextDecoder().decode(value, { stream: true })
   }
   return text
 }

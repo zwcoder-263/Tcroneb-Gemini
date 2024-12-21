@@ -148,5 +148,7 @@
   "rename": "重命名",
   "chatAnything": "隨便聊天",
   "changeChatLayout": "更改聊天佈局",
-  "checkForUpdate": "檢查更新"
+  "checkForUpdate": "檢查更新",
+  "thoughts": "思考",
+  "expandThoughts": "（查看模型的思考過程）"
 }

@@ -148,5 +148,7 @@
   "rename": "Переименовать",
   "chatAnything": "Чат на любую тему",
   "changeChatLayout": "Изменить макет чата",
-  "checkForUpdate": "Проверить обновления"
+  "checkForUpdate": "Проверить обновления",
+  "thoughts": "Мысли",
+  "expandThoughts": "(Просмотреть процесс мышления модели)"
 }

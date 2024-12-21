@@ -34,7 +34,7 @@ import { summarizePrompt, getVoiceModelPrompt, getSummaryPrompt, getTalkAudioPro
 import { AudioRecorder } from '@/utils/Recorder'
 import AudioStream from '@/utils/AudioStream'
 import PromiseQueue from '@/utils/PromiseQueue'
-import textStream, { streamToText } from '@/utils/textStream'
+import { textStream, simpleTextStream } from '@/utils/textStream'
 import { encodeToken } from '@/utils/signature'
 import type { FileManagerOptions } from '@/utils/FileManager'
 import { fileUpload, imageUpload } from '@/utils/upload'
@@ -50,7 +50,7 @@ import { type OpenAPIV3_1 } from 'openapi-types'
 interface AnswerParams {
   messages: Message[]
   model: string
-  onResponse: (readableStream: ReadableStream) => void
+  onResponse: (readableStream: ReadableStream, thoughtReadableStream: ReadableStream) => void
   onFunctionCall?: (functionCalls: FunctionCall[]) => void
   onError?: (error: string, code?: number) => void
 }
@@ -89,6 +89,7 @@ export default function Home() {
   const [siriWave, setSiriWave] = useState<SiriWave>()
   const [content, setContent] = useState<string>('')
   const [message, setMessage] = useState<string>('')
+  const [thinkingMessage, setThinkingMessage] = useState<string>('')
   const [subtitle, setSubtitle] = useState<string>('')
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [recordTime, setRecordTime] = useState<number>(0)
@@ -111,6 +112,9 @@ export default function Home() {
   }, [status, t])
   const isOldVisionModel = useMemo(() => {
     return OldVisionModel.includes(model)
+  }, [model])
+  const isThinkingModel = useMemo(() => {
+    return model.includes('-thinking')
   }, [model])
   const supportAttachment = useMemo(() => {
     return !OldTextModel.includes(model)
@@ -182,7 +186,7 @@ export default function Home() {
         safety,
       }
       if (systemInstruction) config.systemInstruction = systemInstruction
-      if (tools.length > 0) config.tools = [{ functionDeclarations: tools }]
+      if (tools.length > 0 && !isThinkingModel) config.tools = [{ functionDeclarations: tools }]
       if (apiKey !== '') {
         if (apiProxy) config.baseUrl = apiProxy
       } else {
@@ -191,47 +195,77 @@ export default function Home() {
       }
       try {
         const stream = await chat(config)
-        const readableStream = new ReadableStream({
-          async start(controller) {
-            const encoder = new TextEncoder()
-            const functionCalls: FunctionCall[][] = []
-            for await (const chunk of stream) {
-              if (stopGeneratingRef.current) return controller.close()
-              const calls = chunk.functionCalls()
-              if (calls) {
-                functionCalls.push(calls)
-              } else {
-                const text = chunk.text()
-                const encoded = encoder.encode(text)
-                controller.enqueue(encoded)
-              }
-            }
-            controller.close()
-            if (isFunction(onFunctionCall)) {
-              onFunctionCall(flatten(functionCalls))
-            }
+        let thinking = false
+        if (isThinkingModel) thinking = true
+
+        const encoder = new TextEncoder()
+        const { readable, writable } = new TransformStream({
+          transform(chunk, controller) {
+            controller.enqueue(encoder.encode(chunk))
           },
         })
-        onResponse(readableStream)
+        const { readable: thoughtReadable, writable: thoughtWritable } = new TransformStream({
+          transform(chunk, controller) {
+            controller.enqueue(encoder.encode(chunk))
+          },
+        })
+        const writer = writable.getWriter()
+        const thoughtWriter = thoughtWritable.getWriter()
+        onResponse(readable, thoughtReadable)
+
+        for await (const chunk of stream) {
+          if (stopGeneratingRef.current) return
+
+          if (chunk.candidates) {
+            chunk.candidates.forEach((item) => {
+              const textParts = item.content.parts.filter((item) => !isUndefined(item.text))
+              if (thinking && textParts.length === 2) {
+                if (textParts[0].text) {
+                  thoughtWriter.write(textParts[0].text)
+                }
+                if (textParts[1].text) {
+                  writer.write(textParts[1].text)
+                }
+                thinking = false
+              } else {
+                const text = chunk.text()
+                if (thinking) {
+                  thoughtWriter.write(text)
+                } else {
+                  writer.write(text)
+                }
+              }
+            })
+          }
+
+          const calls = chunk.functionCalls()
+          if (calls && isFunction(onFunctionCall)) {
+            onFunctionCall(flatten(calls))
+          }
+        }
+
+        writer.close()
+        thoughtWriter.close()
       } catch (error) {
         if (error instanceof Error && isFunction(onError)) {
           onError(error.message)
         }
       }
     },
-    [systemInstruction],
+    [systemInstruction, isThinkingModel],
   )
 
   const summarize = useCallback(
     async (messages: Message[]) => {
       const { summary, summarize: summarizeChat } = useMessageStore.getState()
       const { ids, prompt } = summarizePrompt(messages, summary.ids, summary.content)
+      let content = ''
       await fetchAnswer({
         messages: [{ id: 'summary', role: 'user', parts: [{ text: prompt }] }],
         model,
-        onResponse: async (readableStream) => {
-          const text = await streamToText(readableStream)
-          summarizeChat(ids, text.trim())
+        onResponse: async (text) => {
+          content += text
+          summarizeChat(ids, content.trim())
         },
       })
     },
@@ -250,15 +284,16 @@ export default function Home() {
   }, [])
 
   const handleResponse = useCallback(
-    async (data: ReadableStream) => {
+    (readableStream: ReadableStream, thoughtReadableStream: ReadableStream) => {
       const { lang, talkMode, maxHistoryLength } = useSettingStore.getState()
       const { summary, add: addMessage } = useMessageStore.getState()
       speechQueue.current = new PromiseQueue()
       setSpeechSilence(false)
       setIsThinking(true)
       let text = ''
-      await textStream({
-        readable: data,
+      let thoughtText = ''
+      textStream({
+        readable: readableStream,
         locale: lang,
         onMessage: (content) => {
           text += content
@@ -280,9 +315,10 @@ export default function Home() {
             addMessage({
               id: nanoid(),
               role: 'model',
-              parts: [{ text }],
+              parts: thoughtText !== '' ? [{ text: thoughtText }, { text }] : [{ text }],
             })
             setMessage('')
+            setThinkingMessage('')
             scrollToBottom()
           }
           setIsThinking(false)
@@ -302,8 +338,15 @@ export default function Home() {
           }
         },
       })
+      simpleTextStream({
+        readable: thoughtReadableStream,
+        onMessage: (content) => {
+          thoughtText += content
+          setThinkingMessage(thoughtText)
+        },
+      })
     },
-    [scrollToBottom, speech, summarize],
+    [scrollToBottom, speech, summarize, setThinkingMessage],
   )
 
   const handleFunctionCall = useCallback(
@@ -422,9 +465,7 @@ export default function Home() {
         await fetchAnswer({
           messages: [...messagesRef.current],
           model,
-          onResponse: (stream) => {
-            handleResponse(stream)
-          },
+          onResponse: handleResponse,
           onError: (message, code) => {
             handleError(message, code)
           },
@@ -518,15 +559,9 @@ export default function Home() {
       await fetchAnswer({
         messages,
         model,
-        onResponse: (stream) => {
-          handleResponse(stream)
-        },
-        onFunctionCall: (functionCalls) => {
-          handleFunctionCall(functionCalls)
-        },
-        onError: (message, code) => {
-          handleError(message, code)
-        },
+        onResponse: handleResponse,
+        onFunctionCall: handleFunctionCall,
+        onError: handleError,
       })
     },
     [isOldVisionModel, fetchAnswer, handleResponse, handleFunctionCall, handleError, checkAccessStatus],
@@ -551,15 +586,9 @@ export default function Home() {
       await fetchAnswer({
         messages: [...messagesRef.current],
         model,
-        onResponse: (stream) => {
-          handleResponse(stream)
-        },
-        onFunctionCall: (functionCalls) => {
-          handleFunctionCall(functionCalls)
-        },
-        onError: (message, code) => {
-          handleError(message, code)
-        },
+        onResponse: handleResponse,
+        onFunctionCall: handleFunctionCall,
+        onError: handleError,
       })
     },
     [fetchAnswer, handleResponse, handleFunctionCall, handleError, checkAccessStatus],
@@ -746,10 +775,10 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    if (isOldVisionModel || BUILD_MODE === 'export' || '__TAURI__' in window) {
+    if (isOldVisionModel || isThinkingModel || BUILD_MODE === 'export' || '__TAURI__' in window) {
       setEnablePlugin(false)
     }
-  }, [isOldVisionModel])
+  }, [isOldVisionModel, isThinkingModel])
 
   useLayoutEffect(() => {
     const setting = useSettingStore.getState()
@@ -837,7 +866,13 @@ export default function Home() {
             {isThinking ? (
               <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
                 <div className="flex gap-3 p-4 pb-1 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
-                  <MessageItem id="message" role="model" parts={[{ text: message }]} />
+                  <MessageItem
+                    id="message"
+                    role="model"
+                    parts={
+                      thinkingMessage !== '' ? [{ text: thinkingMessage }, { text: message }] : [{ text: message }]
+                    }
+                  />
                 </div>
               </div>
             ) : null}

@@ -148,5 +148,7 @@
   "rename": "名前を変更",
   "chatAnything": "何でもチャット",
   "changeChatLayout": "チャットレイアウトを変更する",
-  "checkForUpdate": "更新を確認する"
+  "checkForUpdate": "更新を確認する",
+  "thoughts": "考え",
+  "expandThoughts": "(モデルの思考プロセスを確認する)"
 }

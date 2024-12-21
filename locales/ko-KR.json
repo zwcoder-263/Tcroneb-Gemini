@@ -148,5 +148,7 @@
   "rename": "이름 변경",
   "chatAnything": "무엇이든 대화하기",
   "changeChatLayout": "채팅 레이아웃 변경",
-  "checkForUpdate": "업데이트 확인"
+  "checkForUpdate": "업데이트 확인",
+  "thoughts": "생각",
+  "expandThoughts": "(모델의 사고 과정을 검토하다)"
 }

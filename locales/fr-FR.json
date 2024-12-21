@@ -149,5 +149,7 @@
   "rename": "Renommer",
   "chatAnything": "Discuter de tout",
   "changeChatLayout": "Changer la mise en page du chat",
-  "checkForUpdate": "Vérifier les mises à jour"
+  "checkForUpdate": "Vérifier les mises à jour",
+  "thoughts": "Pensées",
+  "expandThoughts": "(Examiner le processus de réflexion du modèle)"
 }
