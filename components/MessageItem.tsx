@@ -5,7 +5,6 @@ import Lightbox from 'yet-another-react-lightbox'
 import LightboxFullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
 import MarkdownIt from 'markdown-it'
 import markdownHighlight from 'markdown-it-highlightjs'
-import highlight from 'highlight.js'
 import markdownKatex from '@traptitech/markdown-it-katex'
 import Clipboard from 'clipboard'
 import {
@@ -275,7 +274,7 @@ function MessageItem(props: Props) {
                 'copy',
               )}</span>
             </div>
-            ${highlight.getLanguage(lang) ? highlightRender(...params) : null}
+            ${highlightRender(...params)}
           </div>
         `
       }

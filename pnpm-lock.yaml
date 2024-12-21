@@ -108,8 +108,8 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1
       katex:
-        specifier: ^0.16.10
-        version: 0.16.10
+        specifier: ^0.16.18
+        version: 0.16.18
       localforage:
         specifier: ^1.10.0
         version: 1.10.0
@@ -2180,8 +2180,8 @@ packages:
     resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ==}
     engines: {node: '>=4.0'}
 
-  katex@0.16.10:
-    resolution: {integrity: sha512-ZiqaC04tp2O5utMsl2TEZTXxa6WSC4yo0fv5ML++D3QZv/vx2Mct0mTlRx3O+uUkjfuAgOkzsCmq5MiUEsDDdA==}
+  katex@0.16.18:
+    resolution: {integrity: sha512-LRuk0rPdXrecAFwQucYjMiIs0JFefk6N1q/04mlw14aVIVgxq1FO0MA9RiIIGVaKOB5GIP5GH4aBBNraZERmaQ==}
     hasBin: true
 
   keyv@4.5.4:
@@ -4124,7 +4124,7 @@ snapshots:
 
   '@traptitech/markdown-it-katex@3.6.0':
     dependencies:
-      katex: 0.16.10
+      katex: 0.16.18
 
   '@types/json-schema@7.0.15': {}
 
@@ -5336,7 +5336,7 @@ snapshots:
       object.assign: 4.1.5
       object.values: 1.2.0
 
-  katex@0.16.10:
+  katex@0.16.18:
     dependencies:
       commander: 8.3.0
 
