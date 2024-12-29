@@ -99,7 +99,6 @@ function ConversationItem(props: Props) {
     const conversation = query(id)
     const config: RequestProps = {
       apiKey,
-      model,
       lang,
       messages: id === currentId ? messages : conversation.messages,
       systemRole: id === currentId ? systemInstruction : conversation.systemInstruction,

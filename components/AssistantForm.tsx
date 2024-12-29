@@ -27,7 +27,7 @@ const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 12)
 
 const assistantSchema = {
   author: '',
-  createAt: dayjs().format('YYYY-MM-DD'),
+  createdAt: dayjs().format('YYYY-MM-DD'),
   homepage: '',
   identifier: '',
   meta: {

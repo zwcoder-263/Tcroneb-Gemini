@@ -230,7 +230,7 @@ function AssistantMarket(props: AssistantProps) {
           </CardHeader>
           <CardContent className="text-line-clamp-2 mb-2 h-10 px-4 text-sm">{assistant.meta.description}</CardContent>
           <CardFooter className="flex justify-between p-3 px-4 pt-0 text-sm">
-            <span>{assistant.createAt}</span>
+            <span>{assistant.createdAt}</span>
             {assistant.author ? (
               <a
                 className="inline-block underline-offset-4 hover:underline"

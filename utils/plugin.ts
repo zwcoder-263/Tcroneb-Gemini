@@ -114,3 +114,7 @@ export function parsePlugin(id: string, plugin: OpenAPIDocument): FunctionDeclar
   }
   return tools
 }
+
+export function parseSpiceBody(body: any, regex = /^ddg_spice_[\w]+\(\n?((?:.|\n)+)\n?\);?/) {
+  return JSON.parse(regex.exec(body.toString())![1])
+}

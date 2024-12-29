@@ -32,7 +32,7 @@ declare global {
 
   interface Assistant {
     author: string
-    createAt: string
+    createdAt: string
     homepage: string
     identifier: string
     meta: {
@@ -102,19 +102,15 @@ declare global {
     status: 'STATE_UNSPECIFIED' | 'PROCESSING' | 'ACTIVE' | 'FAILED'
   }
 
-  interface GatewayParams<T = unknown> {
-    [name: string]: T
-  }
-
   interface GatewayPayload {
     baseUrl: string
     method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
-    body?: GatewayParams
-    formData?: GatewayParams<string>
-    headers?: GatewayParams<string>
-    path?: GatewayParams<string>
-    query?: GatewayParams<string>
-    cookie?: GatewayParams<string>
+    body?: any
+    formData?: any
+    headers?: Record<string, string>
+    path?: Record<string, string>
+    query?: Record<string, string>
+    cookie?: Record<string, string>
   }
 
   interface Model {

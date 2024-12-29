@@ -4,7 +4,6 @@ import { getSummaryTitlePrompt } from '@/utils/prompt'
 export type RequestProps = {
   apiKey: string
   baseUrl?: string
-  model?: string
   lang: string
   systemRole: string
   messages: Message[]
@@ -18,9 +17,9 @@ The content in the \`<conversation></conversation>\` tag is the conversation, th
 `
 
 export default async function summaryTitle(props: RequestProps) {
-  const { apiKey, model = 'gemini-pro', baseUrl, lang, systemRole, messages } = props
+  const { apiKey, baseUrl, lang, systemRole, messages } = props
   const genAI = new GoogleGenerativeAI(apiKey)
-  const geminiModel = genAI.getGenerativeModel({ model, systemInstruction }, { baseUrl })
+  const geminiModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest', systemInstruction }, { baseUrl })
   const { stream } = await geminiModel.generateContentStream([getSummaryTitlePrompt(lang, messages, systemRole)])
   return new ReadableStream({
     async start(controller) {

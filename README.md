@@ -11,8 +11,6 @@ Deploy your private Gemini application for free with one click, supporting Gemin
 
 **English** · [简体中文](./README.zh-CN.md)
 
-[![GeminiNextChat](https://trendshift.io/api/badge/repositories/10384)](https://trendshift.io/repositories/10384)
-
 [![Gemini](https://img.shields.io/badge/Gemini-8E75B2?style=flat&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
 [![Next](https://img.shields.io/badge/Next.js-000000?style=flat&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)

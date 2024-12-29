@@ -6,7 +6,24 @@ import ResponsiveDialog from '@/components/ResponsiveDialog'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import type { SearchResult } from 'duck-duck-scrape'
+
+interface SearchResult {
+  /** The hostname of the website. (i.e. "google.com") */
+  hostname: string
+  /** The URL of the result. */
+  url: string
+  /** The title of the result. */
+  title: string
+  /**
+   * The sanitized description of the result.
+   * Bold tags will still be present in this string.
+   */
+  description: string
+  /** The description of the result. */
+  rawDescription: string
+  /** The icon of the website. */
+  icon: string
+}
 
 type Props = {
   data: SearchResult[]

@@ -28,7 +28,8 @@ import { useMessageStore } from '@/store/chat'
 import { useAttachmentStore } from '@/store/attachment'
 import { useSettingStore } from '@/store/setting'
 import { usePluginStore } from '@/store/plugin'
-import i18n from '@/plugins/i18n'
+import { pluginHandle } from '@/plugins'
+import i18n from '@/utils/i18n'
 import chat, { type RequestProps } from '@/utils/chat'
 import { summarizePrompt, getVoiceModelPrompt, getSummaryPrompt, getTalkAudioPrompt } from '@/utils/prompt'
 import { AudioRecorder } from '@/utils/Recorder'
@@ -213,6 +214,8 @@ export default function Home() {
         const thoughtWriter = thoughtWritable.getWriter()
         onResponse(readable, thoughtReadable)
 
+        const functionCalls: FunctionCall[][] = []
+
         for await (const chunk of stream) {
           if (stopGeneratingRef.current) return
 
@@ -239,13 +242,15 @@ export default function Home() {
           }
 
           const calls = chunk.functionCalls()
-          if (calls && isFunction(onFunctionCall)) {
-            onFunctionCall(flatten(calls))
-          }
+          if (calls) functionCalls.push(calls)
         }
 
         writer.close()
         thoughtWriter.close()
+
+        if (isFunction(onFunctionCall)) {
+          onFunctionCall(flatten(functionCalls))
+        }
       } catch (error) {
         if (error instanceof Error && isFunction(onError)) {
           onError(error.message)
@@ -417,20 +422,35 @@ export default function Home() {
         if (!isEmpty(headers)) payload.headers = headers
         if (!isEmpty(path)) payload.path = path
         if (!isEmpty(query)) payload.query = query
-        if (!isEmpty(cookie)) payload.cookie = cookie
+        // if (!isEmpty(cookie)) payload.cookie = cookie
         try {
-          const apiResponse = await fetch(
-            baseUrl.startsWith('/api/plugin') ? `${payload.baseUrl}?token=${token}` : `/api/gateway?token=${token}`,
-            {
-              method: 'POST',
-              body: JSON.stringify(payload),
-            },
-          )
-          const result = await apiResponse.json()
-          if (apiResponse.status !== 200) {
-            throw new Error(result?.message || apiResponse.statusText)
+          if (baseUrl.startsWith('@plugins/')) {
+            const result = await pluginHandle(pluginId, payload)
+            pluginExecuteResults[call.name] = result
+          } else {
+            let url = payload.baseUrl
+            const options: RequestInit = {
+              method: payload.method,
+            }
+            if (payload.query) {
+              const searchParams = new URLSearchParams(payload.query)
+              url += `?${searchParams.toString()}`
+            }
+            if (payload.path) {
+              for (const key in payload.path) {
+                url.replaceAll(`{${key}}`, payload.path[key])
+              }
+            }
+            if (payload.headers) options.headers = payload.headers
+            if (payload.body) options.body = payload.body
+            if (payload.formData) options.body = payload.formData
+            const apiResponse = await fetch(url, options)
+            const result = await apiResponse.json()
+            if (apiResponse.status !== 200) {
+              throw new Error(result?.message || apiResponse.statusText)
+            }
+            pluginExecuteResults[call.name] = result
           }
-          pluginExecuteResults[call.name] = result
           const executingPluginsStatus = executingPlugins.filter((name) => name !== call.name)
           setExecutingPlugins([...executingPluginsStatus])
         } catch (err) {
@@ -702,6 +722,11 @@ export default function Home() {
     },
     [handleFileUpload],
   )
+
+  const handleStopGenerate = useCallback(() => {
+    stopGeneratingRef.current = true
+    setIsThinking(false)
+  }, [])
 
   const genPluginStatusPart = useCallback((plugins: string[]) => {
     const parts = []
@@ -991,7 +1016,7 @@ export default function Home() {
             title={t('stop')}
             variant="secondary"
             size="icon"
-            onClick={() => (stopGeneratingRef.current = true)}
+            onClick={() => handleStopGenerate()}
           >
             <Square />
           </Button>

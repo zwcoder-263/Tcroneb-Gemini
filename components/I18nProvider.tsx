@@ -2,7 +2,7 @@
 import { useLayoutEffect } from 'react'
 import { I18nextProvider } from 'react-i18next'
 import { useSettingStore } from '@/store/setting'
-import i18n from '@/plugins/i18n'
+import i18n from '@/utils/i18n'
 
 function I18Provider({ children }: { children: React.ReactNode }) {
   const { lang } = useSettingStore()

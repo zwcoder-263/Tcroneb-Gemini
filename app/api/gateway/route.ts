@@ -1,22 +1,17 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { handleError } from '../utils'
-import { isBase64, base64ToBlob } from '@/utils/common'
-import { isEmpty, entries, values, isString, isNull } from 'lodash-es'
+import { isEmpty, entries, values, isNull, isUndefined } from 'lodash-es'
 
 export const runtime = 'edge'
 export const preferredRegion = ['cle1', 'iad1', 'pdx1', 'sfo1', 'sin1', 'syd1', 'hnd1', 'kix1']
 
-const mode = process.env.NEXT_PUBLIC_BUILD_MODE
-
 export async function POST(req: NextRequest) {
-  if (mode === 'export') return new NextResponse('Not available under static deployment')
-
   try {
     const {
       baseUrl,
       method = 'get',
-      body = {},
-      formData = {},
+      body,
+      formData,
       headers = {},
       path = {},
       query = {},
@@ -24,16 +19,8 @@ export async function POST(req: NextRequest) {
     } = (await req.json()) as GatewayPayload
     let url = baseUrl
     let payload = null
-    if (!isEmpty(formData)) {
-      const newFormData = new FormData()
-      for (const [name, value] of entries(formData)) {
-        if (isBase64(value)) {
-          newFormData.append(name, base64ToBlob(value))
-        } else if (isString(value)) {
-          newFormData.append(name, value)
-        }
-      }
-      payload = newFormData
+    if (!isUndefined(formData)) {
+      payload = formData
     } else {
       payload = body
     }

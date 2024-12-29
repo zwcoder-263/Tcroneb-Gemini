@@ -23,7 +23,6 @@ import {
   Blocks,
 } from 'lucide-react'
 import { EdgeSpeech } from '@xiangfa/polly'
-import type { SearchResult } from 'duck-duck-scrape'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import BubblesLoading from '@/components/BubblesLoading'
@@ -32,7 +31,6 @@ import EditableArea from '@/components/EditableArea'
 import AudioPlayer from '@/components/AudioPlayer'
 import IconButton from '@/components/IconButton'
 import Button from '@/components/Button'
-import WebSearch from '@/components/plugins/WebSearch'
 import Weather, { type WeatherResult } from '@/components/plugins/Weather'
 import Unsplash from '@/components/plugins/Unsplash'
 import Arxiv from '@/components/plugins/Arxiv'
@@ -42,7 +40,7 @@ import { usePluginStore } from '@/store/plugin'
 import AudioStream from '@/utils/AudioStream'
 import { sentenceSegmentation } from '@/utils/common'
 import { cn } from '@/utils'
-import { OFFICAL_PLUGINS } from '@/constant/plugins'
+import { OFFICAL_PLUGINS } from '@/plugins'
 import { upperFirst, isFunction, find, isUndefined } from 'lodash-es'
 
 import 'katex/dist/katex.min.css'
@@ -342,9 +340,6 @@ function MessageItem(props: Props) {
                 <CircleCheck className="ml-1.5 h-5 w-5" />
               </Button>
             </div>
-            {detail.id === OFFICAL_PLUGINS.SEARCH ? (
-              <WebSearch data={detail.response.content as SearchResult[]} />
-            ) : null}
             {detail.id === OFFICAL_PLUGINS.WEATHER ? <Weather data={detail.response.content as WeatherResult} /> : null}
             {detail.id === OFFICAL_PLUGINS.UNSPLASH ? (
               <Unsplash data={detail.response.content as UnsplashImage[]} />

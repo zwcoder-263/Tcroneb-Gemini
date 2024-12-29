@@ -24,6 +24,8 @@ type PluginStoreProps = {
   onClose: () => void
 }
 
+const BUILD_MODE = process.env.NEXT_PUBLIC_BUILD_MODE
+
 const pluginManifestSchema = z.object({
   name_for_human: z.string(),
   name_for_model: z.string(),
@@ -149,12 +151,8 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
       }
       loadingList.push(id)
       setLoadingList([...loadingList])
-      const token = encodeToken(password)
-      const response = await fetch(`/api/plugins?token=${token}`, {
-        method: 'POST',
-        body: manifest.api.url,
-      })
-      const result: OpenAPIDocument = await response.json()
+      const response = await fetch(manifest.api.url)
+      const result = await response.json()
       if (result.paths) {
         installPlugin(id, result)
       } else {
@@ -165,7 +163,7 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
       }
       setLoadingList(loadingList.filter((pluginId) => pluginId !== id))
     },
-    [password, loadingList, pluginList, installPlugin, toast, t],
+    [loadingList, pluginList, installPlugin, toast, t],
   )
 
   const handleUninstall = useCallback(
@@ -198,11 +196,8 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
         throw new TypeError('OpenAPI Manifest Invalid', { cause: parser.error })
       }
       setCustomPlugin(parser.data as PluginManifest)
-      const response = await fetch(`/api/plugins?token=${token}`, {
-        method: 'POST',
-        body: manifest.api.url,
-      })
-      const result: OpenAPIDocument = await response.json()
+      const response = await fetch(manifest.api.url)
+      const result = await response.json()
       if (result.paths) {
         setPluginDetail(JSON.stringify(result, null, 4))
       }
@@ -218,57 +213,50 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
       })
       return false
     }
-    const token = encodeToken(password)
-    const response = await fetch(`/api/plugins?token=${token}`, {
-      method: 'POST',
-      body: pluginDetail,
-    })
-    if (response.status === 200) {
-      const pluginConfig: OpenAPIDocument = await response.json()
-      if (customPlugin.api.url === '') {
-        try {
-          const manifest = {
-            name_for_human: pluginConfig.info.title,
-            name_for_model: snakeCase(pluginConfig.info.title),
-            description_for_human: pluginConfig.info.description || pluginConfig.info.title,
-            description_for_model: pluginConfig.info.description || pluginConfig.info.title,
-            api: {
-              is_user_authenticated: false,
-              type: 'openapi',
-              url: '',
-            },
-            auth: {
-              type: 'none',
-            },
-            logo_url: '',
-            contact_email: pluginConfig.info.contact?.email || '',
-            legal_info_url: pluginConfig.info.termsOfService || '',
-            schema_version: pluginConfig.info.version,
-          }
-          setCustomPlugin(manifest)
-          addPlugin(manifest)
-          setCurrentTab('list')
-          setCustomPlugin(deafultCustomPlugin)
-          setPluginDetail('')
-          installPlugin(manifest.name_for_model, pluginConfig)
-        } catch (err) {
-          toast({
-            title: t('pluginLoadingFailed'),
-            description: t('pluginLoadingFailedDesc'),
-          })
+    let pluginConfig
+    try {
+      pluginConfig = JSON.parse(pluginDetail)
+    } catch (err) {
+      const { default: YAML } = await import('yaml')
+      pluginConfig = YAML.parse(pluginDetail)
+    }
+    if (customPlugin.api.url === '') {
+      try {
+        const manifest = {
+          name_for_human: pluginConfig.info.title,
+          name_for_model: snakeCase(pluginConfig.info.title),
+          description_for_human: pluginConfig.info.description || pluginConfig.info.title,
+          description_for_model: pluginConfig.info.description || pluginConfig.info.title,
+          api: {
+            is_user_authenticated: false,
+            type: 'openapi',
+            url: '',
+          },
+          auth: {
+            type: 'none',
+          },
+          logo_url: '',
+          contact_email: pluginConfig.info.contact?.email || '',
+          legal_info_url: pluginConfig.info.termsOfService || '',
+          schema_version: pluginConfig.info.version,
         }
-      } else {
-        addPlugin(customPlugin)
+        setCustomPlugin(manifest)
+        addPlugin(manifest)
         setCurrentTab('list')
         setCustomPlugin(deafultCustomPlugin)
         setPluginDetail('')
+        installPlugin(manifest.name_for_model, pluginConfig)
+      } catch (err) {
+        toast({
+          title: t('pluginLoadingFailed'),
+          description: t('pluginLoadingFailedDesc'),
+        })
       }
     } else {
-      const result: ErrorResponse = await response.json()
-      toast({
-        title: t('pluginLoadingFailed'),
-        description: result.message,
-      })
+      addPlugin(customPlugin)
+      setCurrentTab('list')
+      setCustomPlugin(deafultCustomPlugin)
+      setPluginDetail('')
     }
   }
 
@@ -406,12 +394,14 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
                   {t('loadingConfig')}
                 </Button>
               </div>
-              <div className="my-2 flex gap-2">
-                <Checkbox id="proxy" onCheckedChange={(checkedState) => setUseProxy(!!checkedState)} />
-                <label htmlFor="proxy" className="text-sm font-medium leading-4">
-                  {t('pluginServerProxy')}
-                </label>
-              </div>
+              {BUILD_MODE !== 'export' ? (
+                <div className="my-2 flex gap-2">
+                  <Checkbox id="proxy" onCheckedChange={(checkedState) => setUseProxy(!!checkedState)} />
+                  <label htmlFor="proxy" className="text-sm font-medium leading-4">
+                    {t('pluginServerProxy')}
+                  </label>
+                </div>
+              ) : null}
             </div>
             <div className="mb-3">
               <Card className="transition-colors dark:hover:border-white/80">

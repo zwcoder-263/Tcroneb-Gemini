@@ -21,7 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useToast } from '@/components/ui/use-toast'
 import { usePluginStore } from '@/store/plugin'
 import { parsePlugin } from '@/utils/plugin'
-import officialPlugin, { OFFICAL_PLUGINS } from '@/constant/plugins'
+import { officialPlugins, OFFICAL_PLUGINS } from '@/plugins'
 import { keys, values, find } from 'lodash-es'
 
 const PluginMarket = dynamic(() => import('@/components/PluginMarket'))
@@ -52,15 +52,15 @@ function PluginList() {
 
   const handleUsePlugin = useCallback(
     (id: string, enabled: boolean) => {
-      const manifest = officialPlugin[id] || installed[id]
+      const manifest = officialPlugins[id] || installed[id]
       if (manifest) {
         const pluginTools = parsePlugin(id, manifest)
         if (enabled) {
           pluginTools.every((tool) => addTool(tool))
-          if (officialPlugin[id]) installPlugin(id, manifest)
+          if (officialPlugins[id]) installPlugin(id, manifest)
         } else {
           pluginTools.every((tool) => removeTool(tool.name))
-          if (officialPlugin[id]) uninstallPlugin(id)
+          if (officialPlugins[id]) uninstallPlugin(id)
         }
       } else {
         toast({
