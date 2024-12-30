@@ -33,6 +33,7 @@ type SettingProps = {
   onClose: () => void
 }
 
+const BUILD_MODE = process.env.NEXT_PUBLIC_BUILD_MODE as string
 const GEMINI_MODEL_LIST = process.env.NEXT_PUBLIC_GEMINI_MODEL_LIST
 
 const formSchema = z.object({
@@ -62,10 +63,9 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
   const pwaInstall = usePWAInstall()
   const settingStore = useSettingStore()
   const modelStore = useModelStore()
+  const isProtected = useSettingStore((state) => state.isProtected)
   const [ttsLang, setTtsLang] = useState<string>('')
-  const isProtected = useMemo(() => {
-    return settingStore.isProtected
-  }, [settingStore.isProtected])
+  const [hiddenPasswordInput, setHiddenPasswordInput] = useState<boolean>(false)
   const voiceOptions = useMemo(() => {
     return new EdgeSpeech({ locale: ttsLang }).voiceOptions || []
   }, [ttsLang])
@@ -164,12 +164,17 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
     if (open && !cachedModelList) {
       const { update } = useModelStore.getState()
       const { apiKey, apiProxy, password } = useSettingStore.getState()
-      fetchModels({ apiKey, apiProxy, password }).then((models) => {
-        if (models.length > 0) {
-          update(models)
-          cachedModelList = true
-        }
-      })
+      if (apiKey || password) {
+        fetchModels({ apiKey, apiProxy, password }).then((models) => {
+          if (models.length > 0) {
+            update(models)
+            cachedModelList = true
+          }
+        })
+      }
+    }
+    if (BUILD_MODE === 'export') {
+      setHiddenPasswordInput(true)
     }
   }, [open])
 
@@ -209,26 +214,28 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
             </TabsList>
             <TabsContent value="general">
               <div className="grid w-full gap-4 px-4 py-4 max-sm:px-0">
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-4 items-center gap-4 space-y-0">
-                      <FormLabel className="text-right">
-                        {isProtected ? <span className="leading-12 mr-1 text-red-500">*</span> : null}
-                        {t('accessPassword')}
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          className="col-span-3"
-                          type="password"
-                          placeholder={t('accessPasswordPlaceholder')}
-                          {...field}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                {!hiddenPasswordInput ? (
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem className="grid grid-cols-4 items-center gap-4 space-y-0">
+                        <FormLabel className="text-right">
+                          {isProtected ? <span className="leading-12 mr-1 text-red-500">*</span> : null}
+                          {t('accessPassword')}
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            className="col-span-3"
+                            type="password"
+                            placeholder={t('accessPasswordPlaceholder')}
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                ) : null}
                 <FormField
                   control={form.control}
                   name="assistantIndexUrl"
