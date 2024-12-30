@@ -13,11 +13,9 @@ type ConversationStore = {
   remove: (id: string) => void
   pin: (id: string) => void
   unpin: (id: string) => void
-  copy: (id: string) => void
+  copy: (id: string, newId: string) => void
   setCurrentId: (id: string) => void
 }
-
-const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 12)
 
 export const useConversationStore = create(
   persist<ConversationStore>(
@@ -43,11 +41,10 @@ export const useConversationStore = create(
         const newPinned = get().pinned.filter((item) => item !== id)
         set(() => ({ pinned: newPinned }))
       },
-      copy: (id) => {
+      copy: (id, newId) => {
         set((state) => {
           const list = state.conversationList
           const original = state.query(id)
-          const newId = nanoid()
           list[newId] = { ...original }
           return { conversationList: { ...list } }
         })

@@ -71,7 +71,7 @@ function ConversationItem(props: Props) {
   const { setTitle } = useMessageStore()
   const [customTitle, setCustomTitle] = useState<string>(title)
   const [editTitleMode, setEditTitleMode] = useState<boolean>(false)
-  const conversationTitle = useMemo(() => (title === '' ? t('chatAnything') : title), [title, t])
+  const conversationTitle = useMemo(() => (title ? title : t('chatAnything')), [title, t])
 
   const handleSelect = useCallback((id: string) => {
     const { currentId, query, addOrUpdate, setCurrentId } = useConversationStore.getState()
@@ -93,7 +93,7 @@ function ConversationItem(props: Props) {
   )
 
   const handleSummaryTitle = useCallback(async (id: string) => {
-    const { lang, apiKey, apiProxy, model, password } = useSettingStore.getState()
+    const { lang, apiKey, apiProxy, password } = useSettingStore.getState()
     const { currentId, query, addOrUpdate } = useConversationStore.getState()
     const { messages, systemInstruction, setTitle } = useMessageStore.getState()
     const conversation = query(id)
@@ -116,10 +116,44 @@ function ConversationItem(props: Props) {
       const { done, value } = await reader.read()
       if (done) break
       content += new TextDecoder().decode(value)
-      addOrUpdate(id, { ...conversation, title: content })
     }
+    addOrUpdate(id, { ...conversation, title: content })
     if (id === currentId) setTitle(content)
   }, [])
+
+  const handleCopy = useCallback(
+    (id: string) => {
+      const { query, addOrUpdate } = useConversationStore.getState()
+      const { backup } = useMessageStore.getState()
+      let conversation
+      const newId = nanoid()
+      if (id === 'default') {
+        conversation = backup()
+        addOrUpdate(newId, conversation)
+      } else {
+        conversation = query(id)
+        copy(id, newId)
+      }
+      if (!conversation.title) {
+        handleSummaryTitle(newId)
+      }
+    },
+    [handleSummaryTitle, copy],
+  )
+
+  const handleDelete = useCallback(
+    (id: string) => {
+      const { currentId, setCurrentId, query } = useConversationStore.getState()
+      const { restore } = useMessageStore.getState()
+      if (id === currentId) {
+        setCurrentId('default')
+        const newConversation = query('default')
+        restore(newConversation)
+      }
+      remove(id)
+    },
+    [remove],
+  )
 
   return (
     <div
@@ -177,7 +211,7 @@ function ConversationItem(props: Props) {
                   )}
                 </DropdownMenuItem>
               ) : null}
-              <DropdownMenuItem onClick={() => copy(id)}>
+              <DropdownMenuItem onClick={() => handleCopy(id)}>
                 <Copy />
                 <span>{t('newCopy')}</span>
               </DropdownMenuItem>
@@ -192,7 +226,7 @@ function ConversationItem(props: Props) {
                     <PencilLine />
                     <span>{t('rename')}</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-red-500" onClick={() => remove(id)}>
+                  <DropdownMenuItem className="text-red-500" onClick={() => handleDelete(id)}>
                     <Trash />
                     <span>{t('delete')}</span>
                   </DropdownMenuItem>

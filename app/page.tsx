@@ -802,6 +802,8 @@ export default function Home() {
   useEffect(() => {
     if (isOldVisionModel || isThinkingModel || BUILD_MODE === 'export' || '__TAURI__' in window) {
       setEnablePlugin(false)
+    } else {
+      setEnablePlugin(true)
     }
   }, [isOldVisionModel, isThinkingModel])
 
