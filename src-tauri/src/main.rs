@@ -3,12 +3,9 @@
 
 use tauri::{
     Manager,
-    Size,
-    LogicalSize,
     menu::{MenuBuilder, MenuItemBuilder},
-    tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
+    tray::{TrayIconBuilder},
 };
-use tauri_plugin_positioner::{Position, WindowExt};
 
 fn main() {
     tauri::Builder::default()

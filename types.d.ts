@@ -20,7 +20,6 @@ declare global {
     talkMode: 'chat' | 'voice'
     maxHistoryLength: number
     assistantIndexUrl: string
-    uploadProxy: string
     topP: number
     topK: number
     temperature: number

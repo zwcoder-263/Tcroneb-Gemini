@@ -695,11 +695,9 @@ export default function Home() {
         if (isOldVisionModel) {
           await imageUpload({ files: fileList, addAttachment, updateAttachment })
         } else {
-          const { apiKey, apiProxy, uploadProxy, password } = useSettingStore.getState()
+          const { apiKey, apiProxy, password } = useSettingStore.getState()
           const options: FileManagerOptions =
-            apiKey !== ''
-              ? { apiKey, baseUrl: apiProxy, uploadUrl: uploadProxy }
-              : { token: encodeToken(password), uploadUrl: uploadProxy }
+            apiKey !== '' ? { apiKey, baseUrl: apiProxy } : { token: encodeToken(password) }
 
           await fileUpload({ files: fileList, fileManagerOptions: options, addAttachment, updateAttachment })
         }

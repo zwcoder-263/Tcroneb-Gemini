@@ -69,6 +69,8 @@
   "autoStopRecord": "녹음 자동 종료",
   "settingEnable": "활성화되었습니다",
   "settingDisable": "비활성화됨",
+  "resetSetting": "설정 초기화",
+  "resetAllSettings": "모든 설정 초기화",
   "plugin": "플러그인",
   "version": "현재 버전",
   "officialPlugins": "공식 플러그인",

@@ -4,8 +4,7 @@ import { ErrorType } from '@/constant/errors'
 import { isUndefined } from 'lodash-es'
 
 const geminiApiKey = process.env.GEMINI_API_KEY as string
-const geminiApiBaseUrl = process.env.GEMINI_API_BASE_URL as string
-const geminiUploadProxyUrl = process.env.GEMINI_UPLOAD_BASE_URL || 'https://generativelanguage.googleapis.com'
+const geminiApiBaseUrl = process.env.GEMINI_API_BASE_URL || 'https://generativelanguage.googleapis.com'
 const mode = process.env.NEXT_PUBLIC_BUILD_MODE
 
 export const runtime = 'edge'
@@ -23,7 +22,6 @@ export async function GET(req: NextRequest) {
   const fileManager = new FileManager({
     apiKey: geminiApiKey,
     baseUrl: geminiApiBaseUrl,
-    uploadUrl: geminiUploadProxyUrl,
   })
   const result = await fileManager.getFileMetadata(id)
   return NextResponse.json(result)
@@ -32,7 +30,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   req.nextUrl.searchParams.append('key', geminiApiKey)
   const blob = await req.blob()
-  const response = await fetch(`${geminiUploadProxyUrl}/upload/v1beta/files?${req.nextUrl.searchParams.toString()}`, {
+  const response = await fetch(`${geminiApiBaseUrl}/upload/v1beta/files?${req.nextUrl.searchParams.toString()}`, {
     method: 'POST',
     body: blob,
   })
@@ -42,7 +40,7 @@ export async function POST(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   req.nextUrl.searchParams.append('key', geminiApiKey)
   const blob = await req.blob()
-  const response = await fetch(`${geminiUploadProxyUrl}/upload/v1beta/files?${req.nextUrl.searchParams.toString()}`, {
+  const response = await fetch(`${geminiApiBaseUrl}/upload/v1beta/files?${req.nextUrl.searchParams.toString()}`, {
     method: 'PUT',
     body: blob,
   })

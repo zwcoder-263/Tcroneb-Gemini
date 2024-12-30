@@ -23,7 +23,7 @@ import locales from '@/constant/locales'
 import { Model } from '@/constant/model'
 import { useSettingStore } from '@/store/setting'
 import { useModelStore } from '@/store/model'
-import { toPairs, values, keys, omitBy, isFunction } from 'lodash-es'
+import { toPairs, values, keys, omitBy, isFunction, find } from 'lodash-es'
 
 import pkg from '@/package.json'
 
@@ -42,13 +42,12 @@ const formSchema = z.object({
   lang: z.string().optional(),
   apiKey: z.string().optional(),
   apiProxy: z.string().url({ message: 'Invalid url' }).optional(),
-  uploadProxy: z.string().url({ message: 'Invalid url' }).optional(),
   model: z.string(),
   maxHistoryLength: z.number().gte(0).lte(50).optional().default(0),
-  topP: z.number().gte(0).lte(1).default(0.95),
-  topK: z.number().gte(0).lte(128).default(40),
-  temperature: z.number().gte(0).lte(1).default(1),
-  maxOutputTokens: z.number().gte(0).lte(8192).default(8192),
+  topP: z.number(),
+  topK: z.number(),
+  temperature: z.number(),
+  maxOutputTokens: z.number(),
   safety: z.enum(['none', 'low', 'middle', 'high']).default('none'),
   sttLang: z.string().optional(),
   ttsLang: z.string().optional(),
@@ -61,7 +60,7 @@ let cachedModelList = false
 function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
   const { t } = useTranslation()
   const pwaInstall = usePWAInstall()
-  const settingStore = useSettingStore()
+  const { update, reset } = useSettingStore()
   const modelStore = useModelStore()
   const isProtected = useSettingStore((state) => state.isProtected)
   const [ttsLang, setTtsLang] = useState<string>('')
@@ -152,12 +151,31 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
     })
   }
 
+  const handleModelChange = useCallback(
+    (name: string) => {
+      const currentModel = find(modelStore.models, { name: `models/${name}` })
+      if (currentModel) {
+        const { topP, topK, temperature, outputTokenLimit } = currentModel
+        if (topP) form.setValue('topP', topP)
+        if (topK) form.setValue('topK', topK)
+        if (temperature) form.setValue('temperature', temperature)
+        if (outputTokenLimit) form.setValue('maxOutputTokens', outputTokenLimit)
+      }
+    },
+    [form, modelStore.models],
+  )
+
+  const handleReset = useCallback(() => {
+    const defaultValues = reset()
+    form.reset(defaultValues)
+  }, [reset, form])
+
   const handleSubmit = useCallback(
     (values: z.infer<typeof formSchema>) => {
-      settingStore.update(values as Partial<Setting>)
+      update(values as Partial<Setting>)
       onClose()
     },
-    [onClose, settingStore],
+    [onClose, update],
   )
 
   useLayoutEffect(() => {
@@ -238,18 +256,6 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                 ) : null}
                 <FormField
                   control={form.control}
-                  name="assistantIndexUrl"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-4 items-center gap-4 space-y-0">
-                      <FormLabel className="text-right">{t('assistantMarketUrl')}</FormLabel>
-                      <FormControl>
-                        <Input className="col-span-3" placeholder={t('assistantMarketUrl')} {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
                   name="lang"
                   render={({ field }) => (
                     <FormItem className="grid grid-cols-4 items-center gap-4 space-y-0">
@@ -270,12 +276,27 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                 {pwaInstall ? (
                   <div className="grid grid-cols-4 items-center gap-4 space-y-0">
                     <Label className="text-right">{t('installPwa')}</Label>
-                    <Button className="col-span-3" variant="ghost" onClick={() => pwaInstall()}>
+                    <Button className="col-span-3" type="button" variant="ghost" onClick={() => pwaInstall()}>
                       <MonitorDown className="mr-1.5 h-4 w-4" />
                       {t('pwaInstall')}
                     </Button>
                   </div>
                 ) : null}
+                <div className="grid grid-cols-4 items-center gap-4 space-y-0">
+                  <Label className="text-right">{t('resetSetting')}</Label>
+                  <Button
+                    className="col-span-3 hover:text-red-500"
+                    type="button"
+                    variant="ghost"
+                    onClick={(ev) => {
+                      ev.stopPropagation()
+                      ev.preventDefault()
+                      handleReset()
+                    }}
+                  >
+                    {t('resetAllSettings')}
+                  </Button>
+                </div>
                 <div className="grid grid-cols-4 items-center gap-4 space-y-0">
                   <Label className="text-right">{t('version')}</Label>
                   <div className="col-span-3 text-center leading-10">
@@ -319,6 +340,37 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                 />
                 <FormField
                   control={form.control}
+                  name="model"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-4 items-center gap-4 space-y-0">
+                      <FormLabel className="text-right">{t('defaultModel')}</FormLabel>
+                      <FormControl>
+                        <Select
+                          defaultValue={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value)
+                            handleModelChange(value)
+                          }}
+                        >
+                          <SelectTrigger className="col-span-3">
+                            <SelectValue placeholder={t('selectDefaultModel')} />
+                          </SelectTrigger>
+                          <SelectContent className="text-left">
+                            {modelOptions.map((name) => {
+                              return (
+                                <SelectItem key={name} value={name}>
+                                  {name}
+                                </SelectItem>
+                              )
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="apiProxy"
                   render={({ field }) => (
                     <FormItem className="grid grid-cols-4 items-center gap-4 space-y-0">
@@ -336,42 +388,12 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                 />
                 <FormField
                   control={form.control}
-                  name="uploadProxy"
+                  name="assistantIndexUrl"
                   render={({ field }) => (
                     <FormItem className="grid grid-cols-4 items-center gap-4 space-y-0">
-                      <FormLabel className="text-right">{t('uploadProxyUrl')}</FormLabel>
+                      <FormLabel className="text-right">{t('assistantMarketUrl')}</FormLabel>
                       <FormControl>
-                        <Input
-                          className="col-span-3"
-                          placeholder={t('uploadProxyUrlPlaceholder')}
-                          disabled={form.getValues().apiKey === ''}
-                          {...field}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="model"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-4 items-center gap-4 space-y-0">
-                      <FormLabel className="text-right">{t('defaultModel')}</FormLabel>
-                      <FormControl>
-                        <Select defaultValue={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger className="col-span-3">
-                            <SelectValue placeholder={t('selectDefaultModel')} />
-                          </SelectTrigger>
-                          <SelectContent className="text-left">
-                            {modelOptions.map((name) => {
-                              return (
-                                <SelectItem key={name} value={name}>
-                                  {name}
-                                </SelectItem>
-                              )
-                            })}
-                          </SelectContent>
-                        </Select>
+                        <Input className="col-span-3" placeholder={t('assistantMarketUrl')} {...field} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -456,7 +478,7 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                           <Slider
                             className="flex-1"
                             defaultValue={[field.value]}
-                            max={1}
+                            max={2}
                             step={0.1}
                             onValueChange={(values) => field.onChange(values[0])}
                           />
@@ -495,7 +517,11 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                       <FormLabel className="text-right">{t('safety')}</FormLabel>
                       <FormControl>
                         <div className="col-span-3 flex h-10">
-                          <RadioGroup className="grid w-full grid-cols-4" {...field}>
+                          <RadioGroup
+                            className="grid w-full grid-cols-4"
+                            defaultValue={field.value}
+                            onValueChange={(value) => field.onChange(value)}
+                          >
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="none" id="none" />
                               <Label htmlFor="none">{t('none')}</Label>

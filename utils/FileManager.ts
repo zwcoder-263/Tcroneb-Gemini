@@ -1,7 +1,6 @@
 export type FileManagerOptions = {
   apiKey?: string
   baseUrl?: string
-  uploadUrl?: string
   token?: string
   onError?: (message: string) => void
 }
@@ -14,7 +13,7 @@ class FileManager {
       throw new Error('Missing required parameters!')
     }
     this.options = options
-    this.uploadBaseUrl = this.options.uploadUrl || 'https://generativelanguage.googleapis.com'
+    this.uploadBaseUrl = this.options.baseUrl || 'https://generativelanguage.googleapis.com'
   }
   async createUploadSession(fileName: string, mimeType: string) {
     const res = await fetch(

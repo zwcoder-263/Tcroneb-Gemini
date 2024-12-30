@@ -143,14 +143,6 @@ Your Gemini api key. If you need to `enable` the server api, this is required.
 
 Override Gemini api request base url. **To avoid server-side proxy url leaks, links in front-end pages will not be overwritten. **
 
-#### `GEMINI_UPLOAD_BASE_URL` (optional)
-
-> Default: `https://generativelanguage.googleapis.com`
-
-> Example: `http://your-gemini-upload-proxy.com`
-
-Override Gemini file upload api base url. **To avoid server-side proxy url leaks, links in front-end pages will not be overwritten. **
-
 #### `NEXT_PUBLIC_GEMINI_MODEL_LIST` (optional)
 
 Custom model list, default: all.

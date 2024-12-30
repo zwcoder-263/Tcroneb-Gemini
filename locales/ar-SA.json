@@ -70,6 +70,8 @@
   "autoStopRecord": "إنهاء التسجيل تلقائيًا",
   "settingEnable": "تم التفعيل",
   "settingDisable": "غير مفعل",
+  "resetSetting": "إعادة تعيين الإعدادات",
+  "resetAllSettings": "إعادة تعيين جميع الإعدادات",
   "plugin": "إضافة",
   "version": "الإصدار الحالي",
   "officialPlugins": "الإضافات الرسمية",

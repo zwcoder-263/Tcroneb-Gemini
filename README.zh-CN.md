@@ -143,14 +143,6 @@
 
 覆盖 Gemini api 请求基本 url。**为了避免服务端代理 url 泄漏，不会覆盖前端页面中的链接。**
 
-#### `GEMINI_UPLOAD_BASE_URL`（可选）
-
-> 默认值：`https://generativelanguage.googleapis.com`
-
-> 示例：`http://your-gemini-upload-proxy.com`
-
-覆盖 Gemini 文件上传 api 基本 url。**为了避免服务端代理 url 泄漏，不会覆盖前端页面中的链接。**
-
 #### `NEXT_PUBLIC_GEMINI_MODEL_LIST`（可选）
 
 自定义模型列表，默认为: all。

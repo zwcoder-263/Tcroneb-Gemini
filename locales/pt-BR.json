@@ -69,6 +69,8 @@
   "autoStopRecord": "Encerrar a gravação automaticamente",
   "settingEnable": "Ativado",
   "settingDisable": "Desativado",
+  "resetSetting": "Redefinir Configuração",
+  "resetAllSettings": "Redefinir Todas as Configurações",
   "plugin": "Plugin",
   "version": "Versão atual",
   "officialPlugins": "Plugins Oficiais",

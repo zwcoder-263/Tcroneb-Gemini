@@ -9,7 +9,6 @@ export const preferredRegion = ['cle1', 'iad1', 'pdx1', 'sfo1', 'sin1', 'syd1', 
 
 const geminiApiKey = process.env.GEMINI_API_KEY as string
 const geminiApiBaseUrl = process.env.GEMINI_API_BASE_URL || 'https://generativelanguage.googleapis.com'
-const geminiUploadProxyUrl = process.env.GEMINI_UPLOAD_BASE_URL || 'https://generativelanguage.googleapis.com'
 
 export async function POST(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams
@@ -19,7 +18,6 @@ export async function POST(req: NextRequest) {
     const fileManager = new FileManager({
       apiKey: geminiApiKey,
       baseUrl: geminiApiBaseUrl,
-      uploadUrl: geminiUploadProxyUrl,
     })
     if (uploadType === 'resumable') {
       const { fileName, mimeType } = await req.json()
@@ -39,7 +37,6 @@ export async function POST(req: NextRequest) {
       const fileManager = new FileManager({
         apiKey: geminiApiKey,
         baseUrl: geminiApiBaseUrl,
-        uploadUrl: geminiUploadProxyUrl,
       })
       const result = await fileManager.uploadFile(formData.get('file') as File)
       return NextResponse.json(result)

@@ -69,6 +69,8 @@
   "autoStopRecord": "Finalizar la grabación automáticamente",
   "settingEnable": "Activado",
   "settingDisable": "Desactivado",
+  "resetSetting": "Restablecer configuración",
+  "resetAllSettings": "Restablecer todas las configuraciones",
   "plugin": "Plugin",
   "version": "Versión actual",
   "officialPlugins": "Plugins Oficiales",
@@ -100,7 +102,6 @@
   "selectCategory": "Categoría",
   "all": "Todo",
   "customizeAssistantSetting": "Personalizar Configuración del Asistente",
-
   "pluginList": "Lista de Plugins",
   "customPlugin": "Plugin personalizado",
   "loadingConfig": "Cargando configuración",

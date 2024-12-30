@@ -69,6 +69,8 @@
   "autoStopRecord": "Automatically end recording",
   "settingEnable": "Enabled",
   "settingDisable": "Disabled",
+  "resetSetting": "Reset Setting",
+  "resetAllSettings": "Reset All Settings",
   "plugin": "Plugin",
   "version": "Current version",
   "officialPlugins": "Official Plugins",

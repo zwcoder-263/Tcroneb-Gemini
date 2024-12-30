@@ -3,37 +3,47 @@ import { persist, type StorageValue } from 'zustand/middleware'
 import storage from '@/utils/Storage'
 import { omitBy, isFunction, isNull } from 'lodash-es'
 
+type DefaultSetting = Omit<Setting, 'isProtected' | 'talkMode' | 'sidebarState'>
+
 interface SettingStore extends Setting {
   update: (values: Partial<Setting>) => void
+  reset: () => DefaultSetting
   setIsProtected: (isProtected: boolean) => void
 }
 
 const ASSISTANT_INDEX_URL = process.env.NEXT_PUBLIC_ASSISTANT_INDEX_URL as string
 
+const defaultSetting: DefaultSetting = {
+  password: '',
+  apiKey: '',
+  apiProxy: 'https://generativelanguage.googleapis.com',
+  model: 'gemini-1.5-flash-latest',
+  sttLang: '',
+  ttsLang: '',
+  ttsVoice: '',
+  lang: '',
+  maxHistoryLength: 0,
+  assistantIndexUrl: ASSISTANT_INDEX_URL || 'https://registry.npmmirror.com/@lobehub/agents-index/v1/files/public',
+  topP: 0.95,
+  topK: 40,
+  temperature: 1,
+  maxOutputTokens: 8192,
+  safety: 'none',
+  autoStopRecord: false,
+}
+
 export const useSettingStore = create(
   persist<SettingStore>(
     (set, get) => ({
-      password: '',
-      apiKey: '',
-      apiProxy: 'https://generativelanguage.googleapis.com',
-      uploadProxy: 'https://generativelanguage.googleapis.com',
-      model: 'gemini-1.5-flash-latest',
-      sttLang: '',
-      ttsLang: '',
-      ttsVoice: '',
-      lang: '',
+      ...defaultSetting,
       isProtected: false,
       talkMode: 'chat',
-      maxHistoryLength: 0,
-      assistantIndexUrl: ASSISTANT_INDEX_URL || 'https://registry.npmmirror.com/@lobehub/agents-index/v1/files/public',
-      topP: 0.95,
-      topK: 40,
-      temperature: 1,
-      maxOutputTokens: 8192,
-      safety: 'none',
-      autoStopRecord: false,
       sidebarState: 'collapsed',
       update: (values) => set((state) => ({ ...state, ...values })),
+      reset: () => {
+        set(defaultSetting)
+        return defaultSetting
+      },
       setIsProtected: (isProtected) => set({ isProtected }),
     }),
     {
@@ -53,7 +63,6 @@ export const useSettingStore = create(
                 'password',
                 'apiKey',
                 'apiProxy',
-                'uploadProxy',
                 'model',
                 'sttLang',
                 'ttsLang',

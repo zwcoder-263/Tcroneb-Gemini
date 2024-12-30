@@ -69,6 +69,8 @@
   "autoStopRecord": "録音を自動的に終了する",
   "settingEnable": "有効",
   "settingDisable": "無効",
+  "resetSetting": "設定をリセット",
+  "resetAllSettings": "すべての設定をリセット",
   "plugin": "プラグイン",
   "version": "現在のバージョン",
   "officialPlugins": "公式プラグイン",

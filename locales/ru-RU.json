@@ -69,6 +69,8 @@
   "autoStopRecord": "Автоматическое завершение записи",
   "settingEnable": "Включено",
   "settingDisable": "Отключено",
+  "resetSetting": "Сброс настроек",
+  "resetAllSettings": "Сбросить все настройки",
   "plugin": "Плагин",
   "version": "Текущая версия",
   "officialPlugins": "Официальные плагины",

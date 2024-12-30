@@ -69,6 +69,8 @@
   "autoStopRecord": "自動結束錄音",
   "settingEnable": "已啟用",
   "settingDisable": "未啟用",
+  "resetSetting": "重置設定",
+  "resetAllSettings": "重置全部設定",
   "plugin": "外掛程式",
   "version": "目前版本",
   "officialPlugins": "官方插件",

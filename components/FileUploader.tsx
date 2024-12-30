@@ -36,11 +36,9 @@ function FileUploader({ beforeUpload, afterUpload }: Props) {
     async (files: FileList | null) => {
       if (isFunction(beforeUpload)) beforeUpload()
 
-      const { apiKey, apiProxy, uploadProxy, password } = useSettingStore.getState()
+      const { apiKey, apiProxy, password } = useSettingStore.getState()
       const options: FileManagerOptions =
-        apiKey !== ''
-          ? { apiKey, baseUrl: apiProxy, uploadUrl: uploadProxy }
-          : { token: encodeToken(password), uploadUrl: uploadProxy }
+        apiKey !== '' ? { apiKey, baseUrl: apiProxy } : { token: encodeToken(password) }
       const { add: addAttachment, update: updateAttachment } = useAttachmentStore.getState()
 
       await fileUpload({
