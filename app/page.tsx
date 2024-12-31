@@ -221,22 +221,26 @@ export default function Home() {
 
           if (chunk.candidates) {
             chunk.candidates.forEach((item) => {
-              const textParts = item.content.parts.filter((item) => !isUndefined(item.text))
-              if (thinking && textParts.length === 2) {
-                if (textParts[0].text) {
-                  thoughtWriter.write(textParts[0].text)
-                }
-                if (textParts[1].text) {
-                  writer.write(textParts[1].text)
-                }
-                thinking = false
-              } else {
-                const text = chunk.text()
-                if (thinking) {
-                  thoughtWriter.write(text)
+              if (item.content.parts) {
+                const textParts = item.content.parts.filter((item) => !isUndefined(item.text))
+                if (thinking && textParts.length === 2) {
+                  if (textParts[0].text) {
+                    thoughtWriter.write(textParts[0].text)
+                  }
+                  if (textParts[1].text) {
+                    writer.write(textParts[1].text)
+                  }
+                  thinking = false
                 } else {
-                  writer.write(text)
+                  const text = chunk.text()
+                  if (thinking) {
+                    thoughtWriter.write(text)
+                  } else {
+                    writer.write(text)
+                  }
                 }
+              } else if (item.finishMessage) {
+                console.error(item.finishMessage)
               }
             })
           }

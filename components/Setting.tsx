@@ -340,6 +340,35 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                 />
                 <FormField
                   control={form.control}
+                  name="apiProxy"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-4 items-center gap-4 space-y-0">
+                      <FormLabel className="text-right">{t('apiProxyUrl')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="col-span-3"
+                          placeholder={t('apiProxyUrlPlaceholder')}
+                          disabled={form.getValues().apiKey === ''}
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="assistantIndexUrl"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-4 items-center gap-4 space-y-0">
+                      <FormLabel className="text-right">{t('assistantMarketUrl')}</FormLabel>
+                      <FormControl>
+                        <Input className="col-span-3" placeholder={t('assistantMarketUrl')} {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="model"
                   render={({ field }) => (
                     <FormItem className="grid grid-cols-4 items-center gap-4 space-y-0">
@@ -365,35 +394,6 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                             })}
                           </SelectContent>
                         </Select>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="apiProxy"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-4 items-center gap-4 space-y-0">
-                      <FormLabel className="text-right">{t('apiProxyUrl')}</FormLabel>
-                      <FormControl>
-                        <Input
-                          className="col-span-3"
-                          placeholder={t('apiProxyUrlPlaceholder')}
-                          disabled={form.getValues().apiKey === ''}
-                          {...field}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="assistantIndexUrl"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-4 items-center gap-4 space-y-0">
-                      <FormLabel className="text-right">{t('assistantMarketUrl')}</FormLabel>
-                      <FormControl>
-                        <Input className="col-span-3" placeholder={t('assistantMarketUrl')} {...field} />
                       </FormControl>
                     </FormItem>
                   )}
