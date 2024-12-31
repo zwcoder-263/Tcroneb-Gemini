@@ -182,14 +182,14 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
     if (open && !cachedModelList) {
       const { update } = useModelStore.getState()
       const { apiKey, apiProxy, password } = useSettingStore.getState()
-      if (apiKey || password) {
-        fetchModels({ apiKey, apiProxy, password }).then((models) => {
+      fetchModels({ apiKey, apiProxy, password })
+        .then((models) => {
           if (models.length > 0) {
             update(models)
             cachedModelList = true
           }
         })
-      }
+        .catch(console.error)
     }
     if (BUILD_MODE === 'export') {
       setHiddenPasswordInput(true)
