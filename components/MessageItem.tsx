@@ -400,7 +400,7 @@ function MessageItem(props: Props) {
       })
     } else {
       return (
-        <div className="group flex-auto">
+        <div className="group flex-auto overflow-x-auto">
           {fileList.length > 0 ? (
             <div className="not:last:border-dashed not:last:border-b w-full pb-2">
               <FileList fileList={fileList} />
