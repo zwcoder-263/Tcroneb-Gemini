@@ -831,8 +831,8 @@ export default function Home() {
   }, [])
 
   return (
-    <main className="mx-auto flex h-screen w-full max-w-screen-md flex-col justify-between overflow-hidden max-sm:pt-0 landscape:max-md:pt-0">
-      <div className="flex justify-between px-4 pb-2 pr-2 pt-10 max-sm:pr-2 max-sm:pt-6 landscape:max-md:pt-4">
+    <main className="mx-auto flex h-screen w-full max-w-screen-md flex-col justify-between overflow-hidden">
+      <div className="flex justify-between px-4 pb-2 pr-2 pt-10 max-md:pt-4 max-sm:pr-2 max-sm:pt-4">
         <div className="flex flex-row text-xl leading-8 text-red-400 max-sm:text-base">
           <MessageCircleHeart className="h-10 w-10 max-sm:h-8 max-sm:w-8" />
           <div className="ml-2 font-bold leading-10 max-sm:ml-1 max-sm:leading-8">Gemini Next Chat</div>
@@ -949,103 +949,105 @@ export default function Home() {
           </div>
         </div>
       )}
-      <div className="flex w-full max-w-screen-md items-end gap-2 bg-background px-4 pb-8 pt-2 max-sm:p-2 max-sm:pb-3 landscape:max-md:pb-4">
-        {enablePlugin ? <PluginList /> : null}
-        <div
-          className="relative box-border flex w-full flex-1 flex-col rounded-md border border-input bg-[hsl(var(--background))] py-1 max-sm:py-0"
-          onPaste={handlePaste}
-          onDrop={handleDrop}
-          onDragOver={(ev) => ev.preventDefault()}
-        >
-          <div className="p-2 pb-0 pt-1 empty:p-0 max-sm:pt-2">
-            <AttachmentArea className="max-h-32 w-full overflow-y-auto border-b border-dashed pb-2" />
-          </div>
-          <textarea
-            autoFocus
-            className={cn(
-              'max-h-[120px] w-full resize-none border-none bg-transparent px-2 pt-1 text-sm leading-6 transition-[height] focus-visible:outline-none',
-              !supportSpeechRecognition ? 'pr-8' : 'pr-16',
-            )}
-            style={{ height: `${textareaHeight}px` }}
-            value={content}
-            placeholder={t('askAQuestion')}
-            onChange={(ev) => {
-              setContent(ev.target.value)
-              setTextareaHeight(ev.target.value === '' ? TEXTAREA_DEFAULT_HEIGHT : ev.target.scrollHeight)
-            }}
-            onKeyDown={handleKeyDown}
-          />
-          <div className="absolute bottom-0.5 right-1 flex max-sm:bottom-0">
-            {supportAttachment ? (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="box-border flex h-8 w-8 cursor-pointer items-center justify-center rounded-full p-1.5 text-slate-800 hover:bg-secondary/80 dark:text-slate-600 max-sm:h-7 max-sm:w-7">
-                      <FileUploader beforeUpload={() => checkAccessStatus()} />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent className="mb-1 max-w-36">
-                    {isOldVisionModel ? t('imageUploadTooltip') : t('uploadTooltip')}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ) : null}
-            {supportSpeechRecognition ? (
-              <TooltipProvider>
-                <Tooltip open={isRecording}>
-                  <TooltipTrigger asChild>
-                    <div
-                      className="box-border flex h-8 w-8 cursor-pointer items-center justify-center rounded-full p-1.5 text-slate-800 hover:bg-secondary/80 dark:text-slate-600 max-sm:h-7 max-sm:w-7"
-                      onClick={() => handleRecorder()}
+      <div className="max-w-screen-md bg-background px-4 pb-8 pt-2 max-md:pb-4 max-sm:p-2 max-sm:pb-3">
+        <div className="flex w-full items-end gap-2 max-sm:pb-[calc(var(--safe-area-inset-bottom)-16px)]">
+          {enablePlugin ? <PluginList /> : null}
+          <div
+            className="relative box-border flex w-full flex-1 flex-col rounded-md border border-input bg-[hsl(var(--background))] py-1 max-sm:py-0"
+            onPaste={handlePaste}
+            onDrop={handleDrop}
+            onDragOver={(ev) => ev.preventDefault()}
+          >
+            <div className="p-2 pb-0 pt-1 empty:p-0 max-sm:pt-2">
+              <AttachmentArea className="max-h-32 w-full overflow-y-auto border-b border-dashed pb-2" />
+            </div>
+            <textarea
+              autoFocus
+              className={cn(
+                'max-h-[120px] w-full resize-none border-none bg-transparent px-2 pt-1 text-sm leading-6 transition-[height] focus-visible:outline-none',
+                !supportSpeechRecognition ? 'pr-8' : 'pr-16',
+              )}
+              style={{ height: `${textareaHeight}px` }}
+              value={content}
+              placeholder={t('askAQuestion')}
+              onChange={(ev) => {
+                setContent(ev.target.value)
+                setTextareaHeight(ev.target.value === '' ? TEXTAREA_DEFAULT_HEIGHT : ev.target.scrollHeight)
+              }}
+              onKeyDown={handleKeyDown}
+            />
+            <div className="absolute bottom-0.5 right-1 flex max-sm:bottom-0">
+              {supportAttachment ? (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="box-border flex h-8 w-8 cursor-pointer items-center justify-center rounded-full p-1.5 text-slate-800 hover:bg-secondary/80 dark:text-slate-600 max-sm:h-7 max-sm:w-7">
+                        <FileUploader beforeUpload={() => checkAccessStatus()} />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="mb-1 max-w-36">
+                      {isOldVisionModel ? t('imageUploadTooltip') : t('uploadTooltip')}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : null}
+              {supportSpeechRecognition ? (
+                <TooltipProvider>
+                  <Tooltip open={isRecording}>
+                    <TooltipTrigger asChild>
+                      <div
+                        className="box-border flex h-8 w-8 cursor-pointer items-center justify-center rounded-full p-1.5 text-slate-800 hover:bg-secondary/80 dark:text-slate-600 max-sm:h-7 max-sm:w-7"
+                        onClick={() => handleRecorder()}
+                      >
+                        <Mic className={isRecording ? 'animate-pulse' : ''} />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      className={cn(
+                        'mb-1 px-2 py-1 text-center',
+                        isUndefined(audioRecordRef.current?.isRecording) ? '' : 'font-mono text-red-500',
+                      )}
                     >
-                      <Mic className={isRecording ? 'animate-pulse' : ''} />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    className={cn(
-                      'mb-1 px-2 py-1 text-center',
-                      isUndefined(audioRecordRef.current?.isRecording) ? '' : 'font-mono text-red-500',
-                    )}
-                  >
-                    {isUndefined(audioRecordRef.current?.isRecording) ? t('startRecording') : formatTime(recordTime)}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ) : null}
+                      {isUndefined(audioRecordRef.current?.isRecording) ? t('startRecording') : formatTime(recordTime)}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : null}
+            </div>
           </div>
+          {isThinking ? (
+            <Button
+              className="rounded-full max-sm:h-8 max-sm:w-8 [&_svg]:size-4 max-sm:[&_svg]:size-3"
+              title={t('stop')}
+              variant="secondary"
+              size="icon"
+              onClick={() => handleStopGenerate()}
+            >
+              <Square />
+            </Button>
+          ) : content === '' && files.length === 0 && supportSpeechRecognition ? (
+            <Button
+              className="max-sm:h-8 max-sm:w-8 [&_svg]:size-5 max-sm:[&_svg]:size-4"
+              title={t('voiceMode')}
+              variant="secondary"
+              size="icon"
+              onClick={() => updateTalkMode('voice')}
+            >
+              <AudioLines />
+            </Button>
+          ) : (
+            <Button
+              className="max-sm:h-8 max-sm:w-8 [&_svg]:size-5 max-sm:[&_svg]:size-4"
+              title={t('send')}
+              variant="secondary"
+              size="icon"
+              disabled={isRecording || isUploading}
+              onClick={() => handleSubmit(content)}
+            >
+              <SendHorizontal />
+            </Button>
+          )}
         </div>
-        {isThinking ? (
-          <Button
-            className="rounded-full max-sm:h-8 max-sm:w-8 [&_svg]:size-4 max-sm:[&_svg]:size-3"
-            title={t('stop')}
-            variant="secondary"
-            size="icon"
-            onClick={() => handleStopGenerate()}
-          >
-            <Square />
-          </Button>
-        ) : content === '' && files.length === 0 && supportSpeechRecognition ? (
-          <Button
-            className="max-sm:h-8 max-sm:w-8 [&_svg]:size-5 max-sm:[&_svg]:size-4"
-            title={t('voiceMode')}
-            variant="secondary"
-            size="icon"
-            onClick={() => updateTalkMode('voice')}
-          >
-            <AudioLines />
-          </Button>
-        ) : (
-          <Button
-            className="max-sm:h-8 max-sm:w-8 [&_svg]:size-5 max-sm:[&_svg]:size-4"
-            title={t('send')}
-            variant="secondary"
-            size="icon"
-            disabled={isRecording || isUploading}
-            onClick={() => handleSubmit(content)}
-          >
-            <SendHorizontal />
-          </Button>
-        )}
       </div>
       <div style={{ display: talkMode === 'voice' ? 'block' : 'none' }}>
         <div className="fixed left-0 right-0 top-0 z-50 flex h-full w-screen flex-col items-center justify-center bg-slate-900">

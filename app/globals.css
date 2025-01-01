@@ -237,3 +237,14 @@ html.dark .hljs-warpper ::-webkit-scrollbar-thumb:hover {
     max-width: calc(100vw - 76px);
   }
 }
+
+@supports ((height: constant(safe-area-inset-top)) or (height: env(safe-area-inset-top))) {
+  body {
+    --safe-area-inset-top: 0;
+    --safe-area-inset-top: constant(safe-area-inset-top);
+    --safe-area-inset-top: env(safe-area-inset-top);
+    --safe-area-inset-bottom: 0;
+    --safe-area-inset-bottom: constant(safe-area-inset-bottom);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom);
+  }
+}
