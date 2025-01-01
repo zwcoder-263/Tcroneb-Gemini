@@ -21,6 +21,7 @@ import {
   LoaderCircle,
   CircleCheck,
   Blocks,
+  Languages,
 } from 'lucide-react'
 import { EdgeSpeech } from '@xiangfa/polly'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -38,10 +39,12 @@ import { useMessageStore } from '@/store/chat'
 import { useSettingStore } from '@/store/setting'
 import { usePluginStore } from '@/store/plugin'
 import AudioStream from '@/utils/AudioStream'
+import { encodeToken } from '@/utils/signature'
+import translate from '@/utils/translate'
 import { sentenceSegmentation } from '@/utils/common'
 import { cn } from '@/utils'
 import { OFFICAL_PLUGINS } from '@/plugins'
-import { upperFirst, isFunction, find, isUndefined } from 'lodash-es'
+import { upperFirst, isFunction, find, findLastIndex, isUndefined } from 'lodash-es'
 
 import 'katex/dist/katex.min.css'
 import 'highlight.js/styles/a11y-light.css'
@@ -100,6 +103,7 @@ function MessageItem(props: Props) {
   const [hasTextContent, setHasTextContent] = useState<boolean>(false)
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const [isCopyed, setIsCopyed] = useState<boolean>(false)
+  const [isTranslating, setIsTranslating] = useState<boolean>(false)
   const [showLightbox, setShowLightbox] = useState<boolean>(false)
   const [lightboxIndex, setLightboxIndex] = useState<number>(0)
   const fileList = useMemo(() => {
@@ -154,9 +158,10 @@ function MessageItem(props: Props) {
 
     if (message) {
       const messageParts = [...message.parts]
-      messageParts.map((part) => {
-        if (part.text) part.text = content
-      })
+      const textPartIndex = findLastIndex(messageParts, (item) => !isUndefined(item.text))
+      if (textPartIndex !== -1) {
+        messageParts[textPartIndex].text = content
+      }
       update(id, { ...message, parts: messageParts })
     }
 
@@ -175,7 +180,7 @@ function MessageItem(props: Props) {
     }, 2000)
   }, [])
 
-  const handleSpeak = useCallback(async () => {
+  const handleSpeak = useCallback(async (content: string) => {
     const { lang, ttsLang, ttsVoice } = useSettingStore.getState()
     const sentences = mergeSentences(sentenceSegmentation(filterMarkdown(content), lang), 100)
     const edgeSpeech = new EdgeSpeech({ locale: ttsLang })
@@ -191,7 +196,41 @@ function MessageItem(props: Props) {
         audioStream.play({ audioData })
       }
     }
-  }, [content])
+  }, [])
+
+  const handleTranslate = useCallback(async (id: string, content: string) => {
+    const { messages, update } = useMessageStore.getState()
+    const { apiKey, apiProxy, lang, password } = useSettingStore.getState()
+    const message = find(messages, { id })
+
+    if (message) {
+      const messageParts = [...message.parts]
+      const textPartIndex = findLastIndex(messageParts, (item) => !isUndefined(item.text))
+      if (textPartIndex !== -1) {
+        setIsTranslating(true)
+        try {
+          const readableStream = await translate(
+            apiKey === '' ? encodeToken(password) : apiKey,
+            apiKey === '' ? '/api/google' : apiProxy,
+            content,
+            lang,
+          )
+          let translatedText = ''
+          const reader = readableStream.getReader()
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            translatedText += new TextDecoder().decode(value)
+          }
+          messageParts[textPartIndex].text = translatedText
+          update(id, { ...message, parts: messageParts })
+        } catch (err) {
+          console.error(err)
+        }
+        setIsTranslating(false)
+      }
+    }
+  }, [])
 
   const openLightbox = useCallback((index: number) => {
     setLightboxIndex(index)
@@ -438,10 +477,17 @@ function MessageItem(props: Props) {
                 ) : null}
                 {hasTextContent ? (
                   <>
+                    <IconButton title={t('translate')} onClick={() => handleTranslate(id, content)}>
+                      {isTranslating ? (
+                        <LoaderCircle className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Languages className="h-4 w-4" />
+                      )}
+                    </IconButton>
                     <IconButton title={t('copy')} className={`copy-${id}`} onClick={() => handleCopy()}>
                       {isCopyed ? <CopyCheck className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     </IconButton>
-                    <IconButton title={t('speak')} onClick={() => handleSpeak()}>
+                    <IconButton title={t('speak')} onClick={() => handleSpeak(content)}>
                       <Volume2 className="h-4 w-4" />
                     </IconButton>
                   </>
@@ -452,7 +498,7 @@ function MessageItem(props: Props) {
             <EditableArea
               content={content}
               isEditing={isEditing}
-              onChange={(content) => handleEdit(id, content)}
+              onChange={(editedContent) => handleEdit(id, editedContent)}
               onCancel={() => setIsEditing(false)}
             />
           )}

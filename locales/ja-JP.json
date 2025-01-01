@@ -54,6 +54,7 @@
   "regenerate": "考え直す",
   "edit": "編集",
   "delete": "削除",
+  "translate": "翻訳",
   "speak": "読み上げる",
   "modelParams": "モデルパラメータ",
   "temperature": "ランダム性",

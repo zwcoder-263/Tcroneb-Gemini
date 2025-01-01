@@ -54,6 +54,7 @@
   "regenerate": "重新思考",
   "edit": "编辑",
   "delete": "删除",
+  "translate": "翻译",
   "speak": "朗读",
   "modelParams": "模型参数",
   "temperature": "随机性",

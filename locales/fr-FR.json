@@ -54,6 +54,7 @@
   "regenerate": "Repenser",
   "edit": "Modifier",
   "delete": "Supprimer",
+  "translate": "Traduction",
   "speak": "Lecture à voix haute",
   "modelParams": "Paramètres du modèle",
   "temperature": "Aléatoire",
@@ -102,7 +103,6 @@
   "selectCategory": "Catégorie",
   "all": "Tout",
   "customizeAssistantSetting": "Personnaliser les paramètres de l'assistant",
-
   "pluginList": "Liste des plugins",
   "customPlugin": "Plugin personnalisé",
   "loadingConfig": "Chargement de la configuration",

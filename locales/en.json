@@ -54,6 +54,7 @@
   "regenerate": "Rethink",
   "edit": "Edit",
   "delete": "Delete",
+  "translate": "Translate",
   "speak": "Reading aloud",
   "modelParams": "Model parameters",
   "temperature": "Randomness",

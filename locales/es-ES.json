@@ -54,6 +54,7 @@
   "regenerate": "Reconsiderar",
   "edit": "Editar",
   "delete": "Eliminar",
+  "translate": "Traducción",
   "speak": "Lectura en voz alta",
   "modelParams": "Parámetros del modelo",
   "temperature": "Aleatoriedad",
