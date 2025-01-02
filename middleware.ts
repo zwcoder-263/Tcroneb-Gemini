@@ -6,8 +6,8 @@ import { isNull } from 'lodash-es'
 
 const uploadLimit = Number(process.env.NEXT_PUBLIC_UPLOAD_LIMIT || '0')
 
-const proxyRoutes = ['/api/google/upload/v1beta/files', '/api/upload', '/api/files']
-const apiRoutes = ['/api/chat', '/api/upload', '/api/plugins', '/api/gateway', '/api/models']
+const proxyRoutes = ['/api/google/upload/v1beta/files', 'api/google/v1beta/files']
+const apiRoutes = ['/api/chat', '/api/gateway', '/api/models']
 
 // Limit the middleware to paths starting with `/api/`
 export const config = {
@@ -21,6 +21,11 @@ export function middleware(request: NextRequest) {
       if (uploadLimit !== 0 && Number(contentLength) > uploadLimit) {
         return NextResponse.json({ code: 413, success: false, message: 'Payload Too Large' }, { status: 413 })
       }
+      const searchParams = request.nextUrl.searchParams
+      const token = searchParams.get('key')
+      if (isNull(token) || !checkToken(token)) {
+        return NextResponse.json({ code: 40301, message: ErrorType.InValidToken }, { status: 403 })
+      }
     }
   }
   for (const apiRoute of apiRoutes) {
@@ -30,6 +35,12 @@ export function middleware(request: NextRequest) {
       if (isNull(token) || !checkToken(token)) {
         return NextResponse.json({ code: 40301, message: ErrorType.InValidToken }, { status: 403 })
       }
+    }
+  }
+  if (request.nextUrl.pathname.startsWith('/api/google/v1beta/models/')) {
+    const token = request.headers.get('X-Goog-Api-Key')
+    if (isNull(token) || !checkToken(token)) {
+      return NextResponse.json({ code: 40301, message: ErrorType.InValidToken }, { status: 403 })
     }
   }
 }

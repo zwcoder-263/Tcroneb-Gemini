@@ -24,48 +24,56 @@ module.exports = async (phase) => {
 
   if (mode !== 'export') {
     nextConfig.rewrites = async () => {
-      const beforeFilesConfig = apiKey
-        ? [
-            {
-              source: '/api/google/upload/v1beta/files',
-              has: [
-                {
-                  type: 'query',
-                  key: 'uploadType',
-                  value: '(?<uploadType>.*)',
-                },
-              ],
-              destination: `${uploadProxyUrl}/upload/v1beta/files?key=${apiKey}&uploadType=:uploadType`,
-            },
-            {
-              source: '/api/google/v1beta/files/:id',
-              destination: `${uploadProxyUrl}/v1beta/files/:id?key=${apiKey}`,
-            },
-          ]
-        : [
-            {
-              source: '/api/google/upload/v1beta/files',
-              destination: '/api/files',
-            },
-            {
-              source: '/api/google/v1beta/files/:id',
-              destination: '/api/files?id=:id',
-            },
-          ]
       return {
         beforeFiles: [
           {
             source: '/api/google/v1beta/models/:model',
+            destination: '/api/chat?model=:model',
+          },
+          {
+            source: '/api/google/upload/v1beta/files',
             has: [
               {
-                type: 'header',
-                key: 'X-Goog-Api-Key',
-                value: '(?<token>.*)',
+                type: 'query',
+                key: 'uploadType',
+                value: 'resumable',
               },
             ],
-            destination: '/api/chat?model=:model&token=:token',
+            missing: [
+              {
+                type: 'query',
+                key: 'upload_id',
+              },
+            ],
+            destination: `/api/upload`,
           },
-          ...beforeFilesConfig,
+          {
+            source: '/api/google/upload/v1beta/files',
+            has: [
+              {
+                type: 'query',
+                key: 'uploadType',
+                value: '(?<uploadType>.*)',
+              },
+              {
+                type: 'query',
+                key: 'key',
+                value: '(?<key>.*)',
+              },
+            ],
+            destination: `${uploadProxyUrl}/upload/v1beta/files?key=${apiKey}&uploadType=:uploadType`,
+          },
+          {
+            source: '/api/google/v1beta/files/:id',
+            has: [
+              {
+                type: 'query',
+                key: 'key',
+                value: '(?<key>.*)',
+              },
+            ],
+            destination: `${uploadProxyUrl}/v1beta/files/:id?key=${apiKey}`,
+          },
         ],
       }
     }

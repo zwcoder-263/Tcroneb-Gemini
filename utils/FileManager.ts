@@ -13,13 +13,13 @@ class FileManager {
       throw new Error('Missing required parameters!')
     }
     this.options = options
-    this.uploadBaseUrl = this.options.baseUrl || 'https://generativelanguage.googleapis.com'
+    this.uploadBaseUrl = this.options.apiKey
+      ? this.options.baseUrl || 'https://generativelanguage.googleapis.com'
+      : '/api/google'
   }
   async createUploadSession(fileName: string, mimeType: string) {
     const res = await fetch(
-      this.options.token
-        ? `/api/upload?uploadType=resumable&token=${this.options.token}`
-        : `${this.uploadBaseUrl}/upload/v1beta/files?uploadType=resumable&key=${this.options.apiKey}`,
+      `${this.uploadBaseUrl}/upload/v1beta/files?uploadType=resumable&key=${this.options.apiKey ?? this.options.token}`,
       {
         method: 'POST',
         body: JSON.stringify({
@@ -100,9 +100,9 @@ class FileManager {
       if (uploadUrl) {
         const url = new URL(uploadUrl)
         if (url.pathname.startsWith('/api/google/')) {
-          uploadUrl = location.origin + url.pathname + url.search
-        }
-        if (this.uploadBaseUrl) {
+          if (this.options.token) url.searchParams.append('key', this.options.token)
+          uploadUrl = location.origin + url.pathname + '?' + url.searchParams.toString()
+        } else if (this.uploadBaseUrl) {
           uploadUrl = uploadUrl.replace('https://generativelanguage.googleapis.com', this.uploadBaseUrl)
         }
 
@@ -147,9 +147,7 @@ class FileManager {
     const postBlobPart = '\r\n--' + boundary + '--'
     const blob = new Blob([preBlobPart, file, postBlobPart])
     const response = await fetch(
-      this.options.token
-        ? `/api/google/upload/v1beta/files?uploadType=multipart`
-        : `${this.uploadBaseUrl}/upload/v1beta/files?uploadType=multipart&key=${this.options.apiKey}`,
+      `${this.uploadBaseUrl}/upload/v1beta/files?uploadType=multipart&key=${this.options.apiKey ?? this.options.token}`,
       {
         method: 'POST',
         headers: {
@@ -164,9 +162,7 @@ class FileManager {
   }
   async getFileMetadata(fileID: string) {
     const response = await fetch(
-      this.options.token
-        ? `/api/google/v1beta/files/${fileID}`
-        : `${this.uploadBaseUrl}/v1beta/files/${fileID}?key=${this.options.apiKey}`,
+      `${this.uploadBaseUrl}/v1beta/files/${fileID}?key=${this.options.apiKey ?? this.options.token}`,
       {
         method: 'GET',
       },

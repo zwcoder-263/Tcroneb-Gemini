@@ -33,13 +33,7 @@ export async function POST(req: NextRequest) {
       const url = uploadUrl.toString()
       return NextResponse.json({ url }, { headers: { Location: url } })
     } else {
-      const formData = await req.formData()
-      const fileManager = new FileManager({
-        apiKey: geminiApiKey,
-        baseUrl: geminiApiBaseUrl,
-      })
-      const result = await fileManager.uploadFile(formData.get('file') as File)
-      return NextResponse.json(result)
+      throw new Error(ErrorType.UnsupportedApiType)
     }
   } catch (error) {
     if (error instanceof Error) {
