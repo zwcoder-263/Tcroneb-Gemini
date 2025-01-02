@@ -13,13 +13,13 @@ class FileManager {
       throw new Error('Missing required parameters!')
     }
     this.options = options
-    this.uploadBaseUrl = this.options.apiKey
-      ? this.options.baseUrl || 'https://generativelanguage.googleapis.com'
-      : '/api/google'
+    this.uploadBaseUrl = this.options.baseUrl || 'https://generativelanguage.googleapis.com'
   }
   async createUploadSession(fileName: string, mimeType: string) {
     const res = await fetch(
-      `${this.uploadBaseUrl}/upload/v1beta/files?uploadType=resumable&key=${this.options.apiKey ?? this.options.token}`,
+      this.options.token
+        ? `/api/upload?uploadType=resumable&token=${this.options.token}`
+        : `${this.uploadBaseUrl}/upload/v1beta/files?uploadType=resumable&key=${this.options.apiKey}`,
       {
         method: 'POST',
         body: JSON.stringify({
@@ -42,23 +42,23 @@ class FileManager {
       const chunkSize = 8388608
       let currentChunk = 0
 
-      const checkUploadStatus = async (uploadUrl: string) => {
-        const res = await fetch(uploadUrl, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': file.type,
-            'Content-Range': `bytes */${file.size}`,
-          },
-        }).catch((err) => {
-          throw new Error(err.message)
-        })
-        if (res.status === 308) {
-          const startByte = res.headers.get('Range')?.split('-')[1]
-          return startByte ? Number(startByte) + 1 : 0
-        } else {
-          return 0
-        }
-      }
+      // const checkUploadStatus = async (uploadUrl: string) => {
+      //   const res = await fetch(uploadUrl, {
+      //     method: 'PUT',
+      //     headers: {
+      //       'Content-Type': file.type,
+      //       'Content-Range': `bytes */${file.size}`,
+      //     },
+      //   }).catch((err) => {
+      //     throw new Error(err.message)
+      //   })
+      //   if (res.status === 308) {
+      //     const startByte = res.headers.get('Range')?.split('-')[1]
+      //     return startByte ? Number(startByte) + 1 : 0
+      //   } else {
+      //     return 0
+      //   }
+      // }
 
       const uploadChunk = async (uploadUrl: string, startByte: number, endByte: number) => {
         const chunk = file.slice(startByte, endByte + 1)
@@ -90,7 +90,7 @@ class FileManager {
         if (startByte === 0) currentChunk++
 
         if (endByte < fileSize - 1) {
-          uploadFile(uploadUrl)
+          uploadFile(uploadUrl, endByte + 1)
         } else {
           return resolve(await result.json())
         }
@@ -99,17 +99,17 @@ class FileManager {
       let uploadUrl = await this.createUploadSession(file.name, file.type)
       if (uploadUrl) {
         const url = new URL(uploadUrl)
-        if (url.pathname.startsWith('/api/google/')) {
-          if (this.options.token) url.searchParams.append('key', this.options.token)
+        if (url.pathname.startsWith('/api/upload/files')) {
+          if (this.options.token) url.searchParams.append('token', this.options.token)
           uploadUrl = location.origin + url.pathname + '?' + url.searchParams.toString()
         } else if (this.uploadBaseUrl) {
           uploadUrl = uploadUrl.replace('https://generativelanguage.googleapis.com', this.uploadBaseUrl)
         }
 
         let uploadedByte = 0
-        if (file.size > chunkSize * 10) {
-          uploadedByte = await checkUploadStatus(uploadUrl)
-        }
+        // if (file.size > chunkSize * 10) {
+        //   uploadedByte = await checkUploadStatus(uploadUrl)
+        // }
         uploadFile(uploadUrl, uploadedByte)
       } else {
         reject('Unable to get the upload link, please check whether the upload proxy allows CORS.')
@@ -147,7 +147,9 @@ class FileManager {
     const postBlobPart = '\r\n--' + boundary + '--'
     const blob = new Blob([preBlobPart, file, postBlobPart])
     const response = await fetch(
-      `${this.uploadBaseUrl}/upload/v1beta/files?uploadType=multipart&key=${this.options.apiKey ?? this.options.token}`,
+      this.options.token
+        ? `/api/upload/files?token=${this.options.token}`
+        : `${this.uploadBaseUrl}/upload/v1beta/files?uploadType=multipart&key=${this.options.apiKey}`,
       {
         method: 'POST',
         headers: {
@@ -162,10 +164,9 @@ class FileManager {
   }
   async getFileMetadata(fileID: string) {
     const response = await fetch(
-      `${this.uploadBaseUrl}/v1beta/files/${fileID}?key=${this.options.apiKey ?? this.options.token}`,
-      {
-        method: 'GET',
-      },
+      this.options.token
+        ? `/api/upload/files?id=${fileID}&token=${this.options.token}`
+        : `${this.uploadBaseUrl}/v1beta/files/${fileID}?key=${this.options.apiKey}`,
     ).catch((err) => {
       throw new Error(err.message)
     })

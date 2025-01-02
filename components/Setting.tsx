@@ -21,7 +21,8 @@ import i18n from '@/utils/i18n'
 import { fetchModels } from '@/utils/models'
 import locales from '@/constant/locales'
 import { Model } from '@/constant/model'
-import { useSettingStore } from '@/store/setting'
+import { GEMINI_API_BASE_URL, ASSISTANT_INDEX_URL } from '@/constant/urls'
+import { useSettingStore, useServerValueStore } from '@/store/setting'
 import { useModelStore } from '@/store/model'
 import { toPairs, values, keys, omitBy, isFunction, find } from 'lodash-es'
 
@@ -33,15 +34,12 @@ type SettingProps = {
   onClose: () => void
 }
 
-const BUILD_MODE = process.env.NEXT_PUBLIC_BUILD_MODE as string
-const GEMINI_MODEL_LIST = process.env.NEXT_PUBLIC_GEMINI_MODEL_LIST
-
 const formSchema = z.object({
   password: z.string().optional(),
-  assistantIndexUrl: z.string().url({ message: 'Invalid url' }),
+  assistantIndexUrl: z.string().optional(),
   lang: z.string().optional(),
   apiKey: z.string().optional(),
-  apiProxy: z.string().url({ message: 'Invalid url' }).optional(),
+  apiProxy: z.string().optional(),
   model: z.string(),
   maxHistoryLength: z.number().gte(0).lte(50).optional().default(0),
   topP: z.number(),
@@ -62,7 +60,7 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
   const pwaInstall = usePWAInstall()
   const { update, reset } = useSettingStore()
   const modelStore = useModelStore()
-  const isProtected = useSettingStore((state) => state.isProtected)
+  const { isProtected, buildMode, modelList: MODEL_LIST } = useServerValueStore()
   const [ttsLang, setTtsLang] = useState<string>('')
   const [hiddenPasswordInput, setHiddenPasswordInput] = useState<boolean>(false)
   const voiceOptions = useMemo(() => {
@@ -84,14 +82,13 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
     let modelList: string[] = []
     let defaultModel = 'gemini-1.5-flash-latest'
     const defaultModelList: string[] = keys(Model)
-    const userModels: string[] = GEMINI_MODEL_LIST ? GEMINI_MODEL_LIST.split(',') : []
+    const userModels: string[] = MODEL_LIST ? MODEL_LIST.split(',') : []
 
     userModels.forEach((modelName) => {
-      if (modelName === 'all' || modelName === '+all') {
-        for (const name of defaultModelList) {
-          if (!modelList.includes(name)) modelList.push(name)
-        }
-      } else if (modelName === '-all') {
+      for (const name of defaultModelList) {
+        if (!modelList.includes(name)) modelList.push(name)
+      }
+      if (modelName === '-all') {
         modelList = modelList.filter((name) => !defaultModelList.includes(name))
       } else if (modelName.startsWith('-')) {
         modelList = modelList.filter((name) => name !== modelName.substring(1))
@@ -111,7 +108,7 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
     }
 
     return models
-  }, [modelStore.models])
+  }, [modelStore.models, MODEL_LIST])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -191,10 +188,10 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
         })
         .catch(console.error)
     }
-    if (BUILD_MODE === 'export') {
+    if (buildMode === 'export') {
       setHiddenPasswordInput(true)
     }
-  }, [open])
+  }, [open, buildMode])
 
   return (
     <ResponsiveDialog
@@ -347,7 +344,7 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                       <FormControl>
                         <Input
                           className="col-span-3"
-                          placeholder={t('apiProxyUrlPlaceholder')}
+                          placeholder={GEMINI_API_BASE_URL}
                           disabled={form.getValues().apiKey === ''}
                           {...field}
                         />
@@ -362,7 +359,7 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                     <FormItem className="grid grid-cols-4 items-center gap-4 space-y-0">
                       <FormLabel className="text-right">{t('assistantMarketUrl')}</FormLabel>
                       <FormControl>
-                        <Input className="col-span-3" placeholder={t('assistantMarketUrl')} {...field} />
+                        <Input className="col-span-3" placeholder={ASSISTANT_INDEX_URL} {...field} />
                       </FormControl>
                     </FormItem>
                   )}

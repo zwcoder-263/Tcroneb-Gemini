@@ -26,6 +26,7 @@ import SearchBar from '@/components/SearchBar'
 import { useMessageStore } from '@/store/chat'
 import { useConversationStore } from '@/store/conversation'
 import { useSettingStore } from '@/store/setting'
+import { GEMINI_API_BASE_URL } from '@/constant/urls'
 import { encodeToken } from '@/utils/signature'
 import summaryTitle, { type RequestProps } from '@/utils/summaryTitle'
 import { cn } from '@/utils'
@@ -104,7 +105,7 @@ function ConversationItem(props: Props) {
       systemRole: id === currentId ? systemInstruction : conversation.systemInstruction,
     }
     if (apiKey !== '') {
-      if (apiProxy) config.baseUrl = apiProxy
+      config.baseUrl = apiProxy || GEMINI_API_BASE_URL
     } else {
       config.apiKey = encodeToken(password)
       config.baseUrl = '/api/google'

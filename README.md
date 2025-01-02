@@ -154,14 +154,6 @@ Override Gemini api request base url. **To avoid server-side proxy url leaks, li
 
 Custom model list, default: all.
 
-#### `NEXT_PUBLIC_ASSISTANT_INDEX_URL` (optional)
-
-> Default: `https://chat-agents.lobehub.com`
-
-> Examples: `http://your-assistant-market-proxy.com`
-
-Override assistant market api request base url. The api link in the front-end interface will be adjusted synchronously.
-
 #### `NEXT_PUBLIC_UPLOAD_LIMIT` (optional)
 
 File upload size limit. There is no file size limit by default.

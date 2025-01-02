@@ -1,13 +1,23 @@
 'use client'
 import { useLayoutEffect } from 'react'
-import { useSettingStore } from '@/store/setting'
+import { useServerValueStore } from '@/store/setting'
 
-function StoreProvider({ children, isProtected = false }: { children: React.ReactNode; isProtected?: boolean }) {
-  const { setIsProtected } = useSettingStore()
+interface Props {
+  children: React.ReactNode
+  isProtected?: boolean
+  modelList?: string
+  uploadLimit?: number
+  buildMode?: string
+}
+
+function StoreProvider(props: Props) {
+  const { children, ...serverValues } = props
 
   useLayoutEffect(() => {
-    setIsProtected(isProtected)
-  }, [setIsProtected, isProtected])
+    const { update } = useServerValueStore.getState()
+    update(serverValues)
+  }, [serverValues])
+
   return children
 }
 

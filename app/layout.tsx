@@ -11,7 +11,10 @@ import { isUndefined } from 'lodash-es'
 import './globals.css'
 
 const HEAD_SCRIPTS = process.env.HEAD_SCRIPTS as string
-const ENABLE_PROTECT = !isUndefined(process.env.ACCESS_PASSWORD) && process.env.ACCESS_PASSWORD !== ''
+const ENABLE_PROTECT = !(isUndefined(process.env.ACCESS_PASSWORD) && process.env.ACCESS_PASSWORD === '')
+const NEXT_PUBLIC_BUILD_MODE = process.env.NEXT_PUBLIC_BUILD_MODE || ''
+const NEXT_PUBLIC_GEMINI_MODEL_LIST = process.env.NEXT_PUBLIC_GEMINI_MODEL_LIST || ''
+const NEXT_PUBLIC_UPLOAD_LIMIT = Number(process.env.NEXT_PUBLIC_UPLOAD_LIMIT || '0')
 
 const APP_NAME = 'Gemini Next Chat'
 const APP_DEFAULT_TITLE = 'Gemini Next Chat'
@@ -71,13 +74,20 @@ export const viewport: Viewport = {
   userScalable: false,
 }
 
+const serverValues = {
+  isProtected: ENABLE_PROTECT,
+  buildMode: NEXT_PUBLIC_BUILD_MODE,
+  modelList: NEXT_PUBLIC_GEMINI_MODEL_LIST,
+  uploadLimit: NEXT_PUBLIC_UPLOAD_LIMIT,
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>{HEAD_SCRIPTS ? <Script id="headscript">{HEAD_SCRIPTS}</Script> : null}</head>
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <StoreProvider isProtected={ENABLE_PROTECT}>
+          <StoreProvider {...serverValues}>
             <I18Provider>
               <SidebarProvider defaultOpen={false}>
                 <AppSidebar />

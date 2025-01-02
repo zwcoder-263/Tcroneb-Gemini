@@ -15,7 +15,7 @@ import { useToast } from '@/components/ui/use-toast'
 import ResponsiveDialog from '@/components/ResponsiveDialog'
 import SearchBar from '@/components/SearchBar'
 import { usePluginStore } from '@/store/plugin'
-import { useSettingStore } from '@/store/setting'
+import { useSettingStore, useServerValueStore } from '@/store/setting'
 import { encodeToken } from '@/utils/signature'
 import { isUndefined, find, findIndex, snakeCase } from 'lodash-es'
 
@@ -23,8 +23,6 @@ type PluginStoreProps = {
   open: boolean
   onClose: () => void
 }
-
-const BUILD_MODE = process.env.NEXT_PUBLIC_BUILD_MODE
 
 const pluginManifestSchema = z.object({
   name_for_human: z.string(),
@@ -103,7 +101,6 @@ function search(keyword: string, data: PluginManifest[]): PluginManifest[] {
 }
 
 function PluginMarket({ open, onClose }: PluginStoreProps) {
-  const { password } = useSettingStore()
   const {
     plugins,
     tools,
@@ -115,6 +112,8 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
     uninstallPlugin,
     removeTool,
   } = usePluginStore()
+  const password = useSettingStore((state) => state.password)
+  const buildMode = useServerValueStore((state) => state.buildMode)
   const { t } = useTranslation()
   const { toast } = useToast()
   const [pluginList, setPluginList] = useState<PluginManifest[]>([])
@@ -394,7 +393,7 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
                   {t('loadingConfig')}
                 </Button>
               </div>
-              {BUILD_MODE !== 'export' ? (
+              {buildMode !== 'export' ? (
                 <div className="my-2 flex gap-2">
                   <Checkbox id="proxy" onCheckedChange={(checkedState) => setUseProxy(!!checkedState)} />
                   <label htmlFor="proxy" className="text-sm font-medium leading-4">

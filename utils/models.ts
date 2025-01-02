@@ -6,7 +6,7 @@ type Options = {
   password: string
 }
 
-function filterModel(models: Model[]) {
+function filterModel(models: Model[] = []) {
   return models.filter((model) => model.name.startsWith('models/gemini-'))
 }
 

@@ -7,6 +7,7 @@ import { encodeToken } from '@/utils/signature'
 import { fileUpload, imageUpload } from '@/utils/upload'
 import { useSettingStore } from '@/store/setting'
 import { useAttachmentStore } from '@/store/attachment'
+import { GEMINI_API_BASE_URL } from '@/constant/urls'
 import { OldVisionModel } from '@/constant/model'
 import mimeType, { imageMimeType } from '@/constant/attachment'
 import { isFunction } from 'lodash-es'
@@ -38,7 +39,7 @@ function FileUploader({ beforeUpload, afterUpload }: Props) {
 
       const { apiKey, apiProxy, password } = useSettingStore.getState()
       const options: FileManagerOptions =
-        apiKey !== '' ? { apiKey, baseUrl: apiProxy } : { token: encodeToken(password) }
+        apiKey !== '' ? { apiKey, baseUrl: apiProxy || GEMINI_API_BASE_URL } : { token: encodeToken(password) }
       const { add: addAttachment, update: updateAttachment } = useAttachmentStore.getState()
 
       await fileUpload({

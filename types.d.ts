@@ -16,7 +16,6 @@ declare global {
     sttLang: string
     ttsLang: string
     ttsVoice: string
-    isProtected: boolean
     talkMode: 'chat' | 'voice'
     maxHistoryLength: number
     assistantIndexUrl: string

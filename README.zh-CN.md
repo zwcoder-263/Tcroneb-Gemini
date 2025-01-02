@@ -154,14 +154,6 @@
 
 自定义模型列表，默认为: all。
 
-#### `NEXT_PUBLIC_ASSISTANT_INDEX_URL`（可选）
-
-> 默认值：`https://chat-agents.lobehub.com`
-
-> 示例：`http://your-assistant-market-proxy.com`
-
-覆盖助理市场 api 请求基本 url。会同步调整前端界面中的 api 链接。
-
 #### `NEXT_PUBLIC_UPLOAD_LIMIT`（可选）
 
 文件上传大小限制。默认不限制文件大小。

@@ -15,6 +15,7 @@ import Button from '@/components/Button'
 import { useMessageStore } from '@/store/chat'
 import { useAssistantStore } from '@/store/assistant'
 import { useSettingStore } from '@/store/setting'
+import { ASSISTANT_INDEX_URL } from '@/constant/urls'
 import AssistantMarketUrl from '@/utils/AssistantMarketUrl'
 
 type AssistantProps = {
@@ -52,7 +53,7 @@ function AssistantMarket(props: AssistantProps) {
   const assistants = useAssistantStore((state) => state.assistants)
   const favorites = useAssistantStore((state) => state.favorites)
   const lang = useSettingStore((state) => state.lang)
-  const assistantIndexUrl = useSettingStore((state) => state.assistantIndexUrl)
+  const assistantIndexUrl = useSettingStore((state) => state.assistantIndexUrl || ASSISTANT_INDEX_URL)
   const [assistantList, setAssistantList] = useState<AssistantDetail[]>([])
   const [tagList, setTagList] = useState<string[]>([])
   const [currentTag, setCurrentTag] = useState<string>('all')

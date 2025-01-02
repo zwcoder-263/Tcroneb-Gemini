@@ -8,22 +8,27 @@ type DefaultSetting = Omit<Setting, 'isProtected' | 'talkMode' | 'sidebarState'>
 interface SettingStore extends Setting {
   update: (values: Partial<Setting>) => void
   reset: () => DefaultSetting
-  setIsProtected: (isProtected: boolean) => void
 }
 
-const ASSISTANT_INDEX_URL = process.env.NEXT_PUBLIC_ASSISTANT_INDEX_URL as string
+interface ServerValueStore {
+  modelList: string
+  uploadLimit: number
+  buildMode: string
+  isProtected: boolean
+  update: (values: Record<string, string | number | boolean>) => void
+}
 
 const defaultSetting: DefaultSetting = {
   password: '',
   apiKey: '',
-  apiProxy: 'https://generativelanguage.googleapis.com',
+  apiProxy: '',
   model: 'gemini-1.5-flash-latest',
   sttLang: '',
   ttsLang: '',
   ttsVoice: '',
   lang: '',
   maxHistoryLength: 0,
-  assistantIndexUrl: ASSISTANT_INDEX_URL || 'https://registry.npmmirror.com/@lobehub/agents-index/v1/files/public',
+  assistantIndexUrl: '',
   topP: 0.95,
   topK: 40,
   temperature: 1,
@@ -34,9 +39,8 @@ const defaultSetting: DefaultSetting = {
 
 export const useSettingStore = create(
   persist<SettingStore>(
-    (set, get) => ({
+    (set) => ({
       ...defaultSetting,
-      isProtected: false,
       talkMode: 'chat',
       sidebarState: 'collapsed',
       update: (values) => set((state) => ({ ...state, ...values })),
@@ -44,7 +48,6 @@ export const useSettingStore = create(
         set(defaultSetting)
         return defaultSetting
       },
-      setIsProtected: (isProtected) => set({ isProtected }),
     }),
     {
       name: 'settingStore',
@@ -103,3 +106,11 @@ export const useSettingStore = create(
     },
   ),
 )
+
+export const useServerValueStore = create<ServerValueStore>((set) => ({
+  modelList: '',
+  uploadLimit: 0,
+  buildMode: '',
+  isProtected: false,
+  update: (values) => set(values),
+}))

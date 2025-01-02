@@ -38,6 +38,7 @@ import Arxiv from '@/components/plugins/Arxiv'
 import { useMessageStore } from '@/store/chat'
 import { useSettingStore } from '@/store/setting'
 import { usePluginStore } from '@/store/plugin'
+import { GEMINI_API_BASE_URL } from '@/constant/urls'
 import AudioStream from '@/utils/AudioStream'
 import { encodeToken } from '@/utils/signature'
 import translate from '@/utils/translate'
@@ -211,7 +212,7 @@ function MessageItem(props: Props) {
         try {
           const readableStream = await translate(
             apiKey === '' ? encodeToken(password) : apiKey,
-            apiKey === '' ? '/api/google' : apiProxy,
+            apiKey === '' ? '/api/google' : apiProxy || GEMINI_API_BASE_URL,
             content,
             lang,
           )

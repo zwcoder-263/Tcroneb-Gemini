@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea'
 import Button from '@/components/Button'
 import { useMessageStore } from '@/store/chat'
 import { useSettingStore } from '@/store/setting'
+import { GEMINI_API_BASE_URL } from '@/constant/urls'
 import { encodeToken } from '@/utils/signature'
 import optimizePrompt, { type RequestProps } from '@/utils/optimizePrompt'
 import { upperFirst } from 'lodash-es'
@@ -57,7 +58,7 @@ function SystemInstruction() {
       content: systemInstruction,
     }
     if (apiKey !== '') {
-      if (apiProxy) config.baseUrl = apiProxy
+      config.baseUrl = apiProxy || GEMINI_API_BASE_URL
     } else {
       config.apiKey = encodeToken(password)
       config.baseUrl = '/api/google'

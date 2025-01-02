@@ -26,7 +26,7 @@ import AttachmentArea from '@/components/AttachmentArea'
 import Button from '@/components/Button'
 import { useMessageStore } from '@/store/chat'
 import { useAttachmentStore } from '@/store/attachment'
-import { useSettingStore } from '@/store/setting'
+import { useSettingStore, useServerValueStore } from '@/store/setting'
 import { usePluginStore } from '@/store/plugin'
 import { pluginHandle } from '@/plugins'
 import i18n from '@/utils/i18n'
@@ -42,6 +42,7 @@ import { fileUpload, imageUpload } from '@/utils/upload'
 import { findOperationById } from '@/utils/plugin'
 import { detectLanguage, formatTime, readFileAsDataURL } from '@/utils/common'
 import { cn } from '@/utils'
+import { GEMINI_API_BASE_URL } from '@/constant/urls'
 import { OldVisionModel, OldTextModel } from '@/constant/model'
 import mimeType from '@/constant/attachment'
 import { customAlphabet } from 'nanoid'
@@ -56,7 +57,6 @@ interface AnswerParams {
   onError?: (error: string, code?: number) => void
 }
 
-const BUILD_MODE = process.env.NEXT_PUBLIC_BUILD_MODE as string
 const TEXTAREA_DEFAULT_HEIGHT = 30
 const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 12)
 
@@ -179,6 +179,7 @@ export default function Home() {
       const { tools } = usePluginStore.getState()
       const generationConfig: RequestProps['generationConfig'] = { topP, topK, temperature, maxOutputTokens }
       setErrorMessage('')
+      setIsThinking(true)
       const config: RequestProps = {
         messages,
         apiKey,
@@ -189,7 +190,7 @@ export default function Home() {
       if (systemInstruction) config.systemInstruction = systemInstruction
       if (tools.length > 0 && !isThinkingModel) config.tools = [{ functionDeclarations: tools }]
       if (apiKey !== '') {
-        if (apiProxy) config.baseUrl = apiProxy
+        config.baseUrl = apiProxy || GEMINI_API_BASE_URL
       } else {
         config.apiKey = encodeToken(password)
         config.baseUrl = '/api/google'
@@ -240,7 +241,7 @@ export default function Home() {
                   }
                 }
               } else if (item.finishMessage) {
-                console.error(item.finishMessage)
+                if (isFunction(onError)) onError(item.finishMessage)
               }
             })
           }
@@ -258,6 +259,7 @@ export default function Home() {
       } catch (error) {
         if (error instanceof Error && isFunction(onError)) {
           onError(error.message)
+          setIsThinking(false)
         }
       }
     },
@@ -298,7 +300,6 @@ export default function Home() {
       const { summary, add: addMessage } = useMessageStore.getState()
       speechQueue.current = new PromiseQueue()
       setSpeechSilence(false)
-      setIsThinking(true)
       let text = ''
       let thoughtText = ''
       textStream({
@@ -500,9 +501,10 @@ export default function Home() {
   )
 
   const checkAccessStatus = useCallback(() => {
-    const { isProtected, password, apiKey } = useSettingStore.getState()
+    const { password, apiKey } = useSettingStore.getState()
+    const { isProtected, buildMode } = useServerValueStore.getState()
     const isProtectedMode = isProtected && password === '' && apiKey === ''
-    const isStaticMode = BUILD_MODE === 'export' && apiKey === ''
+    const isStaticMode = buildMode === 'export' && apiKey === ''
     if (isProtectedMode || isStaticMode) {
       setSetingOpen(true)
       return false
@@ -701,7 +703,7 @@ export default function Home() {
         } else {
           const { apiKey, apiProxy, password } = useSettingStore.getState()
           const options: FileManagerOptions =
-            apiKey !== '' ? { apiKey, baseUrl: apiProxy } : { token: encodeToken(password) }
+            apiKey !== '' ? { apiKey, baseUrl: apiProxy || GEMINI_API_BASE_URL } : { token: encodeToken(password) }
 
           await fileUpload({ files: fileList, fileManagerOptions: options, addAttachment, updateAttachment })
         }
@@ -892,6 +894,13 @@ export default function Home() {
                 </div>
               </div>
             ))}
+            {executingPlugins.length > 0 ? (
+              <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
+                <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
+                  <MessageItem id="message" role="function" parts={genPluginStatusPart(executingPlugins)} />
+                </div>
+              </div>
+            ) : null}
             {isThinking ? (
               <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
                 <div className="flex gap-3 p-4 pb-1 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
@@ -902,13 +911,6 @@ export default function Home() {
                       thinkingMessage !== '' ? [{ text: thinkingMessage }, { text: message }] : [{ text: message }]
                     }
                   />
-                </div>
-              </div>
-            ) : null}
-            {executingPlugins.length > 0 ? (
-              <div className="group text-slate-500 transition-colors last:text-slate-800 hover:text-slate-800 dark:last:text-slate-400 dark:hover:text-slate-400 max-sm:hover:bg-transparent">
-                <div className="flex gap-3 p-4 hover:bg-gray-50/80 dark:hover:bg-gray-900/80">
-                  <MessageItem id="message" role="function" parts={genPluginStatusPart(executingPlugins)} />
                 </div>
               </div>
             ) : null}

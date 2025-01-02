@@ -10,6 +10,7 @@ import Button from '@/components/Button'
 import { useMessageStore } from '@/store/chat'
 import { useAssistantStore } from '@/store/assistant'
 import { useSettingStore } from '@/store/setting'
+import { ASSISTANT_INDEX_URL } from '@/constant/urls'
 import AssistantMarketUrl from '@/utils/AssistantMarketUrl'
 
 function CardSkeleton() {
@@ -49,7 +50,7 @@ function AssistantRecommend() {
   const handleSelectAssistant = useCallback(
     async (identifier: string) => {
       const { instruction, clear: clearMessage } = useMessageStore.getState()
-      const assistantMarketUrl = new AssistantMarketUrl(settingStore.assistantIndexUrl)
+      const assistantMarketUrl = new AssistantMarketUrl(settingStore.assistantIndexUrl || ASSISTANT_INDEX_URL)
       const response = await fetch(assistantMarketUrl.getAssistantUrl(identifier, settingStore.lang))
       const data: AssistantDetail = await response.json()
       clearMessage()

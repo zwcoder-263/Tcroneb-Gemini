@@ -1,6 +1,5 @@
 import imageCompression from 'browser-image-compression'
 import FileManager, { type FileManagerOptions } from '@/utils/FileManager'
-import FibonacciTimer from '@/utils/FibonacciTimer'
 import { encodeBase64 } from '@/utils/signature'
 import { formatSize } from '@/utils/common'
 import { isNull, isFunction, isString } from 'lodash-es'
@@ -65,7 +64,6 @@ export async function fileUpload({
 
     const checkFileStatus = async (fileMeta: FileMetadata) => {
       if (fileMeta.state === 'PROCESSING') {
-        const fibonacciTimer = new FibonacciTimer()
         const task = async () => {
           const fileManager = new FileManager(fileManagerOptions)
           const fileMetadata: FileMetadata = await fileManager.getFileMetadata(fileMeta.name.substring(6))
@@ -73,10 +71,11 @@ export async function fileUpload({
             fileInfor.status = fileMetadata.state
             fileInfor.metadata = fileMetadata
             updateAttachment(fileInfor.id, fileInfor)
-            fibonacciTimer.stopTimer()
+          } else {
+            setTimeout(task, 2000)
           }
         }
-        fibonacciTimer.startTimer(task, 1000, 1)
+        setTimeout(task, 2000)
       } else {
         fileInfor.status = fileMeta.state
         fileInfor.metadata = fileMeta
@@ -86,8 +85,8 @@ export async function fileUpload({
     }
 
     const fileManager = new FileManager(fileManagerOptions)
-    // Files smaller than 4MB are uploaded directly
-    if (file.size <= 4194304) {
+    // Files smaller than 8MB are uploaded directly
+    if (file.size <= 8388608) {
       fileManager
         .uploadFile(uploadFile)
         .then((fileMetadata) => {

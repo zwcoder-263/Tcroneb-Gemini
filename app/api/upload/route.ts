@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
       const uploadUrl = new URL(sessionUrl)
       uploadUrl.protocol = req.nextUrl.protocol
       uploadUrl.host = req.nextUrl.host
-      uploadUrl.pathname = '/api/google' + uploadUrl.pathname
+      uploadUrl.pathname = '/api/upload/files'
       uploadUrl.searchParams.delete('key')
       const url = uploadUrl.toString()
       return NextResponse.json({ url }, { headers: { Location: url } })
