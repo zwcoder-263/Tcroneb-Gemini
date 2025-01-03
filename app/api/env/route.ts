@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
-const ENABLE_PROTECT = process.env.ACCESS_PASSWORD && process.env.GEMINI_API_KEY
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
+const ACCESS_PASSWORD = process.env.ACCESS_PASSWORD || ''
 const NEXT_PUBLIC_BUILD_MODE = process.env.NEXT_PUBLIC_BUILD_MODE || 'default'
 const NEXT_PUBLIC_GEMINI_MODEL_LIST = process.env.NEXT_PUBLIC_GEMINI_MODEL_LIST || ''
 const NEXT_PUBLIC_UPLOAD_LIMIT = Number(process.env.NEXT_PUBLIC_UPLOAD_LIMIT || '0')
@@ -12,7 +13,7 @@ export async function GET(req: NextRequest) {
   if (NEXT_PUBLIC_BUILD_MODE === 'export') return new NextResponse('Not available under static deployment')
 
   return NextResponse.json({
-    isProtected: ENABLE_PROTECT,
+    isProtected: GEMINI_API_KEY !== '' && ACCESS_PASSWORD !== '',
     buildMode: NEXT_PUBLIC_BUILD_MODE,
     modelList: NEXT_PUBLIC_GEMINI_MODEL_LIST,
     uploadLimit: NEXT_PUBLIC_UPLOAD_LIMIT,
