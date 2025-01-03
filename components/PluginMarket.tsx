@@ -60,15 +60,7 @@ const deafultCustomPlugin = {
 }
 
 async function loadPluginManifest(url: string, useProxy = false, token = '') {
-  let response
-  if (useProxy) {
-    response = await fetch(`/api/gateway?token=${token}`, {
-      method: 'POST',
-      body: JSON.stringify({ baseUrl: url }),
-    })
-  } else {
-    response = await fetch(url)
-  }
+  const response = await fetch(url)
   const contentType = response.headers.get('Content-Type')
   try {
     if (contentType === 'application/json') {
@@ -386,21 +378,21 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
         </TabsContent>
         <TabsContent value="custom">
           <ScrollArea className="h-[452px] w-full scroll-smooth">
-            <div className="pt-1">
+            <div className="pb-3 pt-1">
               <div className="flex w-full gap-2">
                 <Input placeholder={t('pluginUrlPlaceholder')} onChange={(ev) => setManifestUrl(ev.target.value)} />
                 <Button type="submit" onClick={() => handleLoadPlugin(manifestUrl)}>
                   {t('loadingConfig')}
                 </Button>
               </div>
-              {buildMode !== 'export' ? (
+              {/* {buildMode !== 'export' ? (
                 <div className="my-2 flex gap-2">
                   <Checkbox id="proxy" onCheckedChange={(checkedState) => setUseProxy(!!checkedState)} />
                   <label htmlFor="proxy" className="text-sm font-medium leading-4">
                     {t('pluginServerProxy')}
                   </label>
                 </div>
-              ) : null}
+              ) : null} */}
             </div>
             <div className="mb-3">
               <Card className="transition-colors dark:hover:border-white/80">
@@ -448,7 +440,7 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
             </div>
             <div>
               <Textarea
-                className="h-[220px] whitespace-pre-wrap max-sm:h-[212px]"
+                className="h-[258px] whitespace-pre-wrap max-sm:h-[242px]"
                 placeholder={t('customPluginPlaceholder')}
                 value={pluginDetail}
                 onChange={(ev) => setPluginDetail(ev.target.value)}

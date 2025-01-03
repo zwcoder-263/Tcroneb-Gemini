@@ -176,22 +176,23 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
   )
 
   useLayoutEffect(() => {
-    if (open && !cachedModelList) {
-      const { update } = useModelStore.getState()
-      const { apiKey, apiProxy, password } = useSettingStore.getState()
-      fetchModels({ apiKey, apiProxy, password })
-        .then((models) => {
-          if (models.length > 0) {
-            update(models)
-            cachedModelList = true
-          }
-        })
-        .catch(console.error)
-    }
     if (buildMode === 'export') {
       setHiddenPasswordInput(true)
+    } else if (open && !cachedModelList) {
+      const { update } = useModelStore.getState()
+      const { apiKey, apiProxy, password } = useSettingStore.getState()
+      if (apiKey || !isProtected) {
+        fetchModels({ apiKey, apiProxy, password })
+          .then((models) => {
+            if (models.length > 0) {
+              update(models)
+              cachedModelList = true
+            }
+          })
+          .catch(console.error)
+      }
     }
-  }, [open, buildMode])
+  }, [open, buildMode, isProtected])
 
   return (
     <ResponsiveDialog

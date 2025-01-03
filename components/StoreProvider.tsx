@@ -4,19 +4,18 @@ import { useServerValueStore } from '@/store/setting'
 
 interface Props {
   children: React.ReactNode
-  isProtected?: boolean
-  modelList?: string
-  uploadLimit?: number
-  buildMode?: string
 }
 
-function StoreProvider(props: Props) {
-  const { children, ...serverValues } = props
-
+function StoreProvider({ children }: Props) {
   useLayoutEffect(() => {
     const { update } = useServerValueStore.getState()
-    update(serverValues)
-  }, [serverValues])
+    fetch('/api/env')
+      .then(async (response) => {
+        const env = await response.json()
+        update(env)
+      })
+      .catch(console.error)
+  }, [])
 
   return children
 }
