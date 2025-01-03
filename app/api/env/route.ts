@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
-const ENABLE_PROTECT = process.env.ACCESS_PASSWORD !== '' && process.env.GEMINI_API_KEY !== ''
+const ENABLE_PROTECT = process.env.ACCESS_PASSWORD && process.env.GEMINI_API_KEY
 const NEXT_PUBLIC_BUILD_MODE = process.env.NEXT_PUBLIC_BUILD_MODE || 'default'
 const NEXT_PUBLIC_GEMINI_MODEL_LIST = process.env.NEXT_PUBLIC_GEMINI_MODEL_LIST || ''
 const NEXT_PUBLIC_UPLOAD_LIMIT = Number(process.env.NEXT_PUBLIC_UPLOAD_LIMIT || '0')
