@@ -175,6 +175,13 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
     [onClose, update],
   )
 
+  const handlePwaInstall = useCallback(async () => {
+    if ('serviceWorker' in navigator && window.serwist !== undefined) {
+      await window.serwist.register()
+    }
+    if (pwaInstall) await pwaInstall()
+  }, [pwaInstall])
+
   useLayoutEffect(() => {
     if (buildMode === 'export') {
       setHiddenPasswordInput(true)
@@ -274,7 +281,7 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
                 {pwaInstall ? (
                   <div className="grid grid-cols-4 items-center gap-4 space-y-0">
                     <Label className="text-right">{t('installPwa')}</Label>
-                    <Button className="col-span-3" type="button" variant="ghost" onClick={() => pwaInstall()}>
+                    <Button className="col-span-3" type="button" variant="ghost" onClick={() => handlePwaInstall()}>
                       <MonitorDown className="mr-1.5 h-4 w-4" />
                       {t('pwaInstall')}
                     </Button>

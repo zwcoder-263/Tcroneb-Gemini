@@ -39,6 +39,7 @@ module.exports = async (phase) => {
       // use something else that works, such as "service-worker/index.ts".
       swSrc: 'app/sw.ts',
       swDest: 'public/sw.js',
+      register: false,
     })
     return withSerwist(nextConfig)
   }
