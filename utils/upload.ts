@@ -6,6 +6,7 @@ import { isNull, isFunction, isString } from 'lodash-es'
 
 type fileUploadOptions = {
   files: FileList | File[] | null
+  uploadLimit: number
   fileManagerOptions: FileManagerOptions
   addAttachment: (fileInfor: FileInfor) => void
   updateAttachment: (id: string, fileInfor: FileInfor) => void
@@ -19,8 +20,6 @@ type imageUploadOptions = {
   onError?: (error: string) => void
 }
 
-const UPLOAD_SIZE_LIMIT = Number(process.env.NEXT_PUBLIC_UPLOAD_LIMIT || '0')
-
 const compressionOptions = {
   maxSizeMB: 2,
   maxWidthOrHeight: 1024,
@@ -30,6 +29,7 @@ const compressionOptions = {
 
 export async function fileUpload({
   files,
+  uploadLimit,
   fileManagerOptions,
   addAttachment,
   updateAttachment,
@@ -39,8 +39,8 @@ export async function fileUpload({
   if (fileManagerOptions.token === '' || fileManagerOptions.apiKey === '') return false
 
   for await (const file of files) {
-    if (UPLOAD_SIZE_LIMIT > 0 && file.size > UPLOAD_SIZE_LIMIT) {
-      const errorMessage = `File size larger than ${formatSize(UPLOAD_SIZE_LIMIT)} limit!`
+    if (uploadLimit > 0 && file.size > uploadLimit) {
+      const errorMessage = `File size larger than ${formatSize(uploadLimit)} limit!`
       if (isFunction(onError)) onError(errorMessage)
       throw new Error(errorMessage)
     }

@@ -26,7 +26,7 @@ import AttachmentArea from '@/components/AttachmentArea'
 import Button from '@/components/Button'
 import { useMessageStore } from '@/store/chat'
 import { useAttachmentStore } from '@/store/attachment'
-import { useSettingStore, useServerValueStore } from '@/store/setting'
+import { useSettingStore, useEnvStore } from '@/store/setting'
 import { usePluginStore } from '@/store/plugin'
 import { pluginHandle } from '@/plugins'
 import i18n from '@/utils/i18n'
@@ -502,7 +502,7 @@ export default function Home() {
 
   const checkAccessStatus = useCallback(() => {
     const { password, apiKey } = useSettingStore.getState()
-    const { isProtected, buildMode } = useServerValueStore.getState()
+    const { isProtected, buildMode } = useEnvStore.getState()
     const isProtectedMode = isProtected && password === '' && apiKey === ''
     const isStaticMode = buildMode === 'export' && apiKey === ''
     if (isProtectedMode || isStaticMode) {
@@ -702,10 +702,17 @@ export default function Home() {
           await imageUpload({ files: fileList, addAttachment, updateAttachment })
         } else {
           const { apiKey, apiProxy, password } = useSettingStore.getState()
+          const { uploadLimit } = useEnvStore.getState()
           const options: FileManagerOptions =
             apiKey !== '' ? { apiKey, baseUrl: apiProxy || GEMINI_API_BASE_URL } : { token: encodeToken(password) }
 
-          await fileUpload({ files: fileList, fileManagerOptions: options, addAttachment, updateAttachment })
+          await fileUpload({
+            files: fileList,
+            uploadLimit,
+            fileManagerOptions: options,
+            addAttachment,
+            updateAttachment,
+          })
         }
       }
     },

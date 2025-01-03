@@ -22,7 +22,7 @@ import { fetchModels } from '@/utils/models'
 import locales from '@/constant/locales'
 import { Model } from '@/constant/model'
 import { GEMINI_API_BASE_URL, ASSISTANT_INDEX_URL } from '@/constant/urls'
-import { useSettingStore, useServerValueStore } from '@/store/setting'
+import { useSettingStore, useEnvStore } from '@/store/setting'
 import { useModelStore } from '@/store/model'
 import { toPairs, values, keys, omitBy, isFunction, find } from 'lodash-es'
 
@@ -60,7 +60,7 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
   const pwaInstall = usePWAInstall()
   const { update, reset } = useSettingStore()
   const modelStore = useModelStore()
-  const { isProtected, buildMode, modelList: MODEL_LIST } = useServerValueStore()
+  const { isProtected, buildMode, modelList: MODEL_LIST } = useEnvStore()
   const [ttsLang, setTtsLang] = useState<string>('')
   const [hiddenPasswordInput, setHiddenPasswordInput] = useState<boolean>(false)
   const voiceOptions = useMemo(() => {

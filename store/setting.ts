@@ -10,7 +10,7 @@ interface SettingStore extends Setting {
   reset: () => DefaultSetting
 }
 
-interface ServerValueStore {
+interface EnvStore {
   modelList: string
   uploadLimit: number
   buildMode: string
@@ -107,7 +107,7 @@ export const useSettingStore = create(
   ),
 )
 
-export const useServerValueStore = create<ServerValueStore>((set) => ({
+export const useEnvStore = create<EnvStore>((set) => ({
   modelList: '',
   uploadLimit: 0,
   buildMode: '',

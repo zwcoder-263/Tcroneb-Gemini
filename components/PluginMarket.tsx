@@ -15,7 +15,7 @@ import { useToast } from '@/components/ui/use-toast'
 import ResponsiveDialog from '@/components/ResponsiveDialog'
 import SearchBar from '@/components/SearchBar'
 import { usePluginStore } from '@/store/plugin'
-import { useSettingStore, useServerValueStore } from '@/store/setting'
+import { useSettingStore, useEnvStore } from '@/store/setting'
 import { encodeToken } from '@/utils/signature'
 import { isUndefined, find, findIndex, snakeCase } from 'lodash-es'
 
@@ -105,7 +105,6 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
     removeTool,
   } = usePluginStore()
   const password = useSettingStore((state) => state.password)
-  const buildMode = useServerValueStore((state) => state.buildMode)
   const { t } = useTranslation()
   const { toast } = useToast()
   const [pluginList, setPluginList] = useState<PluginManifest[]>([])
@@ -385,14 +384,6 @@ function PluginMarket({ open, onClose }: PluginStoreProps) {
                   {t('loadingConfig')}
                 </Button>
               </div>
-              {/* {buildMode !== 'export' ? (
-                <div className="my-2 flex gap-2">
-                  <Checkbox id="proxy" onCheckedChange={(checkedState) => setUseProxy(!!checkedState)} />
-                  <label htmlFor="proxy" className="text-sm font-medium leading-4">
-                    {t('pluginServerProxy')}
-                  </label>
-                </div>
-              ) : null} */}
             </div>
             <div className="mb-3">
               <Card className="transition-colors dark:hover:border-white/80">

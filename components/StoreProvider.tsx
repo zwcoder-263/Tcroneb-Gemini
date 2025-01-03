@@ -1,6 +1,6 @@
 'use client'
 import { useLayoutEffect } from 'react'
-import { useServerValueStore } from '@/store/setting'
+import { useEnvStore } from '@/store/setting'
 
 interface Props {
   children: React.ReactNode
@@ -8,7 +8,7 @@ interface Props {
 
 function StoreProvider({ children }: Props) {
   useLayoutEffect(() => {
-    const { update } = useServerValueStore.getState()
+    const { update } = useEnvStore.getState()
     fetch('/api/env')
       .then(async (response) => {
         const env = await response.json()

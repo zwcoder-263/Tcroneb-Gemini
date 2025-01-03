@@ -5,7 +5,7 @@ import { useToast } from '@/components/ui/use-toast'
 import type { FileManagerOptions } from '@/utils/FileManager'
 import { encodeToken } from '@/utils/signature'
 import { fileUpload, imageUpload } from '@/utils/upload'
-import { useSettingStore } from '@/store/setting'
+import { useSettingStore, useEnvStore } from '@/store/setting'
 import { useAttachmentStore } from '@/store/attachment'
 import { GEMINI_API_BASE_URL } from '@/constant/urls'
 import { OldVisionModel } from '@/constant/model'
@@ -38,12 +38,14 @@ function FileUploader({ beforeUpload, afterUpload }: Props) {
       if (isFunction(beforeUpload)) beforeUpload()
 
       const { apiKey, apiProxy, password } = useSettingStore.getState()
+      const { uploadLimit } = useEnvStore.getState()
       const options: FileManagerOptions =
         apiKey !== '' ? { apiKey, baseUrl: apiProxy || GEMINI_API_BASE_URL } : { token: encodeToken(password) }
       const { add: addAttachment, update: updateAttachment } = useAttachmentStore.getState()
 
       await fileUpload({
         files,
+        uploadLimit,
         fileManagerOptions: options,
         addAttachment,
         updateAttachment,
