@@ -185,7 +185,8 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
   useLayoutEffect(() => {
     if (buildMode === 'export') {
       setHiddenPasswordInput(true)
-    } else if (open && !cachedModelList) {
+    }
+    if (open && !cachedModelList) {
       const { update } = useModelStore.getState()
       const { apiKey, apiProxy, password } = useSettingStore.getState()
       if (apiKey || !isProtected) {

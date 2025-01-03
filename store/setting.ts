@@ -111,6 +111,6 @@ export const useEnvStore = create<EnvStore>((set) => ({
   modelList: '',
   uploadLimit: 0,
   buildMode: '',
-  isProtected: false,
+  isProtected: true,
   update: (values) => set(values),
 }))
