@@ -3,6 +3,8 @@ const { PHASE_PRODUCTION_BUILD, PHASE_EXPORT } = require('next/constants')
 
 const mode = process.env.NEXT_PUBLIC_BUILD_MODE
 const basePath = process.env.EXPORT_BASE_PATH || ''
+const geminiApiKey = process.env.GEMINI_API_KEY || ''
+const uploadProxyUrl = process.env.GEMINI_API_BASE_URL || 'https://generativelanguage.googleapis.com'
 
 /** @type {(phase: string, defaultConfig: import("next").NextConfig) => Promise<import("next").NextConfig>} */
 module.exports = async (phase) => {
@@ -22,12 +24,80 @@ module.exports = async (phase) => {
 
   if (mode !== 'export') {
     nextConfig.rewrites = async () => {
+      const beforeFilesConfig =
+        mode === 'standalone'
+          ? [
+              {
+                source: '/api/google/upload/v1beta/files',
+                has: [
+                  {
+                    type: 'query',
+                    key: 'key',
+                    value: '(?<key>.*)',
+                  },
+                ],
+                destination: '/api/upload/files',
+              },
+              {
+                source: '/api/google/v1beta/files/:id',
+                has: [
+                  {
+                    type: 'query',
+                    key: 'key',
+                    value: '(?<key>.*)',
+                  },
+                ],
+                destination: '/api/upload/files?id=:id',
+              },
+            ]
+          : [
+              {
+                source: '/api/google/upload/v1beta/files',
+                has: [
+                  {
+                    type: 'query',
+                    key: 'key',
+                    value: '(?<key>.*)',
+                  },
+                ],
+                destination: `${uploadProxyUrl}/upload/v1beta/files?key=${geminiApiKey}`,
+              },
+              {
+                source: '/api/google/v1beta/files/:id',
+                has: [
+                  {
+                    type: 'query',
+                    key: 'key',
+                    value: '(?<key>.*)',
+                  },
+                ],
+                destination: `${uploadProxyUrl}/v1beta/files/:id?key=${geminiApiKey}`,
+              },
+            ]
       return {
         beforeFiles: [
           {
             source: '/api/google/v1beta/models/:model',
             destination: '/api/chat?model=:model',
           },
+          {
+            source: '/api/google/upload/v1beta/files',
+            has: [
+              {
+                type: 'query',
+                key: 'uploadType',
+                value: 'resumable',
+              },
+            ],
+            missing: [
+              {
+                type: 'query',
+                key: 'upload_id',
+              },
+            ],
+            destination: `/api/upload`,
+          },
+          ...beforeFilesConfig,
         ],
       }
     }

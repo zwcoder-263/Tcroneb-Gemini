@@ -88,7 +88,8 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
       for (const name of defaultModelList) {
         if (!modelList.includes(name)) modelList.push(name)
       }
-      if (modelName === '-all') {
+      if (modelName === 'all' || modelName === '+all') {
+      } else if (modelName === '-all') {
         modelList = modelList.filter((name) => !defaultModelList.includes(name))
       } else if (modelName.startsWith('-')) {
         modelList = modelList.filter((name) => name !== modelName.substring(1))

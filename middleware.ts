@@ -4,10 +4,10 @@ import { generateSignature, generateUTCTimestamp, decodeToken } from '@/utils/si
 import { ErrorType } from '@/constant/errors'
 import { isNull } from 'lodash-es'
 
-const password = (process.env.ACCESS_PASSWORD as string) || ''
+const password = process.env.ACCESS_PASSWORD || ''
 const uploadLimit = Number(process.env.NEXT_PUBLIC_UPLOAD_LIMIT || '0')
 
-const proxyRoutes = ['/api/google/upload/v1beta/files', 'api/google/v1beta/files']
+const proxyRoutes = ['/api/google/upload/v1beta/files', '/api/google/v1beta/files']
 const apiRoutes = ['/api/chat', '/api/upload', '/api/models']
 
 // Limit the middleware to paths starting with `/api/`
@@ -58,4 +58,5 @@ export function middleware(request: NextRequest) {
       return NextResponse.json({ code: 40301, message: ErrorType.InValidToken }, { status: 403 })
     }
   }
+  return NextResponse.next()
 }
