@@ -24,56 +24,55 @@ module.exports = async (phase) => {
 
   if (mode !== 'export') {
     nextConfig.rewrites = async () => {
-      const beforeFilesConfig =
-        mode === 'standalone'
-          ? [
-              {
-                source: '/api/google/upload/v1beta/files',
-                has: [
-                  {
-                    type: 'query',
-                    key: 'key',
-                    value: '(?<key>.*)',
-                  },
-                ],
-                destination: '/api/upload/files',
-              },
-              {
-                source: '/api/google/v1beta/files/:id',
-                has: [
-                  {
-                    type: 'query',
-                    key: 'key',
-                    value: '(?<key>.*)',
-                  },
-                ],
-                destination: '/api/upload/files?id=:id',
-              },
-            ]
-          : [
-              {
-                source: '/api/google/upload/v1beta/files',
-                has: [
-                  {
-                    type: 'query',
-                    key: 'key',
-                    value: '(?<key>.*)',
-                  },
-                ],
-                destination: `${uploadProxyUrl}/upload/v1beta/files?key=${geminiApiKey}`,
-              },
-              {
-                source: '/api/google/v1beta/files/:id',
-                has: [
-                  {
-                    type: 'query',
-                    key: 'key',
-                    value: '(?<key>.*)',
-                  },
-                ],
-                destination: `${uploadProxyUrl}/v1beta/files/:id?key=${geminiApiKey}`,
-              },
-            ]
+      const beforeFilesConfig = geminiApiKey
+        ? [
+            {
+              source: '/api/google/upload/v1beta/files',
+              has: [
+                {
+                  type: 'query',
+                  key: 'key',
+                  value: '(?<key>.*)',
+                },
+              ],
+              destination: `${uploadProxyUrl}/upload/v1beta/files?key=${geminiApiKey}`,
+            },
+            {
+              source: '/api/google/v1beta/files/:id',
+              has: [
+                {
+                  type: 'query',
+                  key: 'key',
+                  value: '(?<key>.*)',
+                },
+              ],
+              destination: `${uploadProxyUrl}/v1beta/files/:id?key=${geminiApiKey}`,
+            },
+          ]
+        : [
+            {
+              source: '/api/google/upload/v1beta/files',
+              has: [
+                {
+                  type: 'query',
+                  key: 'key',
+                  value: '(?<key>.*)',
+                },
+              ],
+              destination: '/api/upload/files',
+            },
+            {
+              source: '/api/google/v1beta/files/:id',
+              has: [
+                {
+                  type: 'query',
+                  key: 'key',
+                  value: '(?<key>.*)',
+                },
+              ],
+              destination: '/api/upload/files?id=:id',
+            },
+          ]
       return {
         beforeFiles: [
           {
