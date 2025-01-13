@@ -387,8 +387,6 @@ export default function Home() {
           ],
         }
         addMessage(functionCallMessage)
-        const { password } = useSettingStore.getState()
-        const token = encodeToken(password)
         const payload: GatewayPayload = {
           baseUrl: `${baseUrl}${operation.path}`,
           method: operation.method as GatewayPayload['method'],

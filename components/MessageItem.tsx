@@ -445,7 +445,10 @@ function MessageItem(props: Props) {
                       </span>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <div dangerouslySetInnerHTML={{ __html: thoughtsHtml }}></div>
+                      <div
+                        className="prose chat-content break-words"
+                        dangerouslySetInnerHTML={{ __html: thoughtsHtml }}
+                      ></div>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>

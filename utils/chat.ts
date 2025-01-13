@@ -2,7 +2,7 @@ import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/ge
 import type { InlineDataPart, ModelParams, Tool, ToolConfig, Part } from '@google/generative-ai'
 import { getVisionPrompt, getFunctionCallPrompt } from '@/utils/prompt'
 import { OldVisionModel } from '@/constant/model'
-import { isUndefined, pick } from 'lodash-es'
+import { isUndefined } from 'lodash-es'
 
 export type RequestProps = {
   model?: string
@@ -62,7 +62,11 @@ export default async function chat({
   safety,
 }: RequestProps) {
   const genAI = new GoogleGenerativeAI(apiKey)
-  const modelParams: ModelParams = { model, generationConfig, safetySettings: getSafetySettings(safety) }
+  const modelParams: ModelParams & { tools?: Array<Tool | { googleSearch: {} } | { codeExecution: {} }> } = {
+    model,
+    generationConfig,
+    safetySettings: getSafetySettings(safety),
+  }
   if (systemInstruction) {
     if (!model.startsWith('gemini-1.0')) {
       modelParams.systemInstruction = systemInstruction
@@ -85,6 +89,14 @@ export default async function chat({
       temperature: 0,
     }
     if (toolConfig) modelParams.toolConfig = toolConfig
+  }
+  if (model === 'gemini-2.0-flash-exp') {
+    const officialPlugins = [{ googleSearch: {} }]
+    if (tools) {
+      modelParams.tools = [...officialPlugins, ...tools]
+    } else {
+      modelParams.tools = officialPlugins
+    }
   }
   const geminiModel = genAI.getGenerativeModel(modelParams, { baseUrl })
   const message = messages.pop()

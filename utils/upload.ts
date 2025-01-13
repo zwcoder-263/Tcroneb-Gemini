@@ -45,7 +45,7 @@ export async function fileUpload({
       throw new Error(errorMessage)
     }
     const fileInfor: FileInfor = {
-      id: encodeBase64(`${file.name}:${file.type}:${file.type}`),
+      id: encodeBase64(`${file.name}:${file.type}:${file.size}`),
       name: file.name,
       mimeType: file.type,
       size: file.size,
@@ -128,7 +128,7 @@ export async function imageUpload({ files, addAttachment, updateAttachment, onEr
   if (isNull(files)) return false
   for await (const file of files) {
     const fileInfor: FileInfor = {
-      id: encodeBase64(`${file.name}:${file.type}:${file.type}`),
+      id: encodeBase64(`${file.name}:${file.type}:${file.size}`),
       name: file.name,
       mimeType: file.type,
       size: file.size,

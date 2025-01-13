@@ -90,8 +90,8 @@
   - [容器部署（推荐）](#容器部署推荐)
   - [静态部署](#静态部署)
 - [常见问题](#常见问题)
-- [收藏历史](#收藏历史)
 - [开源协议](#开源协议)
+- [收藏历史](#收藏历史)
 
 ## 主要功能
 
@@ -118,6 +118,8 @@
 - [x] 使用 tauri 打包桌面应用
 - [x] 实现基于 functionCall 插件
 - [x] 支持会话列表
+- [ ] 支持对话分享和导出功能
+- [ ] 启用 Multimodal Live API
 
 ## 开始使用
 
@@ -269,13 +271,13 @@ pnpm build:export
 
 #### 为什么我无法上传 doc、excel 和 ppt 这类常见文档
 
-目前 `Gemini 1.5 Pro` 和 `Gemini 1.5 Flash` 这两个模型支持的大部分的图片、音频、视频和部分文本类的文件。对于其他文档类型，后续将尝试使用 [LangChain.js](https://js.langchain.com/v0.2/docs/introduction/) 来实现。
+目前 `Gemini 1.5` 和 `Gemini 2.0` 这两类模型支持的大部分的图片、音频、视频和部分文本类的文件。对于其他文档类型，后续将尝试使用 [LangChain.js](https://js.langchain.com/v0.2/docs/introduction/) 来实现。
 
 #### 为什么我用 vercel 一键部署后的网站无法在中国正常访问
 
 vercel 部署后生成的域名在几年前就已经被国内网络屏蔽，但并没有屏蔽服务器的 ip 地址。可以自定义域名，就可以在国内正常访问了。由于 vercel 在国内并没有服务器，所以有时候会出现些许的网络波动，属于正常现象。如何设置域名，可以参考我从网上找到的解决文章[Vercel绑定自定义域名](https://docs.tangly1024.com/article/vercel-domain)。
 
-## 感谢
+## 致谢
 
 ### 技术栈
 
@@ -290,10 +292,10 @@ vercel 部署后生成的域名在几年前就已经被国内网络屏蔽，但�
 - [ChatGPT-Next-Web](https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web)
 - [GeminiProChat](https://github.com/babaohuang/GeminiProChat)
 
-## 收藏历史
-
-[![Star History Chart](https://api.star-history.com/svg?repos=u14app/gemini-next-chat&type=Date)](https://star-history.com/#u14app/gemini-next-chat&Date)
-
 ## 开源协议
 
 [MIT](https://www.apache.org/licenses/LICENSE-2.0)
+
+## 收藏历史
+
+[![Star History Chart](https://api.star-history.com/svg?repos=u14app/gemini-next-chat&type=Date)](https://star-history.com/#u14app/gemini-next-chat&Date)

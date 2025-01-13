@@ -90,8 +90,8 @@ A cross-platform application client that supports a permanent menu bar, doubling
   - [Docker (Recommended)](#docker-recommended)
   - [Static Deployment](#static-deployment)
 - [FAQ](#faq)
-- [Star History](#star-history)
 - [LICENSE](#license)
+- [Star History](#star-history)
 
 ## Features
 
@@ -118,6 +118,8 @@ A cross-platform application client that supports a permanent menu bar, doubling
 - [x] Use tauri to package desktop applications
 - [x] Implementation based on functionCall plug-in
 - [x] Support conversation list
+- [ ] Support conversation sharing and export features
+- [ ] Enable Multimodal Live API
 
 ## Get Started
 
@@ -259,7 +261,7 @@ pnpm build:export
 
 If you deploy the project in a subdirectory and encounter resource loading failures when accessing, please add `EXPORT_BASE_PATH=/path/project` in the `.env` file or variable setting page.
 
-## Thanks
+## Acknowledgments
 
 ### Technology Stack
 
@@ -284,12 +286,12 @@ If you deploy the project in a subdirectory and encounter resource loading failu
 
 #### Why can’t I upload common documents such as doc, excel, and ppt?
 
-Currently, the two models `Gemini 1.5 Pro` and `Gemini 1.5 Flash` support most images, audios, videos and some text files. For details. For other document types, we will try to use [LangChain.js](https://js.langchain.com/v0.2/docs/introduction/) later.
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=u14app/gemini-next-chat&type=Date)](https://star-history.com/#u14app/gemini-next-chat&Date)
+Currently, the two kind models `Gemini 1.5` and `Gemini 2.0` support most images, audios, videos and some text files. For details. For other document types, we will try to use [LangChain.js](https://js.langchain.com/v0.2/docs/introduction/) later.
 
 ## LICENSE
 
 [MIT](https://www.apache.org/licenses/LICENSE-2.0)
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=u14app/gemini-next-chat&type=Date)](https://star-history.com/#u14app/gemini-next-chat&Date)
