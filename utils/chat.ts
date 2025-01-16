@@ -92,9 +92,7 @@ export default async function chat({
   }
   if (model === 'gemini-2.0-flash-exp') {
     const officialPlugins = [{ googleSearch: {} }]
-    if (tools) {
-      modelParams.tools = [...officialPlugins, ...tools]
-    } else {
+    if (!tools) {
       modelParams.tools = officialPlugins
     }
   }
