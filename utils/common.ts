@@ -84,3 +84,15 @@ export function base64ToBlob(base64String: string, contentType: string = ''): Bl
   const byteArray = new Uint8Array(byteNumbers)
   return new Blob([byteArray], { type: contentType })
 }
+
+export function downloadFile(content: string, filename: string, fileType: string) {
+  const blob = new Blob([content], { type: fileType })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
