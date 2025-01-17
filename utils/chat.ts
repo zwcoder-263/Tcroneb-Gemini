@@ -23,7 +23,7 @@ export type RequestProps = {
 
 export type NewModelParams = ModelParams & {
   tools?: Array<Tool | { googleSearch: {} } | { codeExecution: {} }>
-  safetySettings?: Array<SafetySetting | { category: string; threshold: string }>
+  safetySettings?: SafetySetting[] & Array<{ category: string; threshold: string }>
 }
 
 export function getSafetySettings(level: string) {
