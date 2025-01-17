@@ -101,20 +101,22 @@ export default async function chat({
       modelParams.tools = officialPlugins
     }
   }
-  if (model.startsWith('gemini-2.0') && modelParams.safetySettings) {
-    const safetySettings: NewModelParams['safetySettings'] = []
-    modelParams.safetySettings.forEach((item) => {
-      if (safety === 'none') {
-        safetySettings.push({ category: item.category, threshold: 'OFF' })
-      } else {
-        safetySettings.push(item)
-      }
-    })
-    safetySettings.push({
-      category: 'HARM_CATEGORY_CIVIC_INTEGRITY',
-      threshold: HarmBlockThreshold.BLOCK_NONE,
-    })
-    modelParams.safetySettings = safetySettings
+  if (model.startsWith('gemini-2.0-flash-exp') || model.startsWith('gemini-exp')) {
+    if (modelParams.safetySettings) {
+      const safetySettings: NewModelParams['safetySettings'] = []
+      modelParams.safetySettings.forEach((item) => {
+        if (safety === 'none') {
+          safetySettings.push({ category: item.category, threshold: 'OFF' })
+        } else {
+          safetySettings.push(item)
+        }
+      })
+      safetySettings.push({
+        category: 'HARM_CATEGORY_CIVIC_INTEGRITY',
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      })
+      modelParams.safetySettings = safetySettings
+    }
   }
   const geminiModel = genAI.getGenerativeModel(modelParams, { baseUrl })
   const message = messages.pop()

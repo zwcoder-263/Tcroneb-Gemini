@@ -327,10 +327,16 @@ export default function Home() {
               role: 'model',
               parts: thoughtText !== '' ? [{ text: thoughtText }, { text }] : [{ text }],
             })
-            setMessage('')
-            setThinkingMessage('')
-            scrollToBottom()
+          } else if (thoughtText !== '') {
+            addMessage({
+              id: nanoid(),
+              role: 'model',
+              parts: [{ text: thoughtText }],
+            })
           }
+          setMessage('')
+          setThinkingMessage('')
+          scrollToBottom()
           setIsThinking(false)
           stopGeneratingRef.current = false
           setExecutingPlugins([])
