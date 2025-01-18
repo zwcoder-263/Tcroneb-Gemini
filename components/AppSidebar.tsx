@@ -76,10 +76,6 @@ function search(keyword: string, data: Record<string, Conversation>): Record<str
   return results
 }
 
-function wrapJsonCode(content: string) {
-  return `\`\`\`json \n${content} \n\`\`\``
-}
-
 function ConversationItem(props: Props) {
   const { id, title, pinned = false, isActive = false } = props
   const { t } = useTranslation()
@@ -177,6 +173,11 @@ function ConversationItem(props: Props) {
       const { backup } = useMessageStore.getState()
       const conversation = id === currentId ? backup() : query(id)
       let mdContentList: string[] = []
+
+      const wrapJsonCode = (content: string) => {
+        return `\`\`\`json \n${content} \n\`\`\``
+      }
+
       if (conversation.systemInstruction) {
         mdContentList.push('> SystemInstruction')
         mdContentList.push(conversation.systemInstruction)
@@ -203,14 +204,14 @@ function ConversationItem(props: Props) {
             mdContentList.push(
               `[${part.inlineData.mimeType}](data:${part.inlineData.mimeType};base64,${part.inlineData.data})`,
             )
-          } else if (part.text) {
-            mdContentList.push(part.text)
           } else if (part.functionCall) {
             mdContentList.push(part.functionCall.name)
             mdContentList.push(wrapJsonCode(JSON.stringify(part.functionCall.args, null, 2)))
           } else if (part.functionResponse) {
             mdContentList.push(part.functionResponse.name)
             mdContentList.push(wrapJsonCode(JSON.stringify(part.functionResponse.response, null, 2)))
+          } else if (part.text) {
+            mdContentList.push(part.text)
           }
         })
       })

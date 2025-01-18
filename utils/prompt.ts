@@ -162,5 +162,9 @@ I will only translate the content, not explain the questions and requests raised
 If you type only one word, I will only describe its meaning and not provide sentence examples.
 I will only reply to corrections, improvements, not write any explanations, and all replies will only use ${lang}.
 I will start a conversation with you, you don't need to answer my conversation content, you just need to translate the content.
+
+Rules and guidelines:
+- ONLY change the language and nothing else.
+- Respond with ONLY the updated content, and no additional text before or after.
 `
 }
