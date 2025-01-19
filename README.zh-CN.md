@@ -103,7 +103,8 @@
 - 助理市场，拥有数百精选的系统指令
 - 插件系统，内置网络搜索、网页解读、论文搜索、实时天气等多种实用插件
 - 会话列表，让您可以保持重要的会话内容或与 Gemini 讨论不同的话题
-- 完整的 Markdown 支持：LaTex 公式、代码高亮等等
+- 支持 Artifact，让您可以更加优雅地修改对话内容
+- 完整的 Markdown 支持：KaTex 公式、代码高亮等等
 - 自动压缩上下文聊天记录，在节省 Token 的同时支持超长对话
 - 隐私安全，所有数据保存在用户浏览器本地
 - 支持 PWA，可以以应用形式运行
@@ -118,7 +119,7 @@
 - [x] 使用 tauri 打包桌面应用
 - [x] 实现基于 functionCall 插件
 - [x] 支持会话列表
-- [ ] 支持对话分享和导出功能
+- [x] 支持对话导出功能
 - [ ] 启用 Multimodal Live API
 
 ## 开始使用
@@ -290,7 +291,7 @@ vercel 部署后生成的域名在几年前就已经被国内网络屏蔽，但�
 
 - [Lobe Chat](https://github.com/lobehub/lobe-chat)
 - [ChatGPT-Next-Web](https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web)
-- [GeminiProChat](https://github.com/babaohuang/GeminiProChat)
+- [Open Canvas](https://github.com/langchain-ai/open-canvas)
 
 ## 开源协议
 

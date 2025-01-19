@@ -36,22 +36,22 @@ export default async function artifact(props: Props) {
   const params = JSON.parse(args)
   switch (action) {
     case 'AIWrite':
-      prompt = AIWritePrompt(content, params.prompt)
+      prompt = AIWritePrompt(content, params.prompt, systemInstruction)
       break
     case 'translate':
-      prompt = changeArtifactLanguage(content, params.lang)
+      prompt = changeArtifactLanguage(content, params.lang, systemInstruction)
       break
     case 'changeReadingLevel':
-      prompt = changeReadingLevel(content, params.level)
+      prompt = changeReadingLevel(content, params.level, systemInstruction)
       break
     case 'changeLength':
-      prompt = changeArtifactLength(content, params.lengthDesc)
+      prompt = changeArtifactLength(content, params.lengthDesc, systemInstruction)
       break
     case 'continuation':
-      prompt = continuation(content)
+      prompt = continuation(content, systemInstruction)
       break
     case 'addEmojis':
-      prompt = addEmojis(content)
+      prompt = addEmojis(content, systemInstruction)
       break
     default:
       break
@@ -60,7 +60,6 @@ export default async function artifact(props: Props) {
   const modelParams: ModelParams = {
     model: model.includes('-thinking') ? 'gemini-1.5-flash-latest' : model,
   }
-  if (systemInstruction) modelParams.systemInstruction = systemInstruction
 
   const geminiModel = genAI.getGenerativeModel(modelParams, { baseUrl })
   const { stream } = await geminiModel.generateContentStream(prompt)

@@ -146,6 +146,10 @@ ${messages
 <systemInstruction>
 ${systemInstruction}
 </systemInstruction>
+
+<rules-guidelines>
+- Do not wrap it in any XML tags you see in this prompt.
+</rules-guidelines>
 `
     return langPrompt + systemInstructionPrompt + conversationPrompt
   } else {
@@ -153,7 +157,7 @@ ${systemInstruction}
   }
 }
 
-export function AIWritePrompt(content: string, prompt: string) {
+export function AIWritePrompt(content: string, prompt: string, systemInstruction: string = '') {
   return `
 Your task is to modify the following artifacts as required in feature.
 Try not to change the meaning or story behind the artifact as much as possible.
@@ -168,6 +172,11 @@ Here is the current content of the artifact:
 ${content}
 </artifact>
 
+When the following systemInstruction is not empty, you can also think further about artifacts in conjunction with systemInstruction.
+<systemInstruction>
+${systemInstruction}
+</systemInstruction>
+
 Rules and guidelines:
 <rules-guidelines>
 - ONLY change the language and nothing else.
@@ -178,7 +187,7 @@ Rules and guidelines:
 `
 }
 
-export function changeArtifactLanguage(content: string, lang: string) {
+export function changeArtifactLanguage(content: string, lang: string, systemInstruction: string = '') {
   return `
 You are a professional ${lang} translator, editor, spelling corrector and improver with rich experience.
 You can understand any language, and when I talk to you in any language, you will detect the language of that language, translate it correctly, and reply with the corrected and improved version of the ${lang} text.
@@ -188,6 +197,11 @@ Here is the current content of the artifact:
 ${content}
 </artifact>
 
+When the following systemInstruction is not empty, you can also think further about artifacts in conjunction with systemInstruction.
+<systemInstruction>
+${systemInstruction}
+</systemInstruction>
+
 Rules and guidelines:
 <rules-guidelines>
 - ONLY change the language and nothing else.
@@ -198,7 +212,7 @@ Rules and guidelines:
 `
 }
 
-export function changeReadingLevel(content: string, level: string) {
+export function changeReadingLevel(content: string, level: string, systemInstruction: string = '') {
   let prompt = ''
   if (level === 'pirate') {
     prompt = `
@@ -220,6 +234,11 @@ Here is the current content of the artifact:
 ${content}
 </artifact>
 
+When the following systemInstruction is not empty, you can also think further about artifacts in conjunction with systemInstruction.
+<systemInstruction>
+${systemInstruction}
+</systemInstruction>
+
 Rules and guidelines:
 <rules-guidelines>
 - Respond with ONLY the updated artifact, and no additional text before or after.
@@ -229,7 +248,7 @@ Rules and guidelines:
 `
 }
 
-export function changeArtifactLength(content: string, length: string) {
+export function changeArtifactLength(content: string, length: string, systemInstruction: string = '') {
   return `
 You are tasked with re-writing the following artifact to be ${length}.
 Ensure you do not change the meaning or story behind the artifact, simply update the artifacts length to be ${length}.
@@ -238,6 +257,11 @@ Here is the current content of the artifact:
 <artifact>
 ${content}
 </artifact>
+
+When the following systemInstruction is not empty, you can also think further about artifacts in conjunction with systemInstruction.
+<systemInstruction>
+${systemInstruction}
+</systemInstruction>
 
 Rules and guidelines:
 </rules-guidelines>
@@ -248,7 +272,7 @@ Rules and guidelines:
 `
 }
 
-export function addEmojis(content: string) {
+export function addEmojis(content: string, systemInstruction: string = '') {
   return `
 You are tasked with revising the following artifact by adding emojis to it.
 Ensure you do not change the meaning or story behind the artifact, simply include emojis throughout the text where appropriate.
@@ -257,6 +281,11 @@ Here is the current content of the artifact:
 <artifact>
 ${content}
 </artifact>
+
+When the following systemInstruction is not empty, you can also think further about artifacts in conjunction with systemInstruction.
+<systemInstruction>
+${systemInstruction}
+</systemInstruction>
 
 Rules and guidelines:
 </rules-guidelines>
@@ -268,7 +297,7 @@ Rules and guidelines:
 `
 }
 
-export function continuation(content: string) {
+export function continuation(content: string, systemInstruction: string = '') {
   return `
 Your task is to continue writing the following artifact.
 Ensure you do not change the meaning or story behind the artifact, only the continued artifact needs to be returned, without including the current artifact.
@@ -277,6 +306,11 @@ Here is the current content of the artifact:
 <artifact>
 ${content}
 </artifact>
+
+When the following systemInstruction is not empty, you can also think further about artifacts in conjunction with systemInstruction.
+<systemInstruction>
+${systemInstruction}
+</systemInstruction>
 
 Rules and guidelines:
 </rules-guidelines>

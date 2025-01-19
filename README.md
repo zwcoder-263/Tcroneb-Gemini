@@ -103,7 +103,8 @@ A cross-platform application client that supports a permanent menu bar, doubling
 - Assistant market with hundreds of selected system instruction
 - Support plugins, with built-in Web search, Web reader, Arxiv search, Weather and other practical plugins
 - Conversation list, so you can keep track of important conversations or discuss different topics with Gemini
-- Full Markdown support: LaTex formulas, code highlighting, and more
+- Artifact support, allowing you to modify the conversation content more elegantly
+- Full Markdown support: KaTex formulas, code highlighting, and more
 - Automatically compress contextual chat records to save Tokens while supporting very long conversations
 - Privacy and security, all data is saved locally in the user's browser
 - Support PWA, can run as an application
@@ -118,7 +119,7 @@ A cross-platform application client that supports a permanent menu bar, doubling
 - [x] Use tauri to package desktop applications
 - [x] Implementation based on functionCall plug-in
 - [x] Support conversation list
-- [ ] Support conversation sharing and export features
+- [x] Support conversation export features
 - [ ] Enable Multimodal Live API
 
 ## Get Started
@@ -274,7 +275,7 @@ If you deploy the project in a subdirectory and encounter resource loading failu
 
 - [Lobe Chat](https://github.com/lobehub/lobe-chat)
 - [ChatGPT-Next-Web](https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web)
-- [GeminiProChat](https://github.com/babaohuang/GeminiProChat)
+- [Open Canvas](https://github.com/langchain-ai/open-canvas)
 
 ## FAQ
 
