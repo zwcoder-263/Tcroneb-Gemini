@@ -805,9 +805,8 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    const { talkMode } = useSettingStore.getState()
     let instance: SiriWave
-    if (talkMode === 'chat') {
+    if (talkMode === 'voice') {
       instance = new SiriWave({
         container: siriWaveRef.current!,
         style: 'ios9',
@@ -820,11 +819,11 @@ export default function Home() {
     }
 
     return () => {
-      if (talkMode === 'chat' && instance) {
+      if (talkMode === 'voice' && instance) {
         instance.dispose()
       }
     }
-  }, [])
+  }, [talkMode])
 
   useEffect(() => {
     if (isOldVisionModel || isThinkingModel) {
