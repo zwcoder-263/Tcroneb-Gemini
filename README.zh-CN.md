@@ -12,7 +12,7 @@
 [English](./README.md) · **简体中文**
 
 [![Vercel](https://img.shields.io/badge/Vercel-111111?style=flat&logo=vercel&logoColor=white)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fu14app%2Fgemini-next-chat&project-name=gemini-next-chat&env=GEMINI_API_KEY&env=ACCESS_PASSWORD&repository-name=gemini-next-chat)
-[![Cloudflare](https://img.shields.io/badge/Cloudflare-F69652?style=flat&logo=cloudflare&logoColor=white)](https://deploy.workers.cloudflare.com/?url=https://github.com/u14app/gemini-next-chat)
+[![Cloudflare](https://img.shields.io/badge/Cloudflare-F69652?style=flat&logo=cloudflare&logoColor=white)](#部署到-cloudflare)
 
 [![Gemini](https://img.shields.io/badge/Gemini-8E75B2?style=flat&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
 [![Next](https://img.shields.io/badge/Next.js-111111?style=flat&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
@@ -59,9 +59,9 @@
 
 简洁的界面，支持图片识别和语音对话
 
-![Gemini 1.5 Flash](./public/screenshots/pc-screenshot-1.png)
+![Gemini](./public/screenshots/pc-screenshot-1.png)
 
-支持 Gemini 1.5 和 Gemini 1.5 Flash 多模态模型
+支持 Gemini 1.5 和 Gemini 2.0 多模态模型
 
 ![Support plugins](./public/screenshots/pc-screenshot-3.jpg)
 
@@ -125,13 +125,15 @@
 ## 开始使用
 
 1. 获取 [Gemini API Key](https://aistudio.google.com/app/apikey)
-2. 一键部署项目，可以选择部署到 Vercel 或者 Cloudflare
+2. 一键部署项目，可以选择部署到 Vercel
 
    [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fu14app%2Fgemini-next-chat&project-name=gemini-next-chat&env=GEMINI_API_KEY&env=ACCESS_PASSWORD&repository-name=gemini-next-chat)
 
-   [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/u14app/gemini-next-chat)
-
 3. 开始使用
+
+### 部署到 Cloudflare
+
+目前项目支持部署到 Cloudflare，但您需要按照 [如何部署到 Cloudflare Page](./docs/How-to-deploy-to-Cloudflare-Page.zh-CN.md) 进行操作。
 
 ### 更新代码
 

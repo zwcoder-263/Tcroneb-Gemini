@@ -9,7 +9,6 @@
     "build": "next build",
     "build:docker": "cross-env NEXT_PUBLIC_BUILD_MODE=standalone next build",
     "build:export": "cross-env NEXT_PUBLIC_BUILD_MODE=export next build",
-    "pages:build": "npx @cloudflare/next-on-pages",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
@@ -76,7 +75,6 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
-    "@cloudflare/next-on-pages": "^1.13.7",
     "@tauri-apps/cli": "^2.1.0",
     "@types/lodash-es": "^4.17.12",
     "@types/markdown-it": "^14.1.1",

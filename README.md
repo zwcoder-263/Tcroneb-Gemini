@@ -12,7 +12,7 @@ Deploy your private Gemini application for free with one click, supporting Gemin
 **English** · [简体中文](./README.zh-CN.md)
 
 [![Vercel](https://img.shields.io/badge/Vercel-111111?style=flat&logo=vercel&logoColor=white)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fu14app%2Fgemini-next-chat&project-name=gemini-next-chat&env=GEMINI_API_KEY&env=ACCESS_PASSWORD&repository-name=gemini-next-chat)
-[![Cloudflare](https://img.shields.io/badge/Cloudflare-F69652?style=flat&logo=cloudflare&logoColor=white)](https://deploy.workers.cloudflare.com/?url=https://github.com/u14app/gemini-next-chat)
+[![Cloudflare](https://img.shields.io/badge/Cloudflare-F69652?style=flat&logo=cloudflare&logoColor=white)](#deploy-to-cloudflare)
 
 [![Gemini](https://img.shields.io/badge/Gemini-8E75B2?style=flat&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
 [![Next](https://img.shields.io/badge/Next.js-111111?style=flat&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
@@ -59,9 +59,9 @@ Deploy your private Gemini application for free with one click, supporting Gemin
 
 Simple interface, supports image recognition and voice conversation
 
-![Gemini 1.5 Flash](./public/screenshots/pc-screenshot-1.png)
+![Gemini](./public/screenshots/pc-screenshot-1.png)
 
-Supports Gemini 1.5 and Gemini 1.5 Flash multimodal models
+Supports Gemini 1.5 and Gemini 2.0 multimodal models
 
 ![Support plugins](./public/screenshots/pc-screenshot-3.jpg)
 
@@ -129,9 +129,11 @@ A cross-platform application client that supports a permanent menu bar, doubling
 
    [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fu14app%2Fgemini-next-chat&project-name=gemini-next-chat&env=GEMINI_API_KEY&env=ACCESS_PASSWORD&repository-name=gemini-next-chat)
 
-   [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/u14app/gemini-next-chat)
-
 3. Start using
+
+### Deploy to Cloudflare
+
+Currently the project supports deployment to Cloudflare, but you need to follow [How to deploy to Cloudflare Page](./docs/How-to-deploy-to-Cloudflare-Page.md) to do it.
 
 ### Updating Code
 
