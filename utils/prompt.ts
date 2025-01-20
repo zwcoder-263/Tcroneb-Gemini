@@ -300,7 +300,8 @@ Rules and guidelines:
 export function continuation(content: string, systemInstruction: string = '') {
   return `
 Your task is to continue writing the following artifact.
-Ensure you do not change the meaning or story behind the artifact, only the continued artifact needs to be returned, without including the current artifact.
+Maintain the following artifact writing style, including but not limited to typesetting, punctuation, etc.
+Only the continued artifact needs to be returned, without including the current artifact.
 
 Here is the current content of the artifact:
 <artifact>

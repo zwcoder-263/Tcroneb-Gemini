@@ -180,8 +180,9 @@ function EditableArea({ content: originalContent, isEditing, onChange, onCancel 
         model,
         content,
       })
+      const originalContent = content + '\n'
       await textStream(readableStream, (text) => {
-        setContent((prevContent) => prevContent + text)
+        setContent(originalContent + text)
       })
     } catch (err) {
       console.error(err)
