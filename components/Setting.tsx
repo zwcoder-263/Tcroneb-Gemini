@@ -185,7 +185,7 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
 
   const uploadModelList = useCallback(() => {
     const { update } = useModelStore.getState()
-    if (apiKey || password) {
+    if (apiKey || password || !isProtected) {
       fetchModels({ apiKey, apiProxy, password })
         .then((models) => {
           if (models.length > 0) {
@@ -195,7 +195,7 @@ function Setting({ open, hiddenTalkPanel, onClose }: SettingProps) {
         })
         .catch(console.error)
     }
-  }, [apiKey, apiProxy, password])
+  }, [apiKey, apiProxy, password, isProtected])
 
   useEffect(() => {
     if (open && !cachedModelList) {
