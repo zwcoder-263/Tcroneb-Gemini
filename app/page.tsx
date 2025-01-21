@@ -816,6 +816,7 @@ export default function Home() {
         height: window.innerHeight / 5,
       })
       setSiriWave(instance)
+      setStatus('silence')
     }
 
     return () => {
